@@ -31,7 +31,7 @@ models:
       - name: TX_STATUS
         description: '{{ doc("poly_tx_status") }}' 
       - name: ORIGIN_FUNCTION_SIGNATURE
-        description: '{{ doc("poly_nft_origin_sig") }}'
+        description: '{{ doc("poly_origin_sig") }}'
       - name: ORIGIN_FROM_ADDRESS
         description: '{{ doc("poly_origin_from") }}'
       - name: ORIGIN_TO_ADDRESS

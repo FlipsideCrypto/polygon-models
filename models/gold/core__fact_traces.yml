@@ -15,7 +15,7 @@ models:
       - name: TO_ADDRESS
         description: '{{ doc("poly_traces_to") }}'
       - name: MATIC_VALUE
-        description: '{{ doc("poly_traces_poly_value") }}'
+        description: '{{ doc("poly_traces_value") }}'
       - name: GAS
         description: '{{ doc("poly_traces_gas") }}'
       - name: GAS_USED
