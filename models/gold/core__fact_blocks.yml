@@ -1,0 +1,44 @@
+version: 2
+models:
+  - name: core__fact_blocks
+    description: '{{ doc("poly_blocks_table_doc") }}'   
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("poly_block_number") }}'   
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("poly_block_timestamp") }}'
+      - name: NETWORK
+        description: '{{ doc("poly_network") }}'
+      - name: BLOCKCHAIN
+        description: '{{ doc("poly_blockchain") }}'
+      - name: TX_COUNT
+        description: '{{ doc("poly_tx_count") }}'
+      - name: DIFFICULTY
+        description: '{{ doc("poly_difficulty") }}'
+      - name: TOTAL_DIFFICULTY
+        description: '{{ doc("poly_total_difficulty") }}'
+      - name: EXTRA_DATA
+        description: '{{ doc("poly_extra_data") }}'
+      - name: GAS_LIMIT
+        description: '{{ doc("poly_gas_limit") }}'
+      - name: GAS_USED
+        description: '{{ doc("poly_gas_used") }}'
+      - name: HASH
+        description: '{{ doc("poly_blocks_hash") }}'
+      - name: PARENT_HASH
+        description: '{{ doc("poly_parent_hash") }}'
+      - name: MINER
+        description: '{{ doc("poly_miner") }}'
+      - name: NONCE
+        description: '{{ doc("poly_blocks_nonce") }}'
+      - name: RECEIPTS_ROOT
+        description: '{{ doc("poly_receipts_root") }}'
+      - name: SHA3_UNCLES
+        description: '{{ doc("poly_sha3_uncles") }}'
+      - name: SIZE
+        description: '{{ doc("poly_size") }}' 
+      - name: UNCLE_BLOCKS
+        description: '{{ doc("poly_uncle_blocks") }}' 
+      - name: BLOCK_HEADER_JSON
+        description: '{{ doc("poly_block_header_json") }}'
