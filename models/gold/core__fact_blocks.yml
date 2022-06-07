@@ -28,10 +28,6 @@ models:
         description: '{{ doc("poly_blocks_hash") }}'
       - name: PARENT_HASH
         description: '{{ doc("poly_parent_hash") }}'
-      - name: MINER
-        description: '{{ doc("poly_miner") }}'
-      - name: NONCE
-        description: '{{ doc("poly_blocks_nonce") }}'
       - name: RECEIPTS_ROOT
         description: '{{ doc("poly_receipts_root") }}'
       - name: SHA3_UNCLES

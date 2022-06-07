@@ -17,8 +17,6 @@ SELECT
     gas_used,
     HASH,
     parent_hash,
-    miner,
-    nonce,
     receipts_root,
     sha3_uncles,
     SIZE,
