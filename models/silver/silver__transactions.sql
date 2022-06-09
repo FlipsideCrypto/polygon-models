@@ -33,7 +33,7 @@ WITH base_table AS (
                 10,
                 9
             )
-        ) :: INTEGER AS gas_price,
+        ) :: FLOAT AS gas_price,
         udf_hex_to_int(
             tx :gas :: STRING
         ) :: INTEGER AS gas_limit,
@@ -51,16 +51,7 @@ WITH base_table AS (
         udf_hex_to_int(
             tx :receipt :effectiveGasPrice :: STRING
         ) :: INTEGER AS effective_Gas_Price,
-        (
-            (
-                gas_price * udf_hex_to_int(
-                    tx :receipt :gasUsed :: STRING
-                )
-            ) / pow(
-                10,
-                9
-            )
-        ) :: INTEGER AS tx_fee,
+        (gas_price * gas_used) / pow(10,9) As tx_fee,
         ingested_at :: TIMESTAMP AS ingested_at,
         OBJECT_DELETE(
             tx,
