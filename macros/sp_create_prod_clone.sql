@@ -20,7 +20,7 @@ $$
             SELECT 'PUBLIC';`});
 
         while (existing_schemas.next()) {
-            var schema = existing_schemas.getColumnValue(1)
+            var schema = existing_schemas.getColumnValue(1);
             snowflake.execute({sqlText: `GRANT OWNERSHIP ON SCHEMA ${DESTINATION_DB_NAME}.${schema} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`});
             snowflake.execute({sqlText: `REVOKE OWNERSHIP ON FUTURE FUNCTIONS IN SCHEMA ${DESTINATION_DB_NAME}.${schema} FROM ROLE DBT_CLOUD_POLYGON`});
             snowflake.execute({sqlText: `REVOKE OWNERSHIP ON FUTURE PROCEDURES IN SCHEMA ${DESTINATION_DB_NAME}.${schema} FROM ROLE DBT_CLOUD_POLYGON`});
@@ -38,8 +38,8 @@ $$
             GROUP BY 1,2;`});
 
         while (existing_tables.next()) {
-            var schema = existing_tables.getColumnValue(1)
-            var table_name = existing_tables.getColumnValue(2)
+            var schema = existing_tables.getColumnValue(1);
+            var table_name = existing_tables.getColumnValue(2);
             snowflake.execute({sqlText: `GRANT OWNERSHIP ON TABLE ${DESTINATION_DB_NAME}.${schema}.${table_name} TO ROLE ${ROLE_NAME} COPY CURRENT GRANTS;`});
         }
 
@@ -47,9 +47,9 @@ $$
             FROM ${DESTINATION_DB_NAME}.INFORMATION_SCHEMA.FUNCTIONS;`});
 
         while (existing_functions.next()) {
-            var schema = existing_functions.getColumnValue(1)
-            var function_name = existing_functions.getColumnValue(2)
-            var argument_signature = existing_functions.getColumnValue(3)
+            var schema = existing_functions.getColumnValue(1);
+            var function_name = existing_functions.getColumnValue(2);
+            var argument_signature = existing_functions.getColumnValue(3);
             snowflake.execute({sqlText: `GRANT OWNERSHIP ON FUNCTION ${DESTINATION_DB_NAME}.${schema}.${function_name}${argument_signature} to role ${ROLE_NAME} REVOKE CURRENT GRANTS;`});
         }
 
@@ -57,9 +57,9 @@ $$
             FROM ${DESTINATION_DB_NAME}.INFORMATION_SCHEMA.PROCEDURES;`});
 
         while (existing_procedures.next()) {
-            var schema = existing_procedures.getColumnValue(1)
-            var procedure_name = existing_procedures.getColumnValue(2)
-            var argument_signature = existing_procedures.getColumnValue(3)
+            var schema = existing_procedures.getColumnValue(1);
+            var procedure_name = existing_procedures.getColumnValue(2);
+            var argument_signature = existing_procedures.getColumnValue(3);
             snowflake.execute({sqlText: `GRANT OWNERSHIP ON PROCEDURE ${DESTINATION_DB_NAME}.${schema}.${procedure_name}${argument_signature} to role ${ROLE_NAME} REVOKE CURRENT GRANTS;`});
         }
 
