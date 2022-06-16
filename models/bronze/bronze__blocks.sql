@@ -11,12 +11,10 @@ SELECT
     chain_id,
     tx_count,
     header,
-    ingested_at
+    ingested_at,
+    _inserted_timestamp
 FROM
     {{ source(
         'prod',
         'polygon_blocks'
     ) }}
-    qualify(ROW_NUMBER() over(PARTITION BY block_id
-ORDER BY
-    ingested_at DESC)) = 1
