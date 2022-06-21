@@ -7,4 +7,9 @@ sources:
     tables:
       - name: polygon_blocks
       - name: polygon_txs
+  - name: crosschain
+    database: flipside_prod_db
+    schema: crosschain
+    tables:
+      - name: address_labels
   
