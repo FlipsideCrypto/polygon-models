@@ -19,9 +19,9 @@ sources:
       - name: MARKET_ASSET_METADATA
   - name: polygon_dex_pools
     database: polygon
-    schema: sushi
+    schema: bronze
     tables:
-      - name: DIM_DEX_POOLS
+      - name: SUSHI_DIM_DEX_POOLS
   - name: ethereum
     database: ethereum
     schema: CORE

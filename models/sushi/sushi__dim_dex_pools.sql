@@ -32,5 +32,5 @@
     FROM
          {{ source(
             'polygon_dex_pools',
-            'DIM_DEX_POOLS'
+            'SUSHI_DIM_DEX_POOLS'
         ) }} 
