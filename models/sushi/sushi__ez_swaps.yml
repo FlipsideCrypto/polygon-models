@@ -46,74 +46,74 @@ models:
                 - STRING
                 - VARCHAR
       - name: AMOUNT_IN
-        description: '{{ doc("eth_dex_swaps_amount_in") }}'
+        # description: '{{ doc("eth_dex_swaps_amount_in") }}'
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: AMOUNT_OUT
-        description: '{{ doc("eth_dex_swaps_amount_out") }}'
+        # description: '{{ doc("eth_dex_swaps_amount_out") }}'
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: AMOUNT_IN_USD
-        description: '{{ doc("eth_dex_swaps_amount_in_usd") }}'
+        # description: '{{ doc("eth_dex_swaps_amount_in_usd") }}'
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: AMOUNT_OUT_USD
-        description: '{{ doc("eth_dex_swaps_amount_out_usd") }}'
+        # description: '{{ doc("eth_dex_swaps_amount_out_usd") }}'
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
                 - FLOAT
       - name: TOKEN_IN
-        description: '{{ doc("eth_dex_swaps_token_in") }}'
+        # description: '{{ doc("eth_dex_swaps_token_in") }}'
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: TOKEN_OUT
-        description: '{{ doc("eth_dex_swaps_token_out") }}'
+        # description: '{{ doc("eth_dex_swaps_token_out") }}'
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: SYMBOL_IN
-        description: '{{ doc("eth_dex_swaps_symbol_in") }}'
+        # description: '{{ doc("eth_dex_swaps_symbol_in") }}'
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - STRING
                 - VARCHAR
       - name: SYMBOL_OUT
-        description: '{{ doc("eth_dex_swaps_symbol_out") }}'
+        # description: '{{ doc("eth_dex_swaps_symbol_out") }}'
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - STRING
                 - VARCHAR
       - name: SENDER
-        description: '{{ doc("eth_dex_swaps_sender") }}'
+        # description: '{{ doc("eth_dex_swaps_sender") }}'
         tests:
           - not_null:
               where: BLOCK_TIMESTAMP > '2021-08-01'
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: TX_TO
-        description: '{{ doc("eth_dex_swaps_tx_to") }}'
+        # description: '{{ doc("eth_dex_swaps_tx_to") }}'
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: PLATFORM
-        description: '{{ doc("eth_dex_platform") }}'
+        # description: '{{ doc("eth_dex_platform") }}'
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:

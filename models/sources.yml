@@ -22,7 +22,7 @@ sources:
     schema: sushi
     tables:
       - name: DIM_DEX_POOLS
-  - name: ethereum_db_sushi
+  - name: ethereum
     database: ethereum
     schema: CORE
     tables:

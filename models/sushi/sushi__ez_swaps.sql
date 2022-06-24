@@ -40,7 +40,7 @@ where event_name = 'Swap'
 AND tx_status = 'SUCCESS'
 AND contract_address IN (  SELECt DISTINCT pool_address
     FROM
-        {{ ref('sushi__fact_dex_pools') }})
+        {{ ref('sushi__dim_dex_pools') }})
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -141,11 +141,10 @@ FINAL AS (
         token0_symbol,
         token1_symbol,
         pool_name,
-        pool_address,
         _inserted_timestamp
     FROM
         swap_events
-        LEFT JOIN  {{ ref('sushi__fact_dex_pools') }} bb
+        LEFT JOIN  {{ ref('sushi__dim_dex_pools') }} bb
         ON swap_events.contract_address = bb.pool_address)
         , 
 
@@ -157,7 +156,7 @@ Eth_prices AS (
         AVG(price) AS price
     FROM
         {{ source(
-            'ethereum_db_sushi',
+            'ethereum',
             'FACT_HOURLY_TOKEN_PRICES'
         ) }} 
     WHERE
