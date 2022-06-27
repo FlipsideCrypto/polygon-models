@@ -20,7 +20,7 @@ WITH matic_base AS (
     WHERE
         matic_value > 0
         AND tx_status = 'SUCCESS'
-        and gas_used is not null
+        AND gas_used IS NOT NULL
 ),
 matic_price AS (
     SELECT
@@ -32,8 +32,7 @@ matic_price AS (
             'fact_hourly_token_prices'
         ) }}
     WHERE
-        token_address IS NULL
-        AND symbol IS NULL
+        token_address = LOWER('0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0')
     GROUP BY
         HOUR
 )
