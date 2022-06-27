@@ -7,15 +7,17 @@ sources:
     tables:
       - name: polygon_blocks
       - name: polygon_txs
-  - name: ethereum
-    database: ethereum
-    schema: core
-    tables:
-       - name: fact_hourly_token_prices
   - name: crosschain
     database: flipside_prod_db
     schema: crosschain
     tables:
       - name: address_labels
+  - name: ethereum
+    database: ethereum
+    schema: core
+    tables:
+      - name: fact_hourly_token_prices
+
+
   
   
