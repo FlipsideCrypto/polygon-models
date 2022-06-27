@@ -1,8 +1,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "tx_hash",
-    cluster_by = ['ingested_at::DATE'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
+    cluster_by = ['block_timestamp::DATE']
 ) }}
 
 WITH base_table AS (
@@ -33,7 +32,7 @@ WITH base_table AS (
                 10,
                 9
             )
-        ) :: INTEGER AS gas_price,
+        ) :: FLOAT AS gas_price,
         udf_hex_to_int(
             tx :gas :: STRING
         ) :: INTEGER AS gas_limit,
@@ -52,29 +51,26 @@ WITH base_table AS (
             tx :receipt :effectiveGasPrice :: STRING
         ) :: INTEGER AS effective_Gas_Price,
         (
-            (
-                gas_price * udf_hex_to_int(
-                    tx :receipt :gasUsed :: STRING
-                )
-            ) / pow(
-                10,
-                9
-            )
-        ) :: INTEGER AS tx_fee,
+            gas_price * gas_used
+        ) / pow(
+            10,
+            9
+        ) AS tx_fee,
         ingested_at :: TIMESTAMP AS ingested_at,
         OBJECT_DELETE(
             tx,
             'traces'
-        ) AS tx_json
+        ) AS tx_json,
+        _inserted_timestamp :: TIMESTAMP AS _inserted_timestamp
     FROM
         {{ ref('bronze__transactions') }}
 
 {% if is_incremental() %}
 WHERE
-    ingested_at >= (
+    _inserted_timestamp >= (
         SELECT
             MAX(
-                ingested_at
+                _inserted_timestamp
             )
         FROM
             {{ this }}
@@ -105,8 +101,9 @@ SELECT
     effective_Gas_Price,
     tx_fee,
     ingested_at,
+    _inserted_timestamp,
     tx_json
 FROM
     base_table qualify(ROW_NUMBER() over(PARTITION BY tx_hash
 ORDER BY
-    ingested_at DESC)) = 1
+    _inserted_timestamp DESC)) = 1
