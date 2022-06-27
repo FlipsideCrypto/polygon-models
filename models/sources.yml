@@ -12,4 +12,10 @@ sources:
     schema: core
     tables:
        - name: fact_hourly_token_prices
+  - name: crosschain
+    database: flipside_prod_db
+    schema: crosschain
+    tables:
+      - name: address_labels
+  
   
