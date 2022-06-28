@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: core__fact_token_transfers
+    description: '{{ doc("poly_transfer_table_doc") }}'
+      
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("poly_block_number") }}'   
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("poly_block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("poly_transfer_tx_hash") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("poly_transfer_contract_address") }}'
+      - name: FROM_ADDRESS
+        description: '{{ doc("poly_transfer_from_address") }}'
+      - name: TO_ADDRESS
+        description: '{{ doc("poly_transfer_to_address") }}'
+      - name: RAW_AMOUNT
+        description: '{{ doc("poly_transfer_raw_amount") }}'
+      - name: _LOG_ID
+        description: '{{ doc("poly_log_id_transfers") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("poly_origin_sig") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("poly_origin_from") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("poly_origin_to") }}'

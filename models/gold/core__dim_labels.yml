@@ -26,7 +26,7 @@ models:
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: ADDRESS_NAME
-        description: '{{ doc("matic_labels_table") }}'
+        description: '{{ doc("matic_label_address_name") }}'
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
