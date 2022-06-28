@@ -6,8 +6,8 @@
     cluster_by = ['block_timestamp::DATE']
 ) }}
 
-
 WITH swap_events AS (
+
     SELECT
         block_number,
         origin_function_signature,
@@ -35,12 +35,16 @@ WITH swap_events AS (
         _log_id,
         _inserted_timestamp
     FROM
-         {{ ref('silver__logs') }}
-where event_name = 'Swap'
-AND tx_status = 'SUCCESS'
-AND contract_address IN (  SELECt DISTINCT pool_address
-    FROM
-        {{ ref('sushi__dim_dex_pools') }})
+        {{ ref('silver__logs') }}
+    WHERE
+        event_name = 'Swap'
+        AND tx_status = 'SUCCESS'
+        AND contract_address IN (
+            SELECT
+                DISTINCT pool_address
+            FROM
+                {{ ref('sushi__dim_dex_pools') }}
+        )
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -50,11 +54,8 @@ AND _inserted_timestamp >= (
         {{ this }}
 )
 {% endif %}
-
-), 
-
+),
 FINAL AS (
-
     SELECT
         block_number,
         block_timestamp,
@@ -144,11 +145,11 @@ FINAL AS (
         _inserted_timestamp
     FROM
         swap_events
-        LEFT JOIN  {{ ref('sushi__dim_dex_pools') }} bb
-        ON swap_events.contract_address = bb.pool_address)
-        , 
-
-Eth_prices AS (
+        LEFT JOIN {{ ref('sushi__dim_dex_pools') }}
+        bb
+        ON swap_events.contract_address = bb.pool_address
+),
+eth_prices AS (
     SELECT
         token_address,
         HOUR,
@@ -157,8 +158,8 @@ Eth_prices AS (
     FROM
         {{ source(
             'ethereum',
-            'FACT_HOURLY_TOKEN_PRICES'
-        ) }} 
+            'fact_hourly_token_prices'
+        ) }}
     WHERE
         1 = 1
 
@@ -172,47 +173,55 @@ AND HOUR :: DATE IN (
 {% else %}
     AND HOUR :: DATE >= '2020-05-05'
 {% endif %}
-
 GROUP BY
     token_address,
-    HOUR, symbol),
-    
-
-Polygon_Eth_crosstab as
-(select 
- name, 
- symbol, 
-max (case 
-     when platform_id = 'polygon-pos' then token_address 
-    else '' end) as polygon_address, 
-max (case 
-    when platform = 'ethereum' then token_address 
-        else '' end) as eth_address
- 
-from         {{ source(
+    HOUR,
+    symbol
+),
+polygon_eth_crosstab AS (
+    SELECT
+        NAME,
+        symbol,
+        MAX (
+            CASE
+                WHEN platform_id = 'polygon-pos' THEN token_address
+                ELSE ''
+            END
+        ) AS polygon_address,
+        MAX (
+            CASE
+                WHEN platform = 'ethereum' THEN token_address
+                ELSE ''
+            END
+        ) AS eth_address
+    FROM
+        {{ source(
             'symbols_cross_tab',
             'MARKET_ASSET_METADATA'
-        ) }} 
-group by 1,2
-having polygon_address <> '' and eth_address <> ''
-order by 1,2 
+        ) }}
+    GROUP BY
+        1,
+        2
+    HAVING
+        polygon_address <> ''
+        AND eth_address <> ''
+    ORDER BY
+        1,
+        2
 ),
-
-Polygon_prices as 
-(
-    select 
-distinct
-ep.token_address,
-ep.hour,
-ep.symbol,
-ep.price,
-pec.polygon_address as polygon_address
-from Eth_prices ep
-left join Polygon_Eth_crosstab pec
-on ep.token_address = pec.eth_Address )
-
-
- SELECT
+polygon_prices AS (
+    SELECT
+        DISTINCT ep.token_address,
+        ep.hour,
+        ep.symbol,
+        ep.price,
+        pec.polygon_address AS polygon_address
+    FROM
+        eth_prices ep
+        LEFT JOIN polygon_eth_crosstab pec
+        ON ep.token_address = pec.eth_Address
+)
+SELECT
     block_number,
     block_timestamp,
     tx_hash,
@@ -220,17 +229,21 @@ on ep.token_address = pec.eth_Address )
     origin_from_address,
     origin_to_address,
     contract_address,
-    'sushiswap' as platform,
+    'sushiswap' AS platform,
     pool_name,
     event_name,
     amount_in,
     CASE
-        WHEN decimals_in IS NOT NULL and amount_in * pIn.price <= 5 * amount_out * pOut.price and amount_out * pOut.price <= 5 * amount_in * pIn.price THEN amount_in * pIn.price
+        WHEN decimals_in IS NOT NULL
+        AND amount_in * pIn.price <= 5 * amount_out * pOut.price
+        AND amount_out * pOut.price <= 5 * amount_in * pIn.price THEN amount_in * pIn.price
         ELSE NULL
     END AS amount_in_usd,
     amount_out,
     CASE
-        WHEN decimals_out IS NOT NULL and amount_in * pIn.price <= 5 * amount_out * pOut.price and amount_out * pOut.price <= 5 * amount_in * pIn.price THEN amount_out * pOut.price
+        WHEN decimals_out IS NOT NULL
+        AND amount_in * pIn.price <= 5 * amount_out * pOut.price
+        AND amount_out * pOut.price <= 5 * amount_in * pIn.price THEN amount_out * pOut.price
         ELSE NULL
     END AS amount_out_usd,
     sender,
@@ -242,12 +255,21 @@ on ep.token_address = pec.eth_Address )
     symbol_out,
     _log_id,
     _inserted_timestamp
-FROM FINAL wp
-left join polygon_prices pIn
-    on    lower(token_in) = lower(pIn.polygon_address)
-    and   date_trunc('hour',wp.block_timestamp) = pIn.hour
-left join polygon_prices pOut
-    on    lower(token_out) = lower(pOut.polygon_address)
-    and   date_trunc('hour',wp.block_timestamp) = pOut.hour
-
-
+FROM
+    FINAL wp
+    LEFT JOIN polygon_prices pIn
+    ON LOWER(token_in) = LOWER(
+        pIn.polygon_address
+    )
+    AND DATE_TRUNC(
+        'hour',
+        wp.block_timestamp
+    ) = pIn.hour
+    LEFT JOIN polygon_prices pOut
+    ON LOWER(token_out) = LOWER(
+        pOut.polygon_address
+    )
+    AND DATE_TRUNC(
+        'hour',
+        wp.block_timestamp
+    ) = pOut.hour

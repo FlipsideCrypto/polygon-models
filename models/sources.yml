@@ -24,6 +24,6 @@ sources:
       - name: SUSHI_DIM_DEX_POOLS
   - name: ethereum
     database: ethereum
-    schema: CORE
+    schema: core
     tables:
-      - name: FACT_HOURLY_TOKEN_PRICES
+      - name: fact_hourly_token_prices
