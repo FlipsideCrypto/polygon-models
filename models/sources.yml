@@ -12,9 +12,18 @@ sources:
     schema: crosschain
     tables:
       - name: address_labels
+  - name: symbols_cross_tab
+    database: FLIPSIDE_PROD_DB
+    schema: SILVER
+    tables:
+      - name: MARKET_ASSET_METADATA
+  - name: polygon_dex_pools
+    database: polygon
+    schema: bronze
+    tables:
+      - name: SUSHI_DIM_DEX_POOLS
   - name: ethereum
     database: ethereum
-    schema: core
+    schema: CORE
     tables:
-      - name: fact_hourly_token_prices
-  
+      - name: FACT_HOURLY_TOKEN_PRICES
