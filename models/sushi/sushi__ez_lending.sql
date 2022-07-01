@@ -12,9 +12,9 @@ select distinct tx_hash,contract_address
 from {{ ref('silver__logs') }}
 where event_name = 'LogAddAsset'
 {% if is_incremental() %}
-AND ingested_at::DATE >= (
+AND _inserted_timestamp::DATE >= (
   SELECT
-    MAX(ingested_at) ::DATE - 2
+    MAX(_inserted_timestamp) ::DATE - 2
   FROM
     {{ this }}
 )
@@ -26,9 +26,9 @@ select distinct tx_hash,contract_address
 from {{ ref('silver__logs') }}
 where event_name = 'LogRemoveAsset'
 {% if is_incremental() %}
-AND ingested_at::DATE >= (
+AND _inserted_timestamp::DATE >= (
   SELECT
-    MAX(ingested_at) ::DATE - 2
+    MAX(_inserted_timestamp) ::DATE - 2
   FROM
     {{ this }}
 )
@@ -52,14 +52,15 @@ select  block_timestamp,
         case when Lender = Lender2 then 'no' 
         else 'yes' end as Lender_is_a_contract,
         ingested_at,
-        _log_id
+        _log_id,
+        _inserted_timestamp
 from {{ ref('silver__logs') }}
 where event_name = 'LogTransfer' and tx_hash in (select tx_hash from lending_txns)
 and event_inputs:to::string in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} )
 {% if is_incremental() %}
-AND ingested_at::DATE >= (
+AND _inserted_timestamp::DATE >= (
   SELECT
-    MAX(ingested_at) ::DATE - 2
+    MAX(_inserted_timestamp) ::DATE - 2
   FROM
     {{ this }}
 )
@@ -84,14 +85,15 @@ select  block_timestamp,
         case when Lender = Lender2 then 'no' 
         else 'yes' end as Lender_is_a_contract,
         ingested_at,
-        _log_id
+        _log_id,
+        _inserted_timestamp
 from {{ ref('silver__logs') }}
 where event_name = 'LogTransfer' and tx_hash in (select tx_hash from unlending_txns)
 and event_inputs:from::string in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} ) 
 {% if is_incremental() %}
-AND ingested_at::DATE >= (
+AND _inserted_timestamp::DATE >= (
   SELECT
-    MAX(ingested_at) ::DATE - 2
+    MAX(_inserted_timestamp) ::DATE - 2
   FROM
     {{ this }}
 )
