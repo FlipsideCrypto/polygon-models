@@ -237,6 +237,7 @@ SELECT
         WHEN decimals_in IS NOT NULL
         AND amount_in * pIn.price <= 5 * amount_out * pOut.price
         AND amount_out * pOut.price <= 5 * amount_in * pIn.price THEN amount_in * pIn.price
+        WHEN decimals_in IS NOT NULL and decimals_out is null then amount_in * pIn.price
         ELSE NULL
     END AS amount_in_usd,
     amount_out,
@@ -244,6 +245,7 @@ SELECT
         WHEN decimals_out IS NOT NULL
         AND amount_in * pIn.price <= 5 * amount_out * pOut.price
         AND amount_out * pOut.price <= 5 * amount_in * pIn.price THEN amount_out * pOut.price
+        WHEN decimals_out IS NOT NULL and decimals_in is null then amount_out * pOut.price
         ELSE NULL
     END AS amount_out_usd,
     sender,
