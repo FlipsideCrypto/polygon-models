@@ -51,7 +51,6 @@ select  block_timestamp,
         event_inputs:share::number as amount,
         case when Lender = Lender2 then 'no' 
         else 'yes' end as Lender_is_a_contract,
-        ingested_at,
         _log_id,
         _inserted_timestamp
 from {{ ref('silver__logs') }}
@@ -84,7 +83,6 @@ select  block_timestamp,
         event_inputs:share::number as amount,
         case when Lender = Lender2 then 'no' 
         else 'yes' end as Lender_is_a_contract,
-        ingested_at,
         _log_id,
         _inserted_timestamp
 from {{ ref('silver__logs') }}
@@ -207,8 +205,8 @@ case when b.asset_decimals is null then a.amount else (a.amount/pow(10,b.asset_d
 (a.amount* c.price)/pow(10,b.asset_decimals) as amount_USD,
 b.pair_name as lending_pool,
 b.asset_symbol as symbol,
-a.ingested_at,
-a._log_id
+a._log_id,
+_inserted_timestamp
 from FINAL a
 LEFT JOIN polygon_prices c
 ON LOWER(a.asset) = LOWER(
