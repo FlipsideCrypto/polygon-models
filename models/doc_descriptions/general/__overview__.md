@@ -30,6 +30,8 @@ The documentation included here details the design of the Polygon tables and vie
 - [fact_traces](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_traces)
 - [fact_transactions](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_transactions)
 - [dim_lables](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__dim_labels)
+- [ez_matic_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_matic_transfers)
+- [fact_token_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_token_transfers)
 
 ## **Data Model Overview**
 
