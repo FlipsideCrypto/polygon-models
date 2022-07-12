@@ -1,23 +1,23 @@
 version: 2
 models:
   - name: sushi__dim_kashi_pairs
-    description: '{{ doc("eth_dex_lp_table_doc") }}' 
+    description: 'This table contains details on different Kashi pairs belonging to sushiswap on the polygon blockchain' 
        
 
     columns:
-      - name: POOL_ADDRESS
-        description: '{{ doc("eth_dex_pool_address") }}'
-      - name: POOL_NAME
-        description: '{{ doc("eth_dex_pool_name") }}'
-      - name: TOKEN0_ADDRESS
-        description: '{{ doc("eth_dex_token0") }}' 
-      - name: TOKEN1_ADDRESS
-        description: '{{ doc("eth_dex_token1") }}' 
-      - name: TOKEN0_SYMBOL
-        description: '{{ doc("poly_symbol") }}'
-      - name: TOKEN1_SYMBOL
-        description: '{{ doc("poly_symbol") }}'
-      - name: TOKEN0_DECIMALS   
+      - name: PAIR_ADDRESS
+        description: '{{ doc("lending_pool_address") }}'
+      - name: PAIR_NAME
+        description: '{{ doc("lending_lending_pool") }}'
+      - name: ASSET_SYMBOL
+        description: '{{ doc("lending_symbol") }}' 
+      - name: ASSET_ADDRESS
+        description: '{{ doc("lending_asset_address") }}' 
+      - name: COLLATERAL_SYMBOL
+        description: '{{ doc("collateral_symbol") }}'
+      - name: COLLATERAL_ADDRESS
+        description: '{{ doc("collateral_address") }}'
+      - name: ASSET_DECIMALS   
         description: '{{ doc("poly_decimals") }}'
-      - name: TOKEN1_DECIMALS
+      - name: COLLATERAL_DECIMALS
         description: '{{ doc("poly_decimals") }}'
