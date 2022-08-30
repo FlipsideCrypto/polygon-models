@@ -17,27 +17,28 @@ WITH swap_events AS (
         tx_hash,
         contract_address,
         event_name,
+        regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         TRY_TO_NUMBER(
-            event_inputs :amount0In :: STRING
+            public.udf_hex_to_int(segmented_data[0]::string)::integer
         ) AS amount0In,
         TRY_TO_NUMBER(
-            event_inputs :amount1In :: STRING
+            public.udf_hex_to_int(segmented_data[1]::string)::integer
         ) AS amount1In,
         TRY_TO_NUMBER(
-            event_inputs :amount0Out :: STRING
+            public.udf_hex_to_int(segmented_data[2]::string)::integer
         ) AS amount0Out,
         TRY_TO_NUMBER(
-            event_inputs :amount1Out :: STRING
+            public.udf_hex_to_int(segmented_data[3]::string)::integer 
         ) AS amount1Out,
-        event_inputs :sender :: STRING AS sender,
-        event_inputs :to :: STRING AS tx_to,
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS sender,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS tx_to,
         event_index,
         _log_id,
         _inserted_timestamp
     FROM
         {{ ref('silver__logs') }}
     WHERE
-        event_name = 'Swap'
+        topics[0]::string = '0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822'
         AND tx_status = 'SUCCESS'
         AND contract_address IN (
             SELECT

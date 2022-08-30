@@ -35,7 +35,7 @@ AND _inserted_timestamp::DATE >= (
 {% endif %}
 ),
 
-Borrow as (
+Borrow0 as (
 select  block_timestamp,
         block_number,
         tx_hash, 
@@ -44,17 +44,19 @@ select  block_timestamp,
         origin_to_address,
         origin_function_signature,
         event_index,
-        event_inputs:token::string as asset, 
-        event_inputs:from::string as Lending_pool_address, 
+        concat ('0x', SUBSTR(topics [1] :: STRING, 27, 40)) as asset, 
+        concat ('0x', SUBSTR(topics [2] :: STRING, 27, 40)) as Lending_pool_address, 
         origin_from_address as Borrower, 
-        event_inputs:to::string as Borrower2, 
-        event_inputs:share::number as amount,
+        concat ('0x', SUBSTR(topics [3] :: STRING, 27, 40)) as Borrower2, 
+        TRY_TO_NUMBER(
+            public.udf_hex_to_int(SUBSTR(DATA, 3, len(DATA)))::integer
+        ) as amount,
         case when Borrower = Borrower2 then 'no' 
         else 'yes' end as Borrower_is_a_contract,
         _log_id,
         _inserted_timestamp
 from {{ ref('silver__logs') }}
-where event_name = 'LogTransfer' and tx_hash in (select tx_hash from borrow_txns)
+where topics [0]::string = '0x6eabe333476233fd382224f233210cb808a7bc4c4de64f9d76628bf63c677b1a'  and tx_hash in (select tx_hash from borrow_txns)
 and event_inputs:from::string in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} )
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
@@ -67,7 +69,38 @@ AND _inserted_timestamp::DATE >= (
 
 ),
 
-Repay as (
+pay_coll as (
+select  tx_hash, 
+        concat ('0x', SUBSTR(topics [1] :: STRING, 27, 40))  as collateral, 
+        CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) as Lending_pool_address, 
+        TRY_TO_NUMBER(
+            public.udf_hex_to_int(SUBSTR(DATA, 3, len(DATA)))::integer
+        ) as collateral_amount,
+        _inserted_timestamp
+from {{ ref('silver__logs') }}
+where topics [0]::string = '0x6eabe333476233fd382224f233210cb808a7bc4c4de64f9d76628bf63c677b1a'  and tx_hash in (select tx_hash from borrow_txns)
+and  CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} )
+{% if is_incremental() %}
+AND _inserted_timestamp::DATE >= (
+  SELECT
+    MAX(_inserted_timestamp) ::DATE - 2
+  FROM
+    {{ this }}
+)
+{% endif %}
+
+),
+
+Borrow as 
+(
+select a.*, b.collateral_amount, b.collateral as collateral_address 
+from Borrow0 a
+left join pay_coll b
+on a.tx_hash = b.tx_hash and a.lending_pool_address = b.lending_pool_address
+),
+
+
+Repay0 as (
 select  block_timestamp, 
         block_number,
         tx_hash, 
@@ -76,11 +109,13 @@ select  block_timestamp,
         origin_to_address,
         origin_function_signature, 
         event_index,
-        event_inputs:token::string as asset, 
-        event_inputs:to::string as Lending_pool_address, 
+        concat ('0x', SUBSTR(topics [1] :: STRING, 27, 40))  as asset, 
+        concat ('0x', SUBSTR(topics [3] :: STRING, 27, 40))  as Lending_pool_address, 
         origin_from_address as Borrower, 
-        event_inputs:from::string as Borrower2, 
-        event_inputs:share::number as amount,
+        concat ('0x', SUBSTR(topics [2] :: STRING, 27, 40))  as Borrower2, 
+        TRY_TO_NUMBER(
+            public.udf_hex_to_int(SUBSTR(DATA, 3, len(DATA)))::integer
+        ) as amount,
         case when Borrower = Borrower2 then 'no' 
         else 'yes' end as Lender_is_a_contract,
         _log_id,
@@ -97,6 +132,38 @@ AND _inserted_timestamp::DATE >= (
 )
 {% endif %}
 ),
+
+receive_coll as (
+select  tx_hash, 
+        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))  as collateral, 
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) as Lending_pool_address, 
+        TRY_TO_NUMBER(
+            public.udf_hex_to_int(SUBSTR(DATA, 3, len(DATA)))::integer
+        ) as collateral_amount,
+        _inserted_timestamp
+from {{ ref('silver__logs') }}
+where topics [0]::string = '0x6eabe333476233fd382224f233210cb808a7bc4c4de64f9d76628bf63c677b1a'  and tx_hash in (select tx_hash from Repay_txns)
+and  CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} )
+{% if is_incremental() %}
+AND _inserted_timestamp::DATE >= (
+  SELECT
+    MAX(_inserted_timestamp) ::DATE - 2
+  FROM
+    {{ this }}
+)
+{% endif %}
+),
+
+
+Repay as 
+(
+select a.*, b.collateral_amount, b.collateral as collateral_address 
+from Repay0 a
+left join receive_coll b
+on a.tx_hash = b.tx_hash and a.lending_pool_address = b.lending_pool_address
+),
+
+
 
 Final as (
 select * from Borrow
@@ -200,13 +267,15 @@ a.asset,
 a.Borrower2 as Borrower,
 a.Borrower_is_a_contract,
 a.lending_pool_address,
-a.event_index,
 case when b.asset_decimals is null then a.amount else (a.amount/pow(10,b.asset_decimals)) end as amount,
 (a.amount* c.price)/pow(10,b.asset_decimals) as amount_USD,
 b.pair_name as lending_pool,
 b.asset_symbol as symbol,
-a._log_id,
 substring(b.pair_name,3,charindex('/',b.pair_name)-3) as collateral_symbol,
+a.collateral_address,
+case when b.collateral_decimals is null then a.collateral_amount else (a.collateral_amount/pow(10,b.collateral_decimals)) end as collateral_amount,
+(a.collateral_amount* d.price)/pow(10,b.collateral_decimals) as collateral_amount_USD,
+a._log_id,
 _inserted_timestamp
 from FINAL a
 LEFT JOIN polygon_prices c
@@ -219,5 +288,15 @@ AND DATE_TRUNC(
 ) = c.hour
 left join labels b 
 on a.Lending_pool_address = b.pair_address
+
+LEFT JOIN polygon_prices d
+ON LOWER(a.collateral_address) = LOWER(
+    d.polygon_address
+)
+AND DATE_TRUNC(
+    'hour',
+    a.block_timestamp
+) = d.hour
+
 
 
