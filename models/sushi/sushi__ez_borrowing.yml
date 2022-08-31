@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: sushi__ez_borrowing
-    description: 'This is a table that shows all the events on polygon that are related to Borrowing or repaying the loan for sushi'
+    description: 'This is a table that shows all the events on polygon that are related to Borrowing or repaying the loan for sushi. It also shows the adding and removal of the collaterals'
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
