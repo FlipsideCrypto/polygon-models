@@ -10,7 +10,7 @@
 with lending_txns as (
 select distinct tx_hash,contract_address
 from {{ ref('silver__logs') }}
-where event_name = 'LogAddAsset'
+where topics [0]::string = '0x30a8c4f9ab5af7e1309ca87c32377d1a83366c5990472dbf9d262450eae14e38'
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
   SELECT
@@ -24,7 +24,7 @@ AND _inserted_timestamp::DATE >= (
 unlending_txns as (
 select distinct tx_hash,contract_address
 from {{ ref('silver__logs') }}
-where event_name = 'LogRemoveAsset'
+where topics [0]::string = '0x6e853a5fd6b51d773691f542ebac8513c9992a51380d4c342031056a64114228'
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
   SELECT
@@ -56,8 +56,8 @@ select  block_timestamp,
         _log_id,
         _inserted_timestamp
 from {{ ref('silver__logs') }}
-where event_name = 'LogTransfer' and tx_hash in (select tx_hash from lending_txns)
-and event_inputs:to::string in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} )
+where topics [0] :: STRING = '0x6eabe333476233fd382224f233210cb808a7bc4c4de64f9d76628bf63c677b1a' and tx_hash in (select tx_hash from lending_txns)
+and CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} )
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
   SELECT
@@ -90,8 +90,8 @@ select  block_timestamp,
         _log_id,
         _inserted_timestamp
 from {{ ref('silver__logs') }}
-where event_name = 'LogTransfer' and tx_hash in (select tx_hash from unlending_txns)
-and event_inputs:from::string in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} ) 
+where topics [0] :: STRING = '0x6eabe333476233fd382224f233210cb808a7bc4c4de64f9d76628bf63c677b1a' and tx_hash in (select tx_hash from unlending_txns)
+and CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} ) 
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
   SELECT
