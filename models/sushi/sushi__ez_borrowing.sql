@@ -10,7 +10,7 @@
 with borrow_txns as (
 select distinct tx_hash,contract_address
 from {{ ref('silver__logs') }}
-where event_name = 'LogBorrow'
+where topics [0]::string = '0x3a5151e57d3bc9798e7853034ac52293d1a0e12a2b44725e75b03b21f86477a6'
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
   SELECT
@@ -24,7 +24,7 @@ AND _inserted_timestamp::DATE >= (
 Repay_txns as (
 select distinct tx_hash,contract_address
 from {{ ref('silver__logs') }}
-where event_name = 'LogRepay'
+where topics [0]::string = '0xc8e512d8f188ca059984b5853d2bf653da902696b8512785b182b2c813789a6e'
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
   SELECT
@@ -57,7 +57,7 @@ select  block_timestamp,
         _inserted_timestamp
 from {{ ref('silver__logs') }}
 where topics [0]::string = '0x6eabe333476233fd382224f233210cb808a7bc4c4de64f9d76628bf63c677b1a'  and tx_hash in (select tx_hash from borrow_txns)
-and event_inputs:from::string in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} )
+and CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))  in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} )
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
   SELECT
@@ -121,8 +121,8 @@ select  block_timestamp,
         _log_id,
         _inserted_timestamp
 from {{ ref('silver__logs') }}
-where event_name = 'LogTransfer' and tx_hash in (select tx_hash from Repay_txns)
-and event_inputs:to::string in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} ) 
+where topics [0]::string = '0x6eabe333476233fd382224f233210cb808a7bc4c4de64f9d76628bf63c677b1a' and tx_hash in (select tx_hash from Repay_txns)
+and CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) in (select pair_address from {{ ref('sushi__dim_kashi_pairs') }} ) 
 {% if is_incremental() %}
 AND _inserted_timestamp::DATE >= (
   SELECT
@@ -165,7 +165,7 @@ on a.tx_hash = b.tx_hash and a.lending_pool_address = b.lending_pool_address
 
 
 
-Final as (
+Total as (
 select * from Borrow
 union all
 select * from Repay
@@ -277,7 +277,7 @@ case when b.collateral_decimals is null then a.collateral_amount else (a.collate
 (a.collateral_amount* d.price)/pow(10,b.collateral_decimals) as collateral_amount_USD,
 a._log_id,
 _inserted_timestamp
-from FINAL a
+from Total a
 LEFT JOIN polygon_prices c
 ON LOWER(a.asset) = LOWER(
     c.polygon_address
