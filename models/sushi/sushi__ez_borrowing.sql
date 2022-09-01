@@ -511,11 +511,31 @@ SELECT
   A.lending_pool_address,
   b.pair_name AS lending_pool,
   A.asset,
-  b.asset_symbol AS symbol,
-  A.amount,
   CASE
-    WHEN action = 'add collateral' THEN (A.amount * C.price / pow(10, b.collateral_decimals))
-    WHEN action = 'Remove collateral' THEN (A.amount * C.price / pow(10, b.collateral_decimals))
+  when action in ('add collateral','Remove collateral') then b.collateral_symbol
+  else b.asset_symbol 
+  end AS symbol,
+  CASE
+  when b.collateral_decimals is null THEN a.amount
+  when b.asset_decimals is null then a.amount
+  WHEN b.collateral_decimals is not null and action = 'add collateral' THEN (A.amount/ pow(10, b.collateral_decimals))
+  WHEN b.collateral_decimals is not null and action = 'Remove collateral' THEN (A.amount/ pow(10, b.collateral_decimals))
+  WHEN b.asset_decimals is not null and action = 'Borrow' then (A.amount/ pow(10, b.asset_decimals))
+  WHEN b.asset_decimals is not null and action = 'Repay' then (A.amount/ pow(10, b.asset_decimals))
+  END AS amount,
+  CASE
+    WHEN action = 'add collateral' THEN (
+      A.amount * C.price / pow(
+        10,
+        b.collateral_decimals
+      )
+    )
+    WHEN action = 'Remove collateral' THEN (
+      A.amount * C.price / pow(
+        10,
+        b.collateral_decimals
+      )
+    )
     ELSE (A.amount * C.price / pow(10, b.asset_decimals))
   END AS amount_USD,
   A._log_id,
