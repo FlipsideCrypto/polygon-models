@@ -8,8 +8,8 @@ sources:
       - name: polygon_blocks
       - name: polygon_txs
   - name: crosschain
-    database: flipside_prod_db
-    schema: crosschain
+    database: crosschain
+    schema: core
     tables:
       - name: address_labels
   - name: symbols_cross_tab
