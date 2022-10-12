@@ -10,6 +10,10 @@ models:
             - BLOCK_NUMBER
           column_name: POSITION
           where: BLOCK_TIMESTAMP < CURRENT_DATE
+          config:
+            severity: error
+            error_if: ">10"
+            warn_if: ">1"
     columns:
       - name: BLOCK_NUMBER
         tests:
