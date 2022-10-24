@@ -30,3 +30,10 @@ sources:
       - name: fact_hourly_token_prices
       - name: DIM_CONTRACTS
       - name: DIM_DEX_LIQUIDITY_POOLS
+  - name: bronze_streamline
+    database: streamline
+    schema: |
+      {{ "POLYGON_DEV" if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", False) else "POLYGON" }}
+    tables:
+      - name: blocks
+      - name: transactions
