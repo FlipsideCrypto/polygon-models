@@ -48,10 +48,4 @@ WHERE
         FROM
             last_3_days
     ) {# TODO: OR can be removed once historical load is complete #}
-    OR block_number > 3000000
-UNION ALL
-SELECT
-    id,
-    block_number
-FROM
-    {{ ref("streamline__blocks_history") }}
+    OR block_number > 33000000
