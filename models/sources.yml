@@ -37,3 +37,8 @@ sources:
     tables:
       - name: blocks
       - name: transactions
+  - name: bronze_api
+    database: polygon
+    schema: bronze_api
+    tables:
+      - name: contract_abis
