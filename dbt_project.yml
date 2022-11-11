@@ -41,3 +41,4 @@ on-run-start:
 vars:
   STREAMLINE_INVOKE_STREAMS: False
   "dbt_date:time_zone": GMT
+  UPDATE_UDFS_AND_SPS: False
