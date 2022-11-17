@@ -35,7 +35,7 @@ WITH api_keys AS (
         WHERE
             abi_data :data :result :: STRING <> \'Max rate limit reached\'
         LIMIT
-            69
+            100
     )
 SELECT
     contract_address,
