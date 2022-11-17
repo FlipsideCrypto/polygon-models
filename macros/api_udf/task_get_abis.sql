@@ -2,9 +2,9 @@
     {% set sql %}
     EXECUTE IMMEDIATE 
     'create or replace task streamline.get_block_explorer_abis
-    warehouse = dbt_cloud_polygon
+    warehouse = DBT_CLOUD_POLYGON
     allow_overlapping_execution = false 
-    schedule = '60 minute' 
+    schedule = \'10 minute\' 
     as 
     BEGIN 
 INSERT INTO
@@ -20,7 +20,7 @@ WITH api_keys AS (
         FROM
             crosschain.silver.apis_keys
         WHERE
-            api_name = 'polyscan'
+            api_name = \'polyscan\'
     ),
     base AS (
         SELECT
@@ -33,18 +33,18 @@ WITH api_keys AS (
         FROM
             bronze_api.contract_abis
         WHERE
-            abi_data :data :result :: STRING <> 'Max rate limit reached'
+            abi_data :data :result :: STRING <> \'Max rate limit reached\'
         LIMIT
             69
     )
 SELECT
     contract_address,
     ethereum.streamline.udf_api(
-        'GET',
+        \'GET\',
         CONCAT(
-            'https://api.polygonscan.com/api?module=contract&action=getabi&address=',
+            \'https://api.polygonscan.com/api?module=contract&action=getabi&address=\',
             contract_address,
-            '&apikey=',
+            \'&apikey=\',
             api_key
         ),{},{}
     ) AS abi_data,
@@ -57,7 +57,7 @@ END;'
 
 {% endset %}
     {% do run_query(sql) %}
-    
+
 {% if target.database == 'POLYGON' %}
     {% set sql %}
         alter task streamline.get_block_explorer_abis resume;
