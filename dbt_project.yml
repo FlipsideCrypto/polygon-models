@@ -30,6 +30,7 @@ tests:
 on-run-start:
   - "{{ create_sps() }}"
   - "{{ create_udfs() }}"
+  - "{{ create_tasks() }}"
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
