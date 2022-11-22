@@ -42,3 +42,4 @@ sources:
     schema: bronze_api
     tables:
       - name: contract_abis
+      - name: token_reads
