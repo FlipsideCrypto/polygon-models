@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - add_workflow_action
+      - added_profiles
   schedule:
     # Runs "every 6 hours" (see https://crontab.guru)
     - cron: '0 */1 * * *'
