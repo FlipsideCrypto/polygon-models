@@ -33,3 +33,4 @@ jobs:
       dbt_command: "dbt run -m 1+models/silver/streamline/streamline__blocks_realtime.sql"
     secrets: inherit # pass all secrets
   
+  
