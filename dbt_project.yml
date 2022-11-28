@@ -40,6 +40,6 @@ on-run-start:
 # using the `{{ config(...) }}` macro.
 
 vars:
-  STREAMLINE_INVOKE_STREAMS: False
+  STREAMLINE_INVOKE_STREAMS: True
   "dbt_date:time_zone": GMT
   UPDATE_UDFS_AND_SPS: False
