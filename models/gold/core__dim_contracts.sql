@@ -5,7 +5,7 @@
 ) }}
 
 SELECT
-    contract_address,
+    contract_address as address,
     token_symbol AS symbol,
     token_name AS NAME,
     token_decimals AS decimals

@@ -125,10 +125,7 @@ contracts AS (
 SELECT
     c1.contract_address::STRING AS contract_address,
     token_name,
-    COALESCE(
-        token_decimals,
-        0
-    ) AS token_decimals,
+    token_decimals,
     token_symbol,
     _inserted_timestamp
 FROM
