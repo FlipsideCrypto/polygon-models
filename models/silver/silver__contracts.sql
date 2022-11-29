@@ -123,7 +123,7 @@ contracts AS (
         1
 )
 SELECT
-    c1.contract_address AS contract_address,
+    c1.contract_address::STRING AS contract_address,
     token_name,
     COALESCE(
         token_decimals,
