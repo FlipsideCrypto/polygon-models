@@ -19,7 +19,7 @@ WITH base AS (
 ),
 proxies AS (
     SELECT
-        tx_hash,
+        tx_hash, 
         block_number,
         contract_address,
         CONCAT('0x', SUBSTR(DATA, 27, 40)) AS proxy_address1,
