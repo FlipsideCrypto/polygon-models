@@ -29,6 +29,6 @@ jobs:
   called_workflow_template:
     uses: FlipsideCrypto/analytics-workflow-templates/.github/workflows/run_chain_template.yml@main
     with:
-      dbt_command: "dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m 1+models/silver/streamline/streamline__blocks_realtime.sql"
+      dbt_command: "dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m 1+models/silver/streamline/streamline__blocks_realtime.sql 1+models/silver/streamline/streamline__transactions_realtime.sql"
     secrets: inherit # pass all secrets
   
