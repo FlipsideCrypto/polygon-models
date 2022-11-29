@@ -35,3 +35,4 @@ jobs:
       dbt_command: ${{ inputs.dbt_command }}
     secrets: inherit # pass all secrets
   
+  
