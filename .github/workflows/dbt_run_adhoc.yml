@@ -1,16 +1,18 @@
-name: scheduled_streamline_dbt_run
-run-name: scheduled_streamline_dbt_run
+name: adhoc_dbt_run
+run-name: call_workflow_template
 
 on:
-  push:
+  workflow_dispatch:
     branches:
       - main
       - add_workflow_action
       - added_profiles
-  schedule:
-    # Runs "every 6 hours" (see https://crontab.guru)
-    - cron: '0 */1 * * *'
-     
+    inputs:
+      dbt_command:
+        type: string
+        description: 'DBT Run Command'
+        required: true
+    
 env:
   DBT_PROFILES_DIR: ./
 
@@ -30,7 +32,7 @@ jobs:
   called_workflow_template:
     uses: FlipsideCrypto/analytics-workflow-templates/.github/workflows/run_chain_template.yml@main
     with:
-      dbt_command: "dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m 1+models/silver/streamline/streamline__blocks_realtime.sql 1+models/silver/streamline/streamline__transactions_realtime.sql"
+      dbt_command: ${{ inputs.dbt_command }}
     secrets: inherit # pass all secrets
   
   
