@@ -4,7 +4,7 @@
     'create or replace task bronze_api.get_token_reads
     warehouse = DBT_CLOUD_POLYGON
     allow_overlapping_execution = false 
-    schedule = \'10 minute\' 
+    schedule = \'60 minute\' 
     as 
     BEGIN 
     INSERT INTO
