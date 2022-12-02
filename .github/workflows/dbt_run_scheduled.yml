@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - added_profiles
   schedule:
     # Runs "every 6 hours" (see https://crontab.guru)
     - cron: '0 */6 * * *'
@@ -28,7 +29,7 @@ jobs:
   called_workflow_template:
     uses: FlipsideCrypto/analytics-workflow-templates/.github/workflows/dbt_run_template.yml@main
     with:
-      dbt_command: "dbt run -m 1+models/silver/streamline/streamline__blocks_realtime.sql 1+models/silver/streamline/streamline__transactions_realtime.sql"
+      dbt_command: '["dbt run -m 1+models/silver/streamline/streamline__blocks_realtime.sql 1+models/silver/streamline/streamline__transactions_realtime.sql"]'
     secrets: inherit # pass all secrets
   
 
