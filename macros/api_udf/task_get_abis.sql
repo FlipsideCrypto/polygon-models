@@ -1,10 +1,10 @@
 {% macro task_get_abis() %}
     {% set sql %}
     EXECUTE IMMEDIATE 
-    'create or replace task streamline.get_block_explorer_abis
+    'create or replace task bronze_api.get_block_explorer_abis
     warehouse = DBT_CLOUD_POLYGON
     allow_overlapping_execution = false 
-    schedule = \'10 minute\' 
+    schedule = \'60 minute\' 
     as 
     BEGIN 
 INSERT INTO
@@ -52,15 +52,16 @@ SELECT
 FROM
     base
     LEFT JOIN api_keys
-    ON 1 = 1;
+    ON 1 = 1
+    where exists (select 1 from base limit 1);
 END;' 
 
 {% endset %}
     {% do run_query(sql) %}
 
-{% if target.database == 'POLYGON' %}
+{% if target.database.upper() == 'POLYGON' %}
     {% set sql %}
-        alter task streamline.get_block_explorer_abis resume;
+        alter task bronze_api.get_block_explorer_abis resume;
     {% endset %}
     {% do run_query(sql) %}
 {% endif %}
