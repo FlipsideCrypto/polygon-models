@@ -2,10 +2,7 @@ version: 2
 models:
   - name: sushi__ez_borrowing
     description: 'This is a table that shows all the events on polygon that are related to Borrowing or repaying the loan for sushi'
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - _LOG_ID
+
     columns:
       - name: BLOCK_NUMBER
         description: '{{ doc("poly_block_number") }}'
