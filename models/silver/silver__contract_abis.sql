@@ -13,10 +13,7 @@ WITH base AS (
         abi_data :data :result AS abi,
         _inserted_timestamp
     FROM
-        {{ source(
-            "bronze_api",
-            "contract_abis"
-        ) }}
+        {{ ref('bronze_api__contract_abis') }}
 
 {% if is_incremental() %}
 WHERE
