@@ -12,10 +12,7 @@ WITH base_metadata AS (
         read_result AS read_output,
         _inserted_timestamp
     FROM
-        {{ source(
-            'bronze_api',
-            'token_reads'
-        ) }}
+        {{ ref('bronze_api__token_reads') }}
     WHERE
         read_result IS NOT NULL
         AND read_result <> '0x'
@@ -123,9 +120,9 @@ contracts AS (
         1
 )
 SELECT
-    c1.contract_address::STRING AS contract_address,
+    c1.contract_address :: STRING AS contract_address,
     token_name,
-    token_decimals::integer as token_decimals,
+    token_decimals :: INTEGER AS token_decimals,
     token_symbol,
     _inserted_timestamp
 FROM

@@ -37,9 +37,13 @@ sources:
     tables:
       - name: blocks
       - name: transactions
-  - name: bronze_api
-    database: polygon
-    schema: bronze_api
+  - name: streamline_crosschain
+    database: streamline
+    schema: crosschain
+    tables: 
+      - name: node_mapping
+  - name: crosschain_silver
+    database: crosschain
+    schema: silver
     tables:
-      - name: contract_abis
-      - name: token_reads
+      - name: apis_keys
