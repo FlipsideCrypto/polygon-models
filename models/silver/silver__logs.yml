@@ -5,12 +5,6 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - _LOG_ID
-      - sequence_gaps:
-          partition_by:
-            - BLOCK_NUMBER
-            - TX_HASH
-          column_name: EVENT_INDEX
-          where: BLOCK_TIMESTAMP < CURRENT_DATE
     columns:
       - name: BLOCK_NUMBER
         tests:

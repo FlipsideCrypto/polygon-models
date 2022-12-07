@@ -12,8 +12,7 @@ models:
           where: BLOCK_TIMESTAMP < CURRENT_DATE
           config:
             severity: error
-            error_if: ">10"
-            warn_if: ">1"
+            error_if: ">10000"
     columns:
       - name: BLOCK_NUMBER
         tests:
