@@ -11,6 +11,9 @@ models:
             - TX_HASH
           column_name: EVENT_INDEX
           where: BLOCK_TIMESTAMP < CURRENT_DATE
+          config:
+            severity: error
+            error_if: ">10000"
     columns:
       - name: BLOCK_NUMBER
         tests:

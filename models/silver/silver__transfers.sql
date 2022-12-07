@@ -138,3 +138,4 @@ FROM
     all_transfers qualify(ROW_NUMBER() over(PARTITION BY _log_id
 ORDER BY
     _inserted_timestamp DESC)) = 1
+     
