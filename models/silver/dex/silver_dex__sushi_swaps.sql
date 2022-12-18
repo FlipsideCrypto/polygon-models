@@ -6,7 +6,7 @@
     cluster_by = ['_inserted_timestamp::DATE']
 ) }}
 
-WITH v2_pairs AS (
+WITH sushi_pairs AS (
 
     SELECT
         pool_address,
@@ -19,10 +19,9 @@ WITH v2_pairs AS (
         token1_symbol,
         platform
     FROM
-        {{ ref('silver_dex__pools') }}
+        {{ ref('silver_dex__sushi_pools') }}
     WHERE
         platform IN (
-            'uniswap-v2',
             'sushiswap'
         )
 ),
@@ -62,7 +61,7 @@ swap_events AS (
             SELECT
                 DISTINCT pool_address
             FROM
-                v2_pairs
+                sushi_pairs
         )
 
 {% if is_incremental() %}
@@ -73,30 +72,6 @@ AND _inserted_timestamp >= (
         {{ this }}
 )
 {% endif %}
-),
-hourly_prices AS (
-    SELECT
-        token_address,
-        HOUR,
-        AVG(price) AS price
-    FROM
-        {{ ref('core__fact_hourly_token_prices') }}
-    WHERE
-        1 = 1
-
-{% if is_incremental() %}
-AND HOUR :: DATE IN (
-    SELECT
-        DISTINCT block_timestamp :: DATE
-    FROM
-        swap_events
-)
-{% else %}
-    AND HOUR :: DATE >= '2020-05-05'
-{% endif %}
-GROUP BY
-    token_address,
-    HOUR
 ),
 FINAL AS (
     SELECT
@@ -190,8 +165,8 @@ FINAL AS (
         pool_address
     FROM
         swap_events
-        LEFT JOIN v2_pairs
-        ON swap_events.contract_address = v2_pairs.pool_address
+        LEFT JOIN sushi_pairs
+        ON swap_events.contract_address = sushi_pairs.pool_address
 )
 SELECT
     block_number,
@@ -204,23 +179,7 @@ SELECT
     pool_name,
     event_name,
     amount_in,
-    CASE
-        WHEN decimals_in IS NOT NULL
-        AND amount_in * pricesIn.price <= 5 * amount_out * pricesOut.price
-        AND amount_out * pricesOut.price <= 5 * amount_in * pricesIn.price THEN amount_in * pricesIn.price
-        WHEN decimals_in IS NOT NULL
-        AND decimals_out IS NULL THEN amount_in * pricesIn.price
-        ELSE NULL
-    END AS amount_in_usd,
     amount_out,
-    CASE
-        WHEN decimals_out IS NOT NULL
-        AND amount_in * pricesIn.price <= 5 * amount_out * pricesOut.price
-        AND amount_out * pricesOut.price <= 5 * amount_in * pricesIn.price THEN amount_out * pricesOut.price
-        WHEN decimals_out IS NOT NULL
-        AND decimals_in IS NULL THEN amount_out * pricesOut.price
-        ELSE NULL
-    END AS amount_out_usd,
     sender,
     tx_to,
     event_index,
@@ -233,18 +192,6 @@ SELECT
     _inserted_timestamp
 FROM
     FINAL
-    LEFT JOIN hourly_prices AS pricesIn
-    ON DATE_TRUNC(
-        'HOUR',
-        block_timestamp
-    ) = pricesIn.hour
-    AND FINAL.token_in = pricesIn.token_address
-    LEFT JOIN hourly_prices AS pricesOut
-    ON DATE_TRUNC(
-        'HOUR',
-        block_timestamp
-    ) = pricesOut.hour
-    AND FINAL.token_out = pricesOut.token_address
-WHERE
-    token_in IS NOT NULL
-    AND token_out IS NOT NULL
+
+WHERE token_in IS NOT NULL
+  AND token_out IS NOT NULL

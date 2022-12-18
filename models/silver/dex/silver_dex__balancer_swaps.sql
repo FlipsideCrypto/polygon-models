@@ -76,30 +76,6 @@ contracts AS (
                     swaps_base
             )
         )
-),
-hourly_token_price AS (
-    SELECT
-        HOUR,
-        token_address,
-        AVG(price) AS price
-    FROM
-        {{ ref('core__fact_hourly_token_prices') }}
-    WHERE
-        token_address IN (
-            SELECT
-                DISTINCT address
-            FROM
-                contracts
-        )
-        AND HOUR :: DATE IN (
-            SELECT
-                DISTINCT block_timestamp :: DATE
-            FROM
-                swaps_base
-        )
-    GROUP BY
-        1,
-        2
 )
 SELECT
     tx_hash,
@@ -119,12 +95,6 @@ SELECT
         WHEN decimals_in IS NULL THEN amountIn_unadj
         ELSE (amountIn_unadj / pow(10, decimals_in))
     END AS amount_in,
-    CASE
-        WHEN decimals_in IS NOT NULL THEN ROUND(
-            amount_in * p1.price,
-            2
-        )
-    END AS amount_in_usd,
     amountOut AS amountOut_unadj,
     c2.decimals AS decimals_out,
     c2.symbol AS symbol_out,
@@ -132,12 +102,6 @@ SELECT
         WHEN decimals_out IS NULL THEN amountOut_unadj
         ELSE (amountOut_unadj / pow(10, decimals_out))
     END AS amount_out,
-    CASE
-        WHEN decimals_out IS NOT NULL THEN ROUND(
-            amount_out * p2.price,
-            2
-        )
-    END AS amount_out_usd,
     pn.poolId,
     token_in,
     token_out,
@@ -154,18 +118,6 @@ FROM
     ON token_in = c1.address
     LEFT JOIN contracts c2
     ON token_out = c2.address
-    LEFT JOIN hourly_token_price p1
-    ON token_in = p1.token_address
-    AND DATE_TRUNC(
-        'hour',
-        block_timestamp
-    ) = p1.hour
-    LEFT JOIN hourly_token_price p2
-    ON token_out = p2.token_address
-    AND DATE_TRUNC(
-        'hour',
-        block_timestamp
-    ) = p2.hour
     LEFT JOIN pool_name pn
     ON pn.pool_address = s.pool_address
 WHERE

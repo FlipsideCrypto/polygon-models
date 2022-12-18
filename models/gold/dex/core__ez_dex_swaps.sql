@@ -4,7 +4,7 @@
     "columns": true }
 ) }}
 
-WITH v2_swaps AS ( --sushi
+WITH sushi_swaps AS ( 
 
   SELECT
     block_number,
@@ -30,7 +30,7 @@ WITH v2_swaps AS ( --sushi
     symbol_out,
     _log_id
   FROM
-    {{ ref('silver_dex__v2_swaps') }}
+    {{ ref('silver_dex__sushi_swaps') }}
 ),
 
 univ3_swaps AS (
@@ -137,7 +137,7 @@ SELECT
   symbol_out,
   _log_id
 FROM
-  v2_swaps
+  sushi_swaps
 
 UNION ALL
 
