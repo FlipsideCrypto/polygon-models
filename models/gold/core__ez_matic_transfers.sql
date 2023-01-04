@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'tx_hash',
     cluster_by = ['block_timestamp::DATE'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)"
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
 ) }}
 
 WITH matic_base AS (

@@ -3,7 +3,7 @@
     unique_key = 'tx_hash',
     cluster_by = ['block_timestamp::DATE'],
     incremental_strategy = 'delete+insert',
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash, contract_address)"
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
 ) }}
 
 WITH base_txs AS (
