@@ -10,18 +10,14 @@ models:
         description: '{{ doc("poly_block_timestamp") }}'
       - name: TX_HASH
         description: '{{ doc("poly_transfer_tx_hash") }}'
-      - name: ETH_FROM_ADDRESS
+      - name: MATIC_FROM_ADDRESS
         description: '{{ doc("poly_transfer_from_address") }}'
-      - name: ETH_TO_ADDRESS
+      - name: MATIC_TO_ADDRESS
         description: '{{ doc("poly_transfer_to_address") }}'
       - name: AMOUNT
         description: '{{ doc("poly_eth_amount") }}'
-      - name: TOKEN_PRICE
-        description: '{{ doc("poly_transfer_token_price") }}'
       - name: AMOUNT_USD
         description: '{{ doc("poly_eth_amount_usd") }}' 
-      - name: HAS_PRICE
-        description: '{{ doc("poly_transfer_has_price") }}' 
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("poly_origin_sig") }}'
       - name: ORIGIN_FROM_ADDRESS

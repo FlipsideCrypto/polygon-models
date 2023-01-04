@@ -1,7 +1,8 @@
 {{ config(
     materialized = 'incremental',
     unique_key = '_call_id',
-    cluster_by = ['block_timestamp::DATE']
+    cluster_by = ['block_timestamp::DATE'],
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)"
 ) }}
 
 WITH new_blocks AS (
