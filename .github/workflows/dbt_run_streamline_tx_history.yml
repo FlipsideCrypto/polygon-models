@@ -1,5 +1,5 @@
-name: dbt_run_scheduled_streamline_tx_history
-run-name: dbt_run_scheduled_streamline_tx_history
+name: dbt_run_streamline_tx_history
+run-name: dbt_run_streamline_tx_history
 
 on:
   workflow_dispatch:
