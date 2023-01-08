@@ -51,7 +51,6 @@ pool_data AS (
 ),
 FINAL AS (
     SELECT
-        'polygon' AS blockchain,
         block_number,
         block_timestamp,
         tx_hash,
