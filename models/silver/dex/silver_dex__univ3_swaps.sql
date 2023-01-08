@@ -9,33 +9,16 @@ WITH base_swaps AS (
     SELECT
         *,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS sender,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS recipient,
-        PUBLIC.udf_hex_to_int(
-            's2c',
-            segmented_data [0] :: STRING
-        ) :: FLOAT AS amount0_unadj,
-        PUBLIC.udf_hex_to_int(
-            's2c',
-            segmented_data [1] :: STRING
-        ) :: FLOAT AS amount1_unadj,
-        PUBLIC.udf_hex_to_int(
-            's2c',
-            segmented_data [2] :: STRING
-        ) :: FLOAT AS sqrtPriceX96,
-        PUBLIC.udf_hex_to_int(
-            's2c',
-            segmented_data [3] :: STRING
-        ) :: FLOAT AS liquidity,
-        PUBLIC.udf_hex_to_int(
-            's2c',
-            segmented_data [4] :: STRING
-        ) :: FLOAT AS tick
+        event_inputs:sender :: STRING AS sender,
+        event_inputs:recipient :: STRING AS recipient,
+        event_inputs:amount0 :: FLOAT AS amount0_unadj,
+        event_inputs:amount1 :: FLOAT AS amount1_unadj,
+        event_inputs:sqrtPriceX96 :: FLOAT AS sqrtPriceX96,
+        event_inputs:liquidity :: FLOAT AS liquidity,
+        event_inputs:tick :: FLOAT AS tick
     FROM
         {{ ref('silver__logs') }}
-    WHERE
-        block_timestamp :: DATE > '2021-04-01'
-        AND topics [0] :: STRING = '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67'
+    WHERE topics [0] :: STRING = '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67'
         AND tx_status = 'SUCCESS'
         AND event_removed = 'false'
 
