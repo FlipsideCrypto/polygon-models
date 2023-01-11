@@ -1,5 +1,5 @@
-name: dbt_run_streamline
-run-name: dbt_run_streamline
+name: dbt_run_streamline_tx_blocks
+run-name: dbt_run_streamline_tx_blocks
 
 on:
   workflow_dispatch:
