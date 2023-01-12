@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - updated-profiles-env-setting
+      - bug-fix-github-action
   schedule:
     # Runs "every 6 hours" (see https://crontab.guru)
     - cron: '0 */6 * * *'
