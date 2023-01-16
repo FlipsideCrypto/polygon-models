@@ -1,0 +1,152 @@
+version: 1
+models:
+  - name: silver_dex__balancer_pools
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - POOL_ADDRESS
+    columns:
+      - name: TX_HASH
+        tests:
+          - not_null
+      - name: POOLID
+        tests:
+          - not_null
+      - name: TOKEN0
+        tests:
+          - not_null
+      - name: TOKEN1
+        tests:
+          - not_null
+      - name: TOKEN2
+        tests:
+          - not_null
+      - name: TOKEN3
+        tests:
+          - not_null
+      - name: TOKEN4
+        tests:
+          - not_null
+      - name: TOKEN5
+        tests:
+          - not_null
+      - name: TOKEN6
+        tests:
+          - not_null
+      - name: TOKEN7
+        tests:
+          - not_null
+      - name: TOKEN_ARRAY
+        tests:
+          - not_null
+      - name: TOKEN0_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN0_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number
+      - name: TOKEN0_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN0_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number
+      - name: TOKEN1_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN1_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number
+      - name: TOKEN2_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN2_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number
+      - name: TOKEN3_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN3_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number
+      - name: TOKEN4_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN4_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number
+      - name: TOKEN5_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN5_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number
+      - name: TOKEN6_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN6_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number
+      - name: TOKEN7_SYMBOL
+        tests:
+          - not_null
+      - name: TOKEN7_DECIMALS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+                - number                                                                                
+      - name: POOL_NAME
+        tests:
+          - not_null
+      - name: POOL_ADDRESS
+        tests:
+          - not_null
+      - name: _INSERTED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_NTZ

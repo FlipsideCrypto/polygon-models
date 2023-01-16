@@ -12,6 +12,9 @@ models:
       - name: CREATION_TIME
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_NTZ
       - name: CREATION_TX
         tests:
           - not_null
@@ -75,6 +78,9 @@ models:
       - name: INGESTED_AT
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_NTZ
       - name: TOKENS
         tests:
           - not_null
