@@ -1,4 +1,4 @@
-version: 1
+version: 2
 models:
   - name: silver_dex__balancer_pools
     tests:
@@ -39,17 +39,6 @@ models:
       - name: TOKEN_ARRAY
         tests:
           - not_null
-      - name: TOKEN0_SYMBOL
-        tests:
-          - not_null
-      - name: TOKEN0_DECIMALS
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-                - number
       - name: TOKEN0_SYMBOL
         tests:
           - not_null

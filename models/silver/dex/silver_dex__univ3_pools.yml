@@ -1,4 +1,4 @@
-version: 1
+version: 2
 models:
   - name: silver_dex__univ3_pools
     tests:
