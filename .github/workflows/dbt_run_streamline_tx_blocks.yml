@@ -6,7 +6,7 @@ on:
   schedule:
     # Runs "every 6 hours" (see https://crontab.guru)
     - cron: '0 1-23/6 * * *'
-    
+
 env:
   DBT_PROFILES_DIR: ./
 
@@ -25,7 +25,7 @@ concurrency:
 jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: workflow_prod
 
     steps:
@@ -33,7 +33,7 @@ jobs:
 
       - uses: actions/setup-python@v1
         with:
-          python-version: "3.7.x"
+          python-version: "3.11"
 
       - name: install dependencies
         run: |

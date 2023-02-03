@@ -17,7 +17,7 @@
             {{ create_udf_get_chainhead() }}
             {{ create_udf_get_blocks() }}
             {{ create_udf_get_transactions() }}
-            {{ create_udf_get_polygon_generic() }}
+            {{ create_udf_bulk_json_rpc() }}
 
             {% endset %}
             {% do run_query(sql) %}

@@ -27,13 +27,13 @@
     {%- endif %};
 {% endmacro %}
 
-{% macro create_udf_get_polygon_generic() %}
+{% macro create_udf_bulk_json_rpc() %}
     CREATE
-    OR REPLACE EXTERNAL FUNCTION streamline.udf_get_polygon_generic(
+    OR REPLACE EXTERNAL FUNCTION streamline.udf_bulk_json_rpc(
         json variant
     ) returns text api_integration = aws_polygon_api AS {% if target.name == "prod" %}
-        'https://088pv40k78.execute-api.us-east-1.amazonaws.com/prod/bulk_get_polygon_generic'
+        'https://088pv40k78.execute-api.us-east-1.amazonaws.com/prod/udf_bulk_json_rpc'
     {% else %}
-        'https://ug2z7nx4bi.execute-api.us-east-1.amazonaws.com/dev/bulk_get_polygon_generic'
+        'https://ug2z7nx4bi.execute-api.us-east-1.amazonaws.com/dev/udf_bulk_json_rpc'
     {%- endif %};
 {% endmacro %}
