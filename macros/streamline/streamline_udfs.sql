@@ -26,3 +26,14 @@
         'https://ug2z7nx4bi.execute-api.us-east-1.amazonaws.com/dev/bulk_get_transactions'
     {%- endif %};
 {% endmacro %}
+
+{% macro create_udf_get_polygon_generic() %}
+    CREATE
+    OR REPLACE EXTERNAL FUNCTION streamline.udf_get_polygon_generic(
+        json variant
+    ) returns text api_integration = aws_polygon_api AS {% if target.name == "prod" %}
+        'https://088pv40k78.execute-api.us-east-1.amazonaws.com/prod/bulk_get_polygon_generic'
+    {% else %}
+        'https://ug2z7nx4bi.execute-api.us-east-1.amazonaws.com/dev/bulk_get_polygon_generic'
+    {%- endif %};
+{% endmacro %}
