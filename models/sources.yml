@@ -37,10 +37,12 @@ sources:
     tables:
       - name: blocks
       - name: transactions
+      - name: trace_blocks
+      - name: eth_getBlockReceipts
   - name: streamline_crosschain
     database: streamline
     schema: crosschain
-    tables: 
+    tables:
       - name: node_mapping
   - name: crosschain_silver
     database: crosschain
