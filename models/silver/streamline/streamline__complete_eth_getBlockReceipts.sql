@@ -34,7 +34,7 @@ max_date AS (
     FROM
         {{ source(
             "bronze_streamline",
-            "trace_blocks"
+            "eth_getBlockReceipts"
         ) }}
         JOIN meta b
         ON b.file_name = metadata$filename
