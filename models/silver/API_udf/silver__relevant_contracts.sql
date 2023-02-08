@@ -7,7 +7,7 @@ SELECT
     contract_address,
     'polygon' AS blockchain,
     COUNT(*) AS transfers,
-    MAX(block_number) AS created_block
+    MAX(block_number) AS latest_block
 FROM
     {{ ref('silver__logs') }}
 WHERE

@@ -8,7 +8,7 @@ WITH base AS (
     SELECT
         contract_address
     FROM
-        {{ ref('silver__relevant_token_contracts') }}
+        {{ ref('silver__relevant_contracts') }}
 ),
 proxies AS (
     SELECT
