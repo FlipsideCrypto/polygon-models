@@ -32,7 +32,7 @@ WHERE
     abi_data :data :result :: STRING <> 'Max rate limit reached'
 {% endif %}
 LIMIT
-    100
+    50
 )
 SELECT
     contract_address,
