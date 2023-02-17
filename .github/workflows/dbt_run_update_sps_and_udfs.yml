@@ -1,6 +1,12 @@
 name: dbt_run_update_sps_and_udfs
 run-name: dbt_run_update_sps_and_udfs
 
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs "every 24 hours" (see https://crontab.guru)
+    - cron: 0 0 * * *
+
 env:
   DBT_PROFILES_DIR: ./
 
