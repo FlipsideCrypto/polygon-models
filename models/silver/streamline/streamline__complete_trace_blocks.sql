@@ -58,7 +58,8 @@ JOIN partitions p
 ON p.partition_block_id = s._partition_by_block_id
 {% endif %}
 WHERE
-    DATA :error :code NOT IN (
+    DATA :error :code IS NULL
+    OR DATA :error :code NOT IN (
         '-32000',
         '-32001',
         '-32002',
