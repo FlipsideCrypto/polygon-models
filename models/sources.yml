@@ -39,6 +39,7 @@ sources:
       - name: transactions
       - name: trace_blocks
       - name: eth_getBlockReceipts
+      - name: decoded_logs
   - name: streamline_crosschain
     database: streamline
     schema: crosschain
