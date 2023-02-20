@@ -16,7 +16,7 @@ WITH meta AS (
     FROM
         TABLE(
             information_schema.external_table_file_registration_history(
-                table_name => 'streamline.polygon_dev.decoded_logs',
+                table_name => '{{ source( "bronze_streamline", "decoded_logs") }}',
                 start_time => (
                     SELECT
                         MAX(_INSERTED_TIMESTAMP)
@@ -49,7 +49,7 @@ block_partitions AS (
         FROM
             TABLE(
                 information_schema.external_table_files(
-                    table_name => 'streamline.polygon_dev.decoded_logs'
+                    table_name => '{{ source( "bronze_streamline", "decoded_logs") }}'
                 )
             ) A
     )
@@ -59,7 +59,7 @@ SELECT
     id AS _log_id,
     TO_TIMESTAMP_LTZ(SYSDATE()) AS _inserted_timestamp
 FROM
-    streamline.polygon_dev.decoded_logs AS s
+    {{ source( "bronze_streamline", "decoded_logs") }} AS s
     JOIN meta b
     ON b.file_name = metadata$filename
 
