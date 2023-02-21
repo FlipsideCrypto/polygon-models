@@ -3,6 +3,8 @@ run-name: dbt_run_streamline_decoder_history
 
 on:
   workflow_dispatch:
+    branches:
+      - "main"
     
 env:
   DBT_PROFILES_DIR: ./
