@@ -1,11 +1,10 @@
-name: dbt_run_streamline_traces_receipts_history
-run-name: dbt_run_streamline_traces_receipts_history
+name: dbt_run_streamline_traces_history
+run-name: dbt_run_streamline_traces_history
 
 on:
   workflow_dispatch:
-  schedule:
-    # Runs "every 24 hours" (see https://crontab.guru)
-    - cron: 0 0 * * *
+    branches:
+      - "main"
 
 env:
   DBT_PROFILES_DIR: ./
@@ -41,4 +40,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run -m 1+models/silver/streamline/streamline__trace_blocks_history.sql 1+models/silver/streamline/streamline__eth_getBlockReceipts_history.sql
+          dbt run -m 1+models/silver/streamline/streamline__trace_blocks_history.sql
