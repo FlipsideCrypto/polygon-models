@@ -40,4 +40,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run -m 1+models/silver/streamline/streamline__trace_blocks_history.sql
+          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m 1+models/silver/streamline/streamline__trace_blocks_history.sql
