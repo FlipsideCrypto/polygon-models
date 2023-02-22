@@ -1,5 +1,5 @@
-name: dbt_run_streamline_decoder_history
-run-name: dbt_run_streamline_decoder_history
+name: dbt_run_streamline_decoder_history_10_19m
+run-name: dbt_run_streamline_decoder_history_10_19m
 
 on:
   workflow_dispatch:
@@ -25,7 +25,7 @@ jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
     environment: 
-      name: workflow_prod
+      name: workflow_prod_backfill
 
     steps:
       - uses: actions/checkout@v3
@@ -40,4 +40,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m models/silver/streamline/decoder/history
+          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_01*
