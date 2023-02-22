@@ -1,5 +1,5 @@
-name: dbt_run_streamline_decoder_history_30m
-run-name: dbt_run_streamline_decoder_history_30m
+name: dbt_run_streamline_decoder_history_35_39m
+run-name: dbt_run_streamline_decoder_history_35_39m
 
 on:
   workflow_dispatch:
@@ -40,4 +40,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_03* 
+          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_035* models/silver/streamline/decoder/history/streamline__decode_logs_history_036* models/silver/streamline/decoder/history/streamline__decode_logs_history_037* models/silver/streamline/decoder/history/streamline__decode_logs_history_038* models/silver/streamline/decoder/history/streamline__decode_logs_history_039*    
