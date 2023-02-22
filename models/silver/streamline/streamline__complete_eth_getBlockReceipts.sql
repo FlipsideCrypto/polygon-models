@@ -2,7 +2,7 @@
     materialized = "incremental",
     unique_key = "id",
     cluster_by = "ROUND(block_number, -3)",
-    merge_update_columns = ["id"]
+    merge_update_columns = ["id"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(id)"
 ) }}
 
@@ -10,6 +10,7 @@ WITH meta AS (
 
     SELECT
         registered_on,
+        last_modified,
         file_name
     FROM
         TABLE(
@@ -20,7 +21,10 @@ WITH meta AS (
 
 {% if is_incremental() %}
 WHERE
-    registered_on >= (
+    LEAST(
+        registered_on,
+        last_modified
+    ) >= (
         SELECT
             COALESCE(MAX(_INSERTED_TIMESTAMP), '1970-01-01' :: DATE) max_INSERTED_TIMESTAMP
         FROM
@@ -28,36 +32,32 @@ WHERE
     ),
     partitions AS (
         SELECT
-            DISTINCT TO_NUMBER(SPLIT_PART(file_name, '/', 3)) AS partition_block_id
+            DISTINCT TO_DATE(
+                concat_ws('-', SPLIT_PART(file_name, '/', 3), SPLIT_PART(file_name, '/', 4), SPLIT_PART(file_name, '/', 5))
+            ) AS _partition_by_modified_date
         FROM
             meta
-    ),
-    max_date AS (
-        SELECT
-            COALESCE(MAX(_INSERTED_TIMESTAMP), '1970-01-01' :: DATE) max_INSERTED_TIMESTAMP
-        FROM
-            {{ this }})
-        {% else %}
     )
+{% else %}
+)
 {% endif %}
 SELECT
-    block_number,
     {{ dbt_utils.surrogate_key(
         ['block_number']
     ) }} AS id,
-    m.registered_on AS _inserted_timestamp
+    block_number,
+    registered_on AS _inserted_timestamp
 FROM
     {{ source(
         "bronze_streamline",
         "eth_getBlockReceipts"
     ) }} AS s
-    JOIN meta m
-    ON m.file_name = metadata$filename
+    JOIN meta b
+    ON b.file_name = metadata$filename
 
 {% if is_incremental() %}
 JOIN partitions p
 ON p.partition_block_id = s._partition_by_block_id
-{% endif %}
 WHERE
     DATA :error :code IS NULL
     OR DATA :error :code NOT IN (
@@ -73,14 +73,6 @@ WHERE
         '-32009',
         '-32010'
     )
-
-{% if is_incremental() %}
-AND m.registered_on > (
-    SELECT
-        max_INSERTED_TIMESTAMP
-    FROM
-        max_date
-)
 {% endif %}
 
 qualify(ROW_NUMBER() over (PARTITION BY id
