@@ -6,60 +6,60 @@
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(id)"
 ) }}
 
-WITH meta AS (
+WITH max_date AS (
 
     SELECT
-        registered_on,
-        last_modified,
-        file_name
+        COALESCE(MAX(_INSERTED_TIMESTAMP), '1970-01-01' :: DATE) max_INSERTED_TIMESTAMP
     FROM
-        TABLE(
-            information_schema.external_table_files(
-                table_name => '{{ source( "bronze_streamline", "eth_getBlockReceipts") }}'
-            )
-        ) A
+        {{ this }}),
+        meta AS (
+            SELECT
+                CAST(
+                    SPLIT_PART(SPLIT_PART(file_name, '/', 3), '_', 1) AS INTEGER
+                ) AS _partition_by_block_number
+            FROM
+                TABLE(
+                    information_schema.external_table_files(
+                        table_name => '{{ source( "bronze_streamline", "eth_getBlockReceipts") }}'
+                    )
+                ) A
 
 {% if is_incremental() %}
 WHERE
-    LEAST(
-        registered_on,
-        last_modified
-    ) >= (
+    last_modified >= (
         SELECT
-            COALESCE(MAX(_INSERTED_TIMESTAMP), '1970-01-01' :: DATE) max_INSERTED_TIMESTAMP
+            MAX(max_INSERTED_TIMESTAMP)
         FROM
-            {{ this }})
-    ),
-    partitions AS (
-        SELECT
-            DISTINCT TO_DATE(
-                concat_ws('-', SPLIT_PART(file_name, '/', 3), SPLIT_PART(file_name, '/', 4), SPLIT_PART(file_name, '/', 5))
-            ) AS _partition_by_modified_date
-        FROM
-            meta
+            max_date
     )
-{% else %}
-)
 {% endif %}
+)
 SELECT
-    {{ dbt_utils.surrogate_key(
-        ['block_number']
-    ) }} AS id,
+    MD5(
+        CAST(COALESCE(CAST(block_number AS text), '') AS text)
+    ) AS id,
     block_number,
-    registered_on AS _inserted_timestamp
+    (
+
+{% if is_incremental() %}
+SELECT
+    MAX(max_INSERTED_TIMESTAMP)
+FROM
+    max_date
+{% else %}
+    SYSDATE()
+{% endif %}) AS _inserted_timestamp
 FROM
     {{ source(
         "bronze_streamline",
         "eth_getBlockReceipts"
-    ) }} AS s
+    ) }}
+    t
     JOIN meta b
-    ON b.file_name = metadata$filename
-
-{% if is_incremental() %}
-JOIN partitions p
-ON p.partition_block_id = s._partition_by_block_id
+    ON b._partition_by_block_number = t._partition_by_block_id
 WHERE
-    DATA :error :code IS NULL
+    b._partition_by_block_number = t._partition_by_block_id
+    AND DATA :error :code IS NULL
     OR DATA :error :code NOT IN (
         '-32000',
         '-32001',
@@ -72,9 +72,6 @@ WHERE
         '-32008',
         '-32009',
         '-32010'
-    )
-{% endif %}
-
-qualify(ROW_NUMBER() over (PARTITION BY id
+    ) qualify(ROW_NUMBER() over (PARTITION BY id
 ORDER BY
     _inserted_timestamp DESC)) = 1
