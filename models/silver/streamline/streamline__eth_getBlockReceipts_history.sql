@@ -8,7 +8,28 @@
 
 {% for item in range(35) %}
     (
+        WITH blocks AS (
 
+            SELECT
+                block_number :: STRING AS block_number
+            FROM
+                {{ ref("streamline__blocks") }}
+            WHERE
+                block_number BETWEEN {{ item * 1000000 + 1 }}
+                AND {{(
+                    item + 1
+                ) * 1000000 }}
+            EXCEPT
+            SELECT
+                block_number :: STRING
+            FROM
+                {{ ref("streamline__complete_eth_getBlockReceipts") }}
+            WHERE
+                block_number BETWEEN {{ item * 1000000 + 1 }}
+                AND {{(
+                    item + 1
+                ) * 1000000 }}
+        )
         SELECT
             PARSE_JSON(
                 CONCAT(
@@ -20,22 +41,7 @@
                 )
             ) AS request
         FROM
-            {{ ref("streamline__blocks") }}
-        WHERE
-            block_number BETWEEN {{ item * 1000000 + 1 }}
-            AND {{(
-                item + 1
-            ) * 1000000 }}
-        EXCEPT
-        SELECT
-            block_number
-        FROM
-            {{ ref("streamline__complete_eth_getBlockReceipts") }}
-        WHERE
-            block_number BETWEEN {{ item * 1000000 + 1 }}
-            AND {{(
-                item + 1
-            ) * 1000000 }}
+            blocks
     ) {% if not loop.last %}
     UNION ALL
     {% endif %}
