@@ -25,7 +25,7 @@ WITH blocks AS (
 SELECT
     PARSE_JSON(
         CONCAT(
-            '{"method": "trace_block", "params":["',
+            '{"method": "eth_getBlockReceipts", "params":["',
             block_number :: STRING,
             '"],"id":"',
             block_number :: STRING,
