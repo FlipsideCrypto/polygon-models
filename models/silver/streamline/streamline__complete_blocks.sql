@@ -39,9 +39,7 @@ WHERE
             meta
     )
 {% else %}
-)
 {% endif %}
-)
 SELECT
     MD5(
         CAST(COALESCE(CAST(block_number AS text), '') AS text)

@@ -6,10 +6,26 @@
     )
 ) }}
 
+WITH blocks AS (
+
+    SELECT
+        block_number :: STRING AS block_number
+    FROM
+        {{ ref("streamline__blocks") }}
+    WHERE
+        block_number > 35000000
+    EXCEPT
+    SELECT
+        block_number :: STRING
+    FROM
+        {{ ref("streamline__complete_eth_getBlockReceipts") }}
+    WHERE
+        block_number > 35000000
+)
 SELECT
     PARSE_JSON(
         CONCAT(
-            '{"method": "eth_getBlockReceipts", "params":["',
+            '{"method": "trace_block", "params":["',
             block_number :: STRING,
             '"],"id":"',
             block_number :: STRING,
@@ -17,14 +33,4 @@ SELECT
         )
     ) AS request
 FROM
-    {{ ref("streamline__blocks") }}
-WHERE
-    block_number > 35000000
-    AND block_number IS NOT NULL
-EXCEPT
-SELECT
-    block_number
-FROM
-    {{ ref("streamline__complete_eth_getBlockReceipts") }}
-WHERE
-    block_number > 35000000
+    blocks
