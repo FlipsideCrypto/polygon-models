@@ -6,32 +6,40 @@
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(id)"
 ) }}
 
-WITH max_date AS (
+WITH meta AS (
 
     SELECT
-        COALESCE(MAX(_INSERTED_TIMESTAMP), '1970-01-01' :: DATE) max_INSERTED_TIMESTAMP
+        registered_on,
+        last_modified,
+        file_name
     FROM
-        {{ this }}),
-        meta AS (
-            SELECT
-                CAST(
-                    SPLIT_PART(SPLIT_PART(file_name, '/', 3), '_', 1) AS INTEGER
-                ) AS _partition_by_block_number
-            FROM
-                TABLE(
-                    information_schema.external_table_files(
-                        table_name => '{{ source( "bronze_streamline", "blocks") }}'
-                    )
-                ) A
+        TABLE(
+            information_schema.external_table_files(
+                table_name => '{{ source( "bronze_streamline", "blocks") }}'
+            )
+        ) A
 
 {% if is_incremental() %}
 WHERE
-    last_modified >= (
+    LEAST(
+        registered_on,
+        last_modified
+    ) >= (
         SELECT
-            MAX(max_INSERTED_TIMESTAMP)
+            COALESCE(MAX(_INSERTED_TIMESTAMP), '1970-01-01' :: DATE) max_INSERTED_TIMESTAMP
         FROM
-            max_date
+            {{ this }})
+    ),
+    partitions AS (
+        SELECT
+            CAST(
+                SPLIT_PART(SPLIT_PART(file_name, '/', 3), '_', 1) AS INTEGER
+            ) AS _partition_by_block_number
+        FROM
+            meta
     )
+{% else %}
+)
 {% endif %}
 )
 SELECT
@@ -39,16 +47,7 @@ SELECT
         CAST(COALESCE(CAST(block_number AS text), '') AS text)
     ) AS id,
     block_number,
-    (
-
-{% if is_incremental() %}
-SELECT
-    MAX(max_INSERTED_TIMESTAMP)
-FROM
-    max_date
-{% else %}
-    SYSDATE()
-{% endif %}) AS _inserted_timestamp
+    registered_on AS _inserted_timestamp
 FROM
     {{ source(
         "bronze_streamline",
@@ -56,10 +55,14 @@ FROM
     ) }}
     t
     JOIN meta b
-    ON b._partition_by_block_number = t._partition_by_block_id
+    ON b.file_name = metadata$filename
+
+{% if is_incremental() %}
+JOIN partitions p
+ON p._partition_by_block_number = t._partition_by_block_id
+{% endif %}
 WHERE
-    b._partition_by_block_number = t._partition_by_block_id
-    AND DATA :error :code IS NULL
+    DATA :error :code IS NULL
     OR DATA :error :code NOT IN (
         '-32000',
         '-32001',
