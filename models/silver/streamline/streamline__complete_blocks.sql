@@ -39,6 +39,7 @@ WHERE
             meta
     )
 {% else %}
+)
 {% endif %}
 SELECT
     MD5(
