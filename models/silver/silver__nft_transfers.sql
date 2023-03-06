@@ -68,10 +68,6 @@ erc721s AS (
         topics [0] :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
         AND DATA = '0x'
         AND topics [3] IS NOT NULL
-        AND contract_address NOT IN (
-            '0x6ba6f2207e343923ba692e5cae646fb0f566db8d',
-            '0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb'
-        )
 ),
 transfer_singles AS (
     SELECT
