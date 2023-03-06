@@ -18,7 +18,7 @@ SELECT
     event_index
 FROM
     {{ ref('silver__nft_transfers') }} A
-    JOIN {{ ref('core__dim_contracts') }}
+    LEFT JOIN {{ ref('core__dim_contracts') }}
     b
     ON A.contract_address = b.address
 WHERE
