@@ -19,7 +19,7 @@ models:
       - name: EVENT_NAME
         description: '{{ doc("deprecation") }}' 
       - name: EVENT_INPUTS
-        description:'{{ doc("deprecation") }}' 
+        description: '{{ doc("deprecation") }}' 
       - name: TOPICS
         description: '{{ doc("poly_topics") }}'
       - name: DATA
