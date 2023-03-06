@@ -1,11 +1,11 @@
-name: dbt_run_streamline_decoder_history_26_29m
-run-name: dbt_run_streamline_decoder_history_26_29m
+name: dbt_run_streamline_decoder_history_40m
+run-name: dbt_run_streamline_decoder_history_40m
 
 on:
   workflow_dispatch:
   schedule:
-    # Runs "at 5:30 UTC PM" (see https://crontab.guru)
-    - cron: '30 17 * * *'
+    # Runs "at midnight UTC" (see https://crontab.guru)
+    - cron: '0 0 * * *'
     
 env:
   DBT_PROFILES_DIR: ./
@@ -41,4 +41,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True,"WAIT":600,"row_limit":2400000}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_025* models/silver/streamline/decoder/history/streamline__decode_logs_history_026* models/silver/streamline/decoder/history/streamline__decode_logs_history_027* models/silver/streamline/decoder/history/streamline__decode_logs_history_028* models/silver/streamline/decoder/history/streamline__decode_logs_history_029* 
+          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True,"WAIT":600,"row_limit":2400000}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_04*
