@@ -2,26 +2,45 @@ version: 2
 models:
   - name: core__ez_matic_transfers
     description: '{{ doc("poly_ez_eth_transfers_table_doc") }}'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - _CALL_ID
       
     columns:
       - name: BLOCK_NUMBER
         description: '{{ doc("poly_block_number") }}'
       - name: BLOCK_TIMESTAMP
         description: '{{ doc("poly_block_timestamp") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_NTZ 
       - name: TX_HASH
         description: '{{ doc("poly_transfer_tx_hash") }}'
-      - name: ETH_FROM_ADDRESS
+        tests:
+          - not_null
+      - name: MATIC_FROM_ADDRESS
         description: '{{ doc("poly_transfer_from_address") }}'
-      - name: ETH_TO_ADDRESS
+        tests:
+          - not_null
+      - name: MATIC_TO_ADDRESS
         description: '{{ doc("poly_transfer_to_address") }}'
+        tests:
+          - not_null
       - name: AMOUNT
         description: '{{ doc("poly_eth_amount") }}'
-      - name: TOKEN_PRICE
-        description: '{{ doc("poly_transfer_token_price") }}'
+        tests:
+          - not_null
       - name: AMOUNT_USD
-        description: '{{ doc("poly_eth_amount_usd") }}' 
-      - name: HAS_PRICE
-        description: '{{ doc("poly_transfer_has_price") }}' 
+        description: '{{ doc("poly_eth_amount_usd") }}'
+        tests:
+          - not_null:
+              where: BLOCK_TIMESTAMP::date > '2021-01-01' AND BLOCK_TIMESTAMP < CURRENT_DATE - 1
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("poly_origin_sig") }}'
       - name: ORIGIN_FROM_ADDRESS

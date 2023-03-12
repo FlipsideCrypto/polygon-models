@@ -1,0 +1,44 @@
+name: dbt_run_streamline_decoder_history_30_34m
+run-name: dbt_run_streamline_decoder_history_30_34m
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs "at 7:30 UTC PM" (see https://crontab.guru)
+    - cron: '30 19 * * *'
+    
+env:
+  DBT_PROFILES_DIR: ./
+
+  ACCOUNT: "${{ vars.ACCOUNT }}"
+  ROLE: "${{ vars.ROLE }}"
+  USER: "${{ vars.USER }}"
+  PASSWORD: "${{ secrets.PASSWORD }}"
+  REGION: "${{ vars.REGION }}"
+  DATABASE: "${{ vars.DATABASE }}"
+  WAREHOUSE: "${{ vars.WAREHOUSE }}"
+  SCHEMA: "${{ vars.SCHEMA }}"
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  run_dbt_jobs:
+    runs-on: ubuntu-latest
+    environment: 
+      name: workflow_prod_backfill
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7.x"
+
+      - name: install dependencies
+        run: |
+          pip3 install dbt-snowflake==${{ vars.DBT_VERSION }} cli_passthrough requests click
+          dbt deps
+      - name: Run DBT Jobs
+        run: |
+          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True,"WAIT":600,"row_limit":2400000}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_030* models/silver/streamline/decoder/history/streamline__decode_logs_history_031* models/silver/streamline/decoder/history/streamline__decode_logs_history_032* models/silver/streamline/decoder/history/streamline__decode_logs_history_033* models/silver/streamline/decoder/history/streamline__decode_logs_history_034*

@@ -1,7 +1,9 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "_log_id",
-    cluster_by = ['block_timestamp::DATE']
+    unique_key = 'tx_hash',
+    cluster_by = ['block_timestamp::DATE'],
+    incremental_strategy = 'delete+insert',
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
 ) }}
 
 WITH base_txs AS (

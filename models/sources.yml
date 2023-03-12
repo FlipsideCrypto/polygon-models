@@ -37,13 +37,21 @@ sources:
     tables:
       - name: blocks
       - name: transactions
+      - name: trace_blocks
+      - name: eth_getBlockReceipts
+      - name: decoded_logs
   - name: streamline_crosschain
     database: streamline
     schema: crosschain
-    tables: 
+    tables:
       - name: node_mapping
   - name: crosschain_silver
     database: crosschain
     schema: silver
     tables:
       - name: apis_keys
+  - name: crosschain_public
+    database: crosschain
+    schema: bronze_public
+    tables:
+      - name: user_abis

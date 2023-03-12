@@ -32,6 +32,9 @@ on-run-start:
   - "{{ create_udfs() }}"
   - "{{ create_tasks() }}"
 
+on-run-end:
+  - '{{ apply_meta_as_tags(results) }}'
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
@@ -40,6 +43,7 @@ on-run-start:
 # using the `{{ config(...) }}` macro.
 
 vars:
-  STREAMLINE_INVOKE_STREAMS: True
+  STREAMLINE_INVOKE_STREAMS: False
   "dbt_date:time_zone": GMT
   UPDATE_UDFS_AND_SPS: False
+  UPDATE_SNOWFLAKE_TAGS: True
