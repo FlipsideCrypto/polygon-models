@@ -4,8 +4,8 @@ run-name: dbt_run_streamline_receipts_history
 on:
   workflow_dispatch:
   schedule:
-    # Runs "every day at 10PM" (see https://crontab.guru)
-    - cron: '0 22 * * *'
+    # Runs "every 3 hours" (see https://crontab.guru)
+    - cron: '0 */3 * * *'
 
 env:
   DBT_PROFILES_DIR: ./
