@@ -1,11 +1,11 @@
-name: dbt_run_temp
-run-name: dbt_run_temp
+name: dbt_run_scheduled_abi
+run-name: dbt_run_scheduled_abi
 
 on:
   workflow_dispatch:
   schedule:
-    # Runs "every 20 mins" (see https://crontab.guru)
-    - cron: '*/20 * * * *'
+    # Runs at every 30th minute (see https://crontab.guru)
+    - cron: '30 * * * *'
     
 env:
   DBT_PROFILES_DIR: ./

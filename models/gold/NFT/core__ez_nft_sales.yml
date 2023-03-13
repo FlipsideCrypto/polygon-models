@@ -1,0 +1,62 @@
+version: 2
+models:
+  - name: core__ez_nft_sales
+    description: This table contains NFT sales from Opensea Seaport 1.1 and 1.4 on Polygon.
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: The block number of the NFT sale.
+      - name: BLOCK_TIMESTAMP
+        description: The block timestamp of the NFT sale.
+      - name: TX_HASH
+        description: The transaction hash of the NFT sale. Please note this is not unique, as it is possible to have multiple NFT sales in a single transaction.
+      - name: EVENT_TYPE
+        description: The event type of the NFT sale, can be either `sale` or `bid_won`.
+      - name: PLATFORM_ADDRESS
+        description: The address of the NFT platform.
+      - name: PLATFORM_NAME
+        description: The name of the NFT platform.
+      - name: PLATFORM_EXCHANGE_VERSION
+        description: The version of the NFT platform, for example `1.1` or `1.4`.
+      - name: SELLER_ADDRESS
+        description: The address of the seller of the NFT.
+      - name: BUYER_ADDRESS
+        description: The address of the buyer of the NFT.
+      - name: NFT_ADDRESS
+        description: The address of the NFT contract.
+      - name: PROJECT_NAME
+        description: The name of the project, read from the NFT contract.
+      - name: ERC1155_VALUE
+        description: The value of the ERC1155 transfer. This is only populated for ERC1155 transfers.
+      - name: TOKENID
+        description: The token ID of the NFT sale.
+      - name: CURRENCY_SYMBOL
+        description: The currency symbol of the NFT sale.
+      - name: CURRENCY_ADDRESS
+        description: The address of the currency used for the NFT sale.
+      - name: PRICE
+        description: The total price of the NFT sale, in the currency specified by `CURRENCY_SYMBOL`, including fees.
+      - name: PRICE_USD
+        description: The total price of the NFT sale, in USD, including fees.
+      - name: TOTAL_FEES
+        description: The total fees of the NFT sale, in the currency specified by `CURRENCY_SYMBOL`.
+      - name: PLATFORM_FEE
+        description: The platform fee of the NFT sale, in the currency specified by `CURRENCY_SYMBOL`.
+      - name: CREATOR_FEE
+        description: The creator fee of the NFT sale, in the currency specified by `CURRENCY_SYMBOL`.
+      - name: TOTAL_FEES_USD
+        description: The total fees of the NFT sale, in USD.
+      - name: PLATFORM_FEE_USD
+        description: The platform fee of the NFT sale, in USD.
+      - name: CREATOR_FEE_USD
+        description: The creator fee of the NFT sale, in USD.
+      - name: TX_FEE
+        description: The transaction fee in MATIC of the NFT sale.
+      - name: TX_FEE_USD
+        description: The transaction fee in USD of the NFT sale.
+      - name: ORIGIN_FROM_ADDRESS
+        description: The address of the transaction sender.
+      - name: ORIGIN_TO_ADDRESS
+        description: The address of the transaction recipient, often the platform address.
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: The function signature of the transaction.
