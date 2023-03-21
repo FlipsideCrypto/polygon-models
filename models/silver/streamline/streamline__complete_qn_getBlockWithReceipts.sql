@@ -15,7 +15,7 @@ WITH meta AS (
     FROM
         TABLE(
             information_schema.external_table_files(
-                table_name => '{{ source( "bronze_streamline", "blocks") }}'
+                table_name => '{{ source( "bronze_streamline", "qn_getBlockWithReceipts") }}'
             )
         ) A
 
@@ -50,7 +50,7 @@ SELECT
 FROM
     {{ source(
         "bronze_streamline",
-        "blocks"
+        "qn_getBlockWithReceipts"
     ) }}
     t
     JOIN meta b
