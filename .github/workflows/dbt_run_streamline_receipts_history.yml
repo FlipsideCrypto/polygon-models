@@ -1,5 +1,5 @@
-name: dbt_run_streamline_history
-run-name: dbt_run_streamline_history
+name: dbt_run_streamline_receipts_history
+run-name: dbt_run_streamline_receipts_history
 
 on:
   workflow_dispatch:
@@ -40,4 +40,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m 1+models/silver/streamline/streamline__debug_traceBlockByNumber_history.sql 1+models/silver/streamline/streamline__qn_getBlockWithReceipts_history.sql
+          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m 1+models/silver/streamline/streamline__qn_getBlockWithReceipts_history.sql
