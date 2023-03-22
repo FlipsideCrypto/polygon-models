@@ -35,10 +35,8 @@ sources:
     schema: |
       {{ "POLYGON_DEV" if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", False) else "POLYGON" }}
     tables:
-      - name: blocks
-      - name: transactions
-      - name: trace_blocks
-      - name: eth_getBlockReceipts
+      - name: qn_getBlockWithReceipts
+      - name: debug_traceBlockByNumber
       - name: decoded_logs
   - name: streamline_crosschain
     database: streamline

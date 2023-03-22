@@ -15,7 +15,7 @@ WITH meta AS (
     FROM
         TABLE(
             information_schema.external_table_files(
-                table_name => '{{ source( "bronze_streamline", "blocks") }}'
+                table_name => '{{ source( "bronze_streamline", "qn_getBlockWithReceipts") }}'
             )
         ) A
 
@@ -50,7 +50,7 @@ SELECT
 FROM
     {{ source(
         "bronze_streamline",
-        "blocks"
+        "qn_getBlockWithReceipts"
     ) }}
     t
     JOIN meta b
@@ -61,7 +61,8 @@ JOIN partitions p
 ON p._partition_by_block_number = t._partition_by_block_id
 {% endif %}
 WHERE
-    DATA :error :code IS NULL
+    p._partition_by_block_number = t._partition_by_block_id
+    AND DATA :error :code IS NULL
     OR DATA :error :code NOT IN (
         '-32000',
         '-32001',

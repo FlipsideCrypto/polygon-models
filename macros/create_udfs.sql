@@ -15,8 +15,6 @@
         {% if target.database != "POLYGON_COMMUNITY_DEV" %}
             {% set sql %}
             {{ create_udf_get_chainhead() }}
-            {{ create_udf_get_blocks() }}
-            {{ create_udf_get_transactions() }}
             {{ create_udf_bulk_json_rpc() }}
             {{ create_udf_decode_array_string() }}
             {{ create_udf_decode_array_object() }}
