@@ -47,7 +47,6 @@ blocks AS (
         )
 )
 SELECT
-SELECT
     PARSE_JSON(
         CONCAT(
             '{"jsonrpc": "2.0",',
