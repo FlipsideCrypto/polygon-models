@@ -1,5 +1,5 @@
-name: dbt_run_streamline_receipts_history
-run-name: dbt_run_streamline_receipts_history
+name: dbt_run_streamline_flights_history
+run-name: dbt_run_streamline_flights_history
 
 on:
   workflow_dispatch:
