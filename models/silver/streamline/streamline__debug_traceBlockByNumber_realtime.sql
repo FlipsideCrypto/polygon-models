@@ -23,30 +23,28 @@ blocks AS (
     FROM
         {{ ref("streamline__blocks") }}
     WHERE
-        block_number > 30000000
-        {# (
+        (
             block_number >= (
                 SELECT
                     block_number
                 FROM
                     last_3_days
             )
-        ) #}
+        )
     EXCEPT
     SELECT
         block_number :: STRING
     FROM
         {{ ref("streamline__complete_debug_traceBlockByNumber") }}
     WHERE
-        block_number > 30000000
-        {# (
+        (
             block_number >= (
                 SELECT
                     block_number
                 FROM
                     last_3_days
             )
-        ) #}
+        )
 )
 SELECT
     PARSE_JSON(
