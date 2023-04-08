@@ -16,4 +16,3 @@ SELECT
     latest_owner
 FROM
     {{ ref('silver__try_badger_badge_movements') }}
-silver__try_badger_badge_movements
