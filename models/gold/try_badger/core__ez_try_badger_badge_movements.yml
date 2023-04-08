@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: core__ez_try_badger_badge_movements
+    description: 'This table contains all badge movements from try badger'
+      
+    columns:
+      - name: BLOCK_NUMBER
+        description: 'The block number that the badge was moved.'
+      - name: BLOCK_TIMESTAMP
+        description: 'The block timestamp that the badge was moved.'
+      - name: TX_HASH
+        description: 'The transaction hash that the badge was moved.'
+      - name: _LOG_ID
+        description: 'The index which this event occured'
+      - name: NETWORK_ADDRESS
+        description: 'The smart contract address.'
+      - name: BADGE_ID
+        description: 'The Badge ID'
+      - name: PREVIOUS_OWNER
+        description: 'The address previously holding this Badge ID'
+      - name: LATEST_OWNER
+        description: 'The address currently holding this Badge ID'

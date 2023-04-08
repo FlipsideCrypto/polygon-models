@@ -1,0 +1,17 @@
+version: 2
+models:
+  - name: core__ez_try_badger_networks
+    description: 'This table contains all networks created by try badger'
+      
+    columns:
+      - name: BLOCK_NUMBER
+        description: 'The block number that the network was created.'
+      - name: BLOCK_TIMESTAMP
+        description: 'The block timestamp that the network was created.'
+      - name: TX_HASH
+        description: 'The transaction hash that the network was created.'
+      - name: NETWORK_ADDRESS
+        description: 'The smart contract address.'
+      - name: NETWORK_NAME
+        description: 'The network name that was used to create this smart contract.'
+      
