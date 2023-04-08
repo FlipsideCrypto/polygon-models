@@ -12,6 +12,7 @@ SELECT
     event_index,
     network_address,
     badge_id,
+    badge_amount,
     previous_owner,
     latest_owner
 FROM

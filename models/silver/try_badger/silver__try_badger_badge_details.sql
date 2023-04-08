@@ -13,7 +13,7 @@ SELECT
     event_index,
     contract_address,
     public.udf_hex_to_int(substr(topics[1], 3, 64)) as badge_id,
-    try_hex_decode_string(substr(data,3+64+64)) as badge_ipfs,
+    try_hex_decode_string(rtrim(substr(data,3+64+64),(substr(data,3+64+64+126,1)))) as badge_ipfs,
     _inserted_timestamp
 FROM {{ ref('silver__logs') }}
 WHERE contract_address IN ( SELECT network_address FROM {{ ref('silver__try_badger_networks') }} )

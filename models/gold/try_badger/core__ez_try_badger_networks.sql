@@ -6,9 +6,9 @@
 ) }}
 
 SELECT
-    tx_hash,
     block_number,
     block_timestamp,
+    tx_hash,
     network_address,
     network_name
 FROM
