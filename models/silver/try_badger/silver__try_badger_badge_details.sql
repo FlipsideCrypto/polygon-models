@@ -12,7 +12,7 @@ SELECT
     tx_hash,
     contract_address,
     event_inputs:_id::string as badge_id,
-    'https://badger.mypinata.cloud/ipfs/' || event_inputs:_value::string as badge_ipfs,
+    'https://ipfs.io/ipfs/' || event_inputs:_value::string as badge_ipfs,
     _inserted_timestamp
 FROM {{ ref('silver__logs') }}
 WHERE contract_address IN ( SELECT network_address FROM {{ ref('silver__try_badger_networks') }} )
