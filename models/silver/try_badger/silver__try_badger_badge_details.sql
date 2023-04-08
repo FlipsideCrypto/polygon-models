@@ -10,9 +10,10 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
+    event_index,
     contract_address,
-    event_inputs:_id::string as badge_id,
-    'https://ipfs.io/ipfs/' || event_inputs:_value::string as badge_ipfs,
+    public.udf_hex_to_int(substr(topics[1], 3, 64)) as badge_id,
+    try_hex_decode_string(substr(data,3+64+64)) as badge_ipfs,
     _inserted_timestamp
 FROM {{ ref('silver__logs') }}
 WHERE contract_address IN ( SELECT network_address FROM {{ ref('silver__try_badger_networks') }} )
@@ -23,7 +24,7 @@ WHERE contract_address IN ( SELECT network_address FROM {{ ref('silver__try_badg
         SELECT
         MAX(
             _inserted_timestamp
-        ) :: DATE - 1
+        )
         FROM
             {{ this }}
     )

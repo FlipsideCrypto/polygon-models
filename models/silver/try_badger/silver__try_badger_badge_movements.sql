@@ -6,15 +6,18 @@
 ) }}
 
 SELECT 
+    _log_id,
     block_number,
     block_timestamp,
     tx_hash,
-    _log_id,
-    _inserted_timestamp,
+    event_index,
     contract_address AS network_address,
-    event_inputs:_id::string AS badge_id,
-    event_inputs:_from::string AS previous_owner,
-    event_inputs:_to::string AS latest_owner
+    regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') as data_split,
+    public.udf_hex_to_int(substr(data_split[0], 3, 64)) as badge_id,
+    public.udf_hex_to_int(substr(data_split[1], 3, 64)) as badge_amount,
+    '0x' || substr(topics[2], 3+24, 40) as previous_owner,
+    '0x' || substr(topics[3], 3+24, 40) as latest_owner,
+    _inserted_timestamp
 FROM {{ ref('silver__logs') }}
 WHERE contract_address IN ( SELECT network_address FROM {{ ref('silver__try_badger_networks') }} )
     AND block_timestamp > '2022-10-15'
@@ -24,7 +27,7 @@ WHERE contract_address IN ( SELECT network_address FROM {{ ref('silver__try_badg
         SELECT
         MAX(
             _inserted_timestamp
-        ) :: DATE - 1
+        )
         FROM
             {{ this }}
     )

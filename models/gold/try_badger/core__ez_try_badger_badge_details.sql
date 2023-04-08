@@ -6,10 +6,10 @@
 ) }}
 
 SELECT
-    _log_id,
     block_number,
     block_timestamp,
     tx_hash,
+    event_index,
     contract_address as network_address,
     badge_id,
     badge_ipfs

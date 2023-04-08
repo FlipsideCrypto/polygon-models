@@ -9,7 +9,7 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    _log_id,
+    event_index,
     network_address,
     badge_id,
     previous_owner,
