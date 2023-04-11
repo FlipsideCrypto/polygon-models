@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: badger__ez_try_badger_networks
+  - name: try_badger_v1__ez_try_badger_networks
     description: 'This table contains all networks created by try badger'
       
     columns:

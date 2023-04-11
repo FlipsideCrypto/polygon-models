@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: badger__ez_try_badger_badge_movements
+  - name: try_badger_v1__ez_try_badger_badge_details
     description: 'This table contains all badge movements from try badger'
       
     columns:
@@ -15,10 +15,7 @@ models:
       - name: NETWORK_ADDRESS
         description: 'The smart contract address.'
       - name: BADGE_ID
-        description: 'The Badge ID'
-      - name: BADGE_AMOUNT
-        description: 'The number of Badges transfered'
-      - name: PREVIOUS_OWNER
-        description: 'The address previously holding this Badge ID'
-      - name: LATEST_OWNER
-        description: 'The address currently holding this Badge ID'
+        description: 'The badge ID.'
+      - name: BADGE_IPFS
+        description: 'The badge IPFS Link'
+        
