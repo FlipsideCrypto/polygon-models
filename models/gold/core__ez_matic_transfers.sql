@@ -39,7 +39,7 @@ AND _inserted_timestamp >= (
 matic_price AS (
     SELECT
         HOUR,
-        AVG(price) AS matic_price
+        price AS matic_price
     FROM
         {{ source(
             'ethereum',
@@ -47,8 +47,6 @@ matic_price AS (
         ) }}
     WHERE
         token_address = LOWER('0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0')
-    GROUP BY
-        HOUR
 ),
 tx_table AS (
     SELECT
