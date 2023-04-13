@@ -6,7 +6,7 @@
     )
 ) }}
 
-WITH last_3_days AS (
+{# WITH last_3_days AS (
 
     SELECT
         block_number
@@ -19,7 +19,7 @@ WITH last_3_days AS (
 ),
 blocks AS (
     SELECT
-        block_number :: STRING AS block_number
+        block_number
     FROM
         {{ ref("streamline__blocks") }}
     WHERE
@@ -33,7 +33,7 @@ blocks AS (
         )
     EXCEPT
     SELECT
-        block_number :: STRING
+        block_number
     FROM
         {{ ref("streamline__complete_qn_getBlockWithReceipts") }}
     WHERE
@@ -45,17 +45,45 @@ blocks AS (
                     last_3_days
             )
         )
+) #}
+WITH blocks AS (
+    SELECT
+        block_number
+    FROM
+        {{ ref("streamline__blocks") }}
+    WHERE
+        block_number >= 40000000
+    EXCEPT
+    SELECT
+        block_number
+    FROM
+        {{ ref("streamline__complete_qn_getBlockWithReceipts") }}
+    WHERE
+        block_number >= 40000000
 )
 SELECT
     PARSE_JSON(
         CONCAT(
             '{"jsonrpc": "2.0",',
-            '"method": "qn_getBlockWithReceipts", "params":[',
-            block_number :: INTEGER,
-            '],"id":"',
+            '"method": "qn_getBlockWithReceipts", "params":["',
+            REPLACE(
+                concat_ws(
+                    '',
+                    '0x',
+                    to_char(
+                        block_number :: INTEGER,
+                        'XXXXXXXX'
+                    )
+                ),
+                ' ',
+                ''
+            ),
+            '"],"id":"',
             block_number :: STRING,
             '"}'
         )
     ) AS request
 FROM
     blocks
+ORDER BY
+    block_number ASC
