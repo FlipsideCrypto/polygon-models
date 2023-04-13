@@ -11,7 +11,7 @@
         WITH blocks AS (
 
             SELECT
-                block_number AS block_number
+                block_number
             FROM
                 {{ ref("streamline__blocks") }}
             WHERE
