@@ -12,6 +12,7 @@ sources:
     schema: core
     tables:
       - name: address_labels
+      - name: ez_hourly_prices
   - name: symbols_cross_tab
     database: FLIPSIDE_PROD_DB
     schema: SILVER
@@ -35,10 +36,10 @@ sources:
     schema: |
       {{ "POLYGON_DEV" if var("STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES", False) else "POLYGON" }}
     tables:
+      - name: receipts
       - name: blocks
       - name: transactions
-      - name: trace_blocks
-      - name: eth_getBlockReceipts
+      - name: debug_traceBlockByNumber
       - name: decoded_logs
   - name: streamline_crosschain
     database: streamline

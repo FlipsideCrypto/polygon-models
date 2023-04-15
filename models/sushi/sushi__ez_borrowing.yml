@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: sushi__ez_borrowing
-    description: Deprecating soon
+    # description: Deprecating soon
 
     # columns:
     #   - name: BLOCK_NUMBER

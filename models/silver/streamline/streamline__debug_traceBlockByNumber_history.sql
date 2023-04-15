@@ -1,12 +1,12 @@
 {{ config (
     materialized = "view",
     post_hook = if_data_call_function(
-        func = "{{this.schema}}.udf_bulk_json_rpc(object_construct('sql_source', '{{this.identifier}}', 'external_table', 'trace_blocks', 'sql_limit', {{var('sql_limit','5000000')}}, 'producer_batch_size', {{var('producer_batch_size','20000')}}, 'worker_batch_size', {{var('worker_batch_size','10000')}}, 'batch_call_limit', {{var('batch_call_limit','99')}}))",
+        func = "{{this.schema}}.udf_bulk_get_traces(object_construct('sql_source', '{{this.identifier}}', 'external_table', 'debug_traceBlockByNumber', 'sql_limit', {{var('sql_limit','150000')}}, 'producer_batch_size', {{var('producer_batch_size','150000')}}, 'worker_batch_size', {{var('worker_batch_size','500')}}, 'batch_call_limit', {{var('batch_call_limit','1')}}))",
         target = "{{this.schema}}.{{this.identifier}}"
     )
 ) }}
 
-{% for item in range(35) %}
+{% for item in range(40) %}
     (
         WITH blocks AS (
 
@@ -23,7 +23,7 @@
             SELECT
                 block_number :: STRING
             FROM
-                {{ ref("streamline__complete_trace_blocks") }}
+                {{ ref("streamline__complete_debug_traceBlockByNumber") }}
             WHERE
                 block_number BETWEEN {{ item * 1000000 + 1 }}
                 AND {{(
@@ -33,9 +33,11 @@
         SELECT
             PARSE_JSON(
                 CONCAT(
-                    '{"method": "trace_block", "params":["',
-                    block_number :: STRING,
-                    '"],"id":"',
+                    '{"jsonrpc": "2.0",',
+                    '"method": "debug_traceBlockByNumber", "params":[',
+                    block_number :: INTEGER,
+                    ',{"tracer": "callTracer"}',
+                    '],"id":"',
                     block_number :: STRING,
                     '"}'
                 )

@@ -35,8 +35,10 @@ token_names AS (
         function_signature,
         read_output,
         regexp_substr_all(SUBSTR(read_output, 3, len(read_output)), '.{64}') AS segmented_output,
-        PUBLIC.udf_hex_to_int(
-            segmented_output [1] :: STRING
+        TRY_TO_NUMBER(
+            PUBLIC.udf_hex_to_int(
+                segmented_output [1] :: STRING
+            )
         ) AS sub_len,
         TRY_HEX_DECODE_STRING(
             SUBSTR(
@@ -69,8 +71,10 @@ token_symbols AS (
         function_signature,
         read_output,
         regexp_substr_all(SUBSTR(read_output, 3, len(read_output)), '.{64}') AS segmented_output,
-        PUBLIC.udf_hex_to_int(
-            segmented_output [1] :: STRING
+        TRY_TO_NUMBER(
+            PUBLIC.udf_hex_to_int(
+                segmented_output [1] :: STRING
+            )
         ) AS sub_len,
         TRY_HEX_DECODE_STRING(
             SUBSTR(
@@ -122,7 +126,7 @@ contracts AS (
 SELECT
     c1.contract_address :: STRING AS contract_address,
     token_name,
-    token_decimals :: INTEGER AS token_decimals,
+    TRY_TO_NUMBER(token_decimals) AS token_decimals,
     token_symbol,
     _inserted_timestamp
 FROM
