@@ -19,6 +19,22 @@ FROM {{ ref('silver__transactions') }}
 WHERE to_address = '0xa5e0829caced8ffdd4de3c43696c57f7d7a678ff' -- Quickswap Router Address
   AND STATUS = 'SUCCESS'
   
+),
+
+prices AS (
+
+SELECT
+  hour,
+  token_address,
+  price
+FROM {{ ref('core__fact_hourly_token_prices') }}
+WHERE
+    token_address IN (SELECT DISTINCT token0 FROM {{ ref('silver_dex__pools') }}) 
+      OR token_address IN (SELECT DISTINCT token1 FROM {{ ref('silver_dex__pools') }}) 
+
+{% if is_incremental() %} 
+    AND _inserted_timestamp >= (SELECT MAX(_inserted_timestamp) :: DATE - 2 FROM {{ this }}) 
+{% endif %}
 )
 
 SELECT 
@@ -31,16 +47,18 @@ SELECT
   l.contract_address, 
   po.name AS pool_name,
   event_name,
+  p0.price AS token0_price,
+  p1.price AS token1_price,
   CASE 
    WHEN decoded_flat:amount0In ::NUMERIC = 0 THEN decoded_flat:amount1In ::NUMERIC / POW(10,18)
    ELSE decoded_flat:amount0In ::NUMERIC / POW(10,18)
   END AS amount_in,
-  NULL AS amount_in_usd,
+  token0_price * amount_in AS amountin_usd,
   CASE 
    WHEN decoded_flat:amount0Out ::NUMERIC = 0 THEN decoded_flat:amount1Out ::NUMERIC / POW(10,18)
    ELSE decoded_flat:amount0Out ::NUMERIC / POW(10,18)
-  END AS amount_out,
-  NULL AS amount_out_usd,
+  END AS amount_out,  
+  token1_price * amount_out AS amountout_usd,
   decoded_flat:sender ::STRING AS sender,
   t.tx_to,
   event_index,
@@ -68,5 +86,12 @@ LEFT OUTER JOIN {{ ref('core__dim_contracts') }} co
 LEFT OUTER JOIN {{ ref('core__dim_contracts') }} po
   ON l.contract_address = po.address
 
+LEFT JOIN prices p0
+  ON ai.token0 = p0.token_address
+  AND DATE_TRUNC('hour', block_timestamp) = p0.hour
+
+LEFT JOIN prices p1
+  ON ai.token1 = p1.token_address
+  AND DATE_TRUNC('hour', block_timestamp) = p1.hour    
 
 WHERE l.event_name = 'Swap'
