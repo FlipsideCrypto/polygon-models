@@ -11,7 +11,7 @@
         WITH blocks AS (
 
             SELECT
-                block_number :: STRING AS block_number
+                block_number
             FROM
                 {{ ref("streamline__blocks") }}
             WHERE
@@ -21,7 +21,7 @@
                 ) * 1000000 }}
             EXCEPT
             SELECT
-                block_number :: STRING
+                block_number
             FROM
                 {{ ref("streamline__complete_debug_traceBlockByNumber") }}
             WHERE
@@ -34,9 +34,20 @@
             PARSE_JSON(
                 CONCAT(
                     '{"jsonrpc": "2.0",',
-                    '"method": "debug_traceBlockByNumber", "params":[',
-                    block_number :: INTEGER,
-                    ',{"tracer": "callTracer"}',
+                    '"method": "debug_traceBlockByNumber", "params":["',
+                    REPLACE(
+                        concat_ws(
+                            '',
+                            '0x',
+                            to_char(
+                                block_number :: INTEGER,
+                                'XXXXXXXX'
+                            )
+                        ),
+                        ' ',
+                        ''
+                    ),
+                    '",{"tracer": "callTracer"}',
                     '],"id":"',
                     block_number :: STRING,
                     '"}'
@@ -44,6 +55,8 @@
             ) AS request
         FROM
             blocks
+        ORDER BY
+            block_number ASC
     ) {% if not loop.last %}
     UNION ALL
     {% endif %}
