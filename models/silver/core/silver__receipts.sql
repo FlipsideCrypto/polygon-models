@@ -3,7 +3,8 @@
     materialized = 'incremental',
     unique_key = "tx_hash",
     cluster_by = "ROUND(block_number, -3)",
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)"
+    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)",
+    full_refresh = False
 ) }}
 
 WITH base AS (
