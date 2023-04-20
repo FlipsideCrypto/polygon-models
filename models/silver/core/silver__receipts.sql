@@ -29,7 +29,6 @@ WHERE
     {{ ref('bronze__streamline_FR_receipts') }}
 WHERE
     IS_OBJECT(DATA)
-    AND _partition_by_block_id > 40000000
 {% endif %}
 ),
 FINAL AS (

@@ -29,7 +29,6 @@ WHERE
     {{ ref('bronze__streamline_FR_transactions') }}
 WHERE
     IS_OBJECT(DATA)
-    AND _partition_by_block_id > 40000000
 {% endif %}
 ),
 new_records AS (
