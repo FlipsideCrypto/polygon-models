@@ -13,7 +13,7 @@ WITH base AS (
         tx_hash,
         from_address AS origin_from_address,
         to_address AS origin_to_address,
-        status AS tx_status,
+        tx_status,
         logs,
         _inserted_timestamp
     FROM

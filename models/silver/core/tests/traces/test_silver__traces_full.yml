@@ -43,7 +43,7 @@ models:
       - name: IDENTIFIER
         tests:
           - not_null
-      - name: AVAX_VALUE
+      - name: MATIC_VALUE
         tests:
           - not_null
       - name: GAS
