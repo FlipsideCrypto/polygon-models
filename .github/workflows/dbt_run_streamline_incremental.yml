@@ -4,8 +4,8 @@ run-name: dbt_run_scheduled_streamline_incremental
 on:
   workflow_dispatch:
   schedule:
-    # Runs every hour at x:45 (see https://crontab.guru)
-    - cron: '45 * * * *'
+    # Runs every hour 6 hours (see https://crontab.guru)
+    - cron: '0 */6 * * *'
     
 env:
   DBT_PROFILES_DIR: ./
@@ -26,7 +26,7 @@ jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
     environment: 
-      name: workflow_prod_backfill
+      name: workflow_prod_2xl
 
     steps:
       - uses: actions/checkout@v3
@@ -41,4 +41,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run -m models/silver/core --exclude models/silver/core/tests models/silver/core/silver__traces2.sql
+          dbt run -m models/silver/core --exclude models/silver/core/tests
