@@ -212,9 +212,7 @@ flattened_traces AS (
             FROM
                 add_sub_traces
             WHERE
-                identifier IS NOT NULL qualify(ROW_NUMBER() over(PARTITION BY _call_id
-            ORDER BY
-                _inserted_timestamp DESC)) = 1
+                identifier IS NOT NULL
         ),
         new_records AS (
             SELECT
@@ -319,7 +317,9 @@ SELECT
     _call_id,
     _inserted_timestamp
 FROM
-    new_records
+    new_records qualify(ROW_NUMBER() over(PARTITION BY _call_id
+ORDER BY
+    _inserted_timestamp DESC)) = 1
 
 {% if is_incremental() %}
 UNION
