@@ -253,4 +253,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over (PARTITION BY tx_hash
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    _inserted_timestamp DESC, is_pending DESC)) = 1

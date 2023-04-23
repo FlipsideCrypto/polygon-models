@@ -121,7 +121,30 @@ missing_data AS (
     WHERE
         t.is_pending
 )
-{% endif %}
+{% endif %},
+FINAL AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_status,
+        contract_address,
+        block_hash,
+        DATA,
+        event_index,
+        event_removed,
+        topics,
+        _inserted_timestamp,
+        _log_id,
+        is_pending
+    FROM
+        new_records
+
+{% if is_incremental() %}
+UNION
 SELECT
     block_number,
     block_timestamp,
@@ -140,14 +163,12 @@ SELECT
     _log_id,
     is_pending
 FROM
-    new_records qualify(ROW_NUMBER() over (PARTITION BY _log_id
-ORDER BY
-    _inserted_timestamp DESC)) = 1
-
-{% if is_incremental() %}
-UNION
+    missing_data
+{% endif %}
+)
 SELECT
     *
 FROM
-    missing_data
-{% endif %}
+    FINAL qualify(ROW_NUMBER() over (PARTITION BY block_number, event_index
+ORDER BY
+    _inserted_timestamp DESC, is_pending DESC)) = 1

@@ -352,6 +352,6 @@ FROM
 SELECT
     *
 FROM
-    FINAL qualify(ROW_NUMBER() over(PARTITION BY _call_id
+    FINAL qualify(ROW_NUMBER() over(PARTITION BY block_number, tx_position, trace_index
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    _inserted_timestamp DESC, is_pending DESC)) = 1
