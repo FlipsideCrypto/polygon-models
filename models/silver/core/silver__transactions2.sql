@@ -177,7 +177,43 @@ missing_data AS (
     WHERE
         t.is_pending
 )
-{% endif %}
+{% endif %},
+FINAL AS (
+    SELECT
+        block_number,
+        block_hash,
+        chain_id,
+        from_address,
+        gas,
+        gas_price,
+        tx_hash,
+        input_data,
+        origin_function_signature,
+        max_fee_per_gas,
+        max_priority_fee_per_gas,
+        nonce,
+        r,
+        s,
+        to_address,
+        POSITION,
+        TYPE,
+        v,
+        VALUE,
+        block_timestamp,
+        is_pending,
+        gas_used,
+        tx_success,
+        tx_status,
+        cumulative_gas_used,
+        effective_gas_price,
+        tx_fee,
+        tx_type,
+        _inserted_timestamp
+    FROM
+        new_records
+
+{% if is_incremental() %}
+UNION
 SELECT
     block_number,
     block_hash,
@@ -209,12 +245,12 @@ SELECT
     tx_type,
     _inserted_timestamp
 FROM
-    new_records
-
-{% if is_incremental() %}
-UNION
+    missing_data
+{% endif %}
+)
 SELECT
     *
 FROM
-    missing_data
-{% endif %}
+    FINAL qualify(ROW_NUMBER() over (PARTITION BY tx_hash
+ORDER BY
+    _inserted_timestamp DESC, is_pending ASC)) = 1

@@ -212,9 +212,7 @@ flattened_traces AS (
             FROM
                 add_sub_traces
             WHERE
-                identifier IS NOT NULL qualify(ROW_NUMBER() over(PARTITION BY _call_id
-            ORDER BY
-                _inserted_timestamp DESC)) = 1
+                identifier IS NOT NULL
         ),
         new_records AS (
             SELECT
@@ -294,7 +292,36 @@ missing_data AS (
     WHERE
         t.is_pending
 )
-{% endif %}
+{% endif %},
+FINAL AS (
+    SELECT
+        block_number,
+        tx_hash,
+        block_timestamp,
+        tx_status,
+        tx_position,
+        trace_index,
+        from_address,
+        to_address,
+        matic_value,
+        gas,
+        gas_used,
+        input,
+        output,
+        TYPE,
+        identifier,
+        sub_traces,
+        error_reason,
+        trace_status,
+        DATA,
+        is_pending,
+        _call_id,
+        _inserted_timestamp
+    FROM
+        new_records
+
+{% if is_incremental() %}
+UNION
 SELECT
     block_number,
     tx_hash,
@@ -319,12 +346,12 @@ SELECT
     _call_id,
     _inserted_timestamp
 FROM
-    new_records
-
-{% if is_incremental() %}
-UNION
+    missing_data
+{% endif %}
+)
 SELECT
     *
 FROM
-    missing_data
-{% endif %}
+    FINAL qualify(ROW_NUMBER() over(PARTITION BY block_number, tx_position, trace_index
+ORDER BY
+    _inserted_timestamp DESC, is_pending ASC)) = 1

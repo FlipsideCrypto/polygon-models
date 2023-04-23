@@ -9,7 +9,7 @@ models:
           partition_by:
             - BLOCK_NUMBER
           column_name: POSITION
-          where: BLOCK_TIMESTAMP < CURRENT_DATE - 1
+          where: _INSERTED_TIMESTAMP < CURRENT_DATE - 1
     columns:
       - name: BLOCK_NUMBER
         tests:
