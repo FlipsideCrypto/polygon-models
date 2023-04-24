@@ -17,13 +17,13 @@ SELECT
 FROM
     {{ ref('silver__traces' )}}
 WHERE 
-    {# -- curve contract deployers
+    -- curve contract deployers
     from_address IN (
         '0x7eeac6cddbd1d0b8af061742d41877d7f707289a',
-        '0x745748bcfd8f9c2de519a71d789be8a63dd7d66c',
         '0xbabe61887f1de2713c6f97e567623453d3c79f67',
-        '0xb17b674d9c5cb2e441f8e196a2f048a81355d031'
-        ) #}
+        '0x722272d36ef0da72ff51c5a65db7b870e2e8d4ee',
+        '0xe5de15a9c9bbedb4f5ec13b131e61245f2983a69'
+        )
     AND TYPE ilike 'create%'
     AND TX_STATUS ilike 'success'
 {% if is_incremental() %}
@@ -172,7 +172,7 @@ FROM inputs_pool_details
 
 pool_token_reads AS (
 
-{% for item in range(5) %}
+{% for item in range(8) %}
 (
 SELECT
     ethereum.streamline.udf_json_rpc_read_calls(
