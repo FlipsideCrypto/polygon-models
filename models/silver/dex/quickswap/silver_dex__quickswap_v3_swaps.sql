@@ -34,7 +34,7 @@ WITH base_swaps AS (
     FROM
         {{ ref('silver__logs') }}
     WHERE
-        block_timestamp :: DATE > '2021-12-01'
+        block_timestamp :: DATE > '2022-08-01'
         AND topics [0] :: STRING = '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67'
         AND tx_status = 'SUCCESS'
         AND event_removed = 'false'
@@ -54,12 +54,9 @@ pool_data AS (
     SELECT
         token0_address,
         token1_address,
-        fee,
-        fee_percent,
-        tick_spacing,
         pool_address
     FROM
-        {{ ref('silver_dex__univ3_pools') }}
+        {{ ref('silver_dex__quickswap_v3_pools') }}
 ),
 FINAL AS (
     SELECT
@@ -69,20 +66,18 @@ FINAL AS (
         contract_address AS pool_address,
         recipient,
         sender,
-        fee,
         tick,
-        tick_spacing,
         liquidity,
         event_index,
         token0_address,
         token1_address,
-        _log_id,
-        _inserted_timestamp,
         origin_function_signature,
         origin_from_address,
         origin_to_address,
         amount0_unadj,
-        amount1_unadj
+        amount1_unadj,
+        _log_id,
+        _inserted_timestamp
     FROM
         base_swaps
         INNER JOIN pool_data
