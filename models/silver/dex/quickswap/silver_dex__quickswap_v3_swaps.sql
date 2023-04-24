@@ -22,7 +22,7 @@ WITH base_swaps AS (
         ethereum.public.udf_hex_to_int(
             's2c', 
             segmented_data [2] :: STRING
-        ) :: FLOAT AS sqrtPriceX96,
+        ) :: FLOAT AS price,
         ethereum.public.udf_hex_to_int(
             's2c',
             segmented_data [3] :: STRING
@@ -67,6 +67,7 @@ FINAL AS (
         recipient,
         sender,
         tick,
+        price,
         liquidity,
         event_index,
         token0_address,
