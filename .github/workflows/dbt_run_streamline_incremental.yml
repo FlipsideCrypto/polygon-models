@@ -4,8 +4,8 @@ run-name: dbt_run_scheduled_streamline_incremental
 on:
   workflow_dispatch:
   schedule:
-    # Runs every hour 6 hours (see https://crontab.guru)
-    - cron: '0 */6 * * *'
+    # Runs every "At minute 15.” (see https://crontab.guru)
+    - cron: '15 * * * *'
     
 env:
   DBT_PROFILES_DIR: ./
@@ -26,7 +26,7 @@ jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
     environment: 
-      name: workflow_prod_2xl
+      name: workflow_prod
 
     steps:
       - uses: actions/checkout@v3

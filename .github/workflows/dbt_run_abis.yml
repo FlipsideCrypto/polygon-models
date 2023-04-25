@@ -4,8 +4,8 @@ run-name: dbt_run_scheduled_abi
 on:
   workflow_dispatch:
   schedule:
-    # Runs at every 30th minute (see https://crontab.guru)
-    - cron: '30 * * * *'
+    # Runs at every 4 hours at minute 20 (see https://crontab.guru)
+    - cron: '20 */4 * * *'
     
 env:
   DBT_PROFILES_DIR: ./
