@@ -19,7 +19,7 @@ WITH pools AS (
         _log_id,
         _inserted_timestamp
     FROM
-        {{ ref ('silver__logs') }}
+        {{ ref ('silver__logs2') }}
     WHERE
         contract_address = '0x79887f65f83bdf15bcc8736b5e5bcdb48fb8fe13' --factory
         AND topics [0] :: STRING = '0xaf5c5f12a80fc937520df6fcaed66262a4cc775e0f3fceaf7a7cfe476d9a751d' --NewDVM

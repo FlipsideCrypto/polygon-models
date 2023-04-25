@@ -10,10 +10,10 @@ WITH pools AS (
         dpp AS pool_address
     FROM
         {{ ref('silver_dex__dodo_v2_dpp_pools') }}
-    UNION ALL
+    UNION
     SELECT
         '0xa71415675f68f29259ddd63215e5518d2735bf0a' AS pool_address --dppOracle router
-    UNION ALL
+    UNION
     SELECT
         '0xe735a5414be163edf6b9785dc131dbbdae5ad31e' AS pool_address --dsp router
 ),
@@ -80,7 +80,7 @@ swaps_base AS (
         l._log_id,
         l._inserted_timestamp
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('silver__logs2') }}
         l
     INNER JOIN pools p
     ON

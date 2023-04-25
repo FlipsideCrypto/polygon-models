@@ -5,6 +5,7 @@
 ) }}
 
 WITH pools AS (
+
     SELECT
         '0x813fddeccd0401c4fa73b092b074802440544e52' AS pool_address,
         'USDC' AS base_token_symbol,
@@ -13,7 +14,6 @@ WITH pools AS (
         '0xc2132d05d31c914a87c6611c10748aeb04b58e8f' AS quote_token
 ),
 proxies AS (
-
     SELECT
         '0xdbfaf391c37339c903503495395ad7d6b096e192' AS proxy_address
     UNION
@@ -51,7 +51,8 @@ sell_base_token AS (
         l._log_id,
         l._inserted_timestamp
     FROM
-        {{ ref('silver__logs') }} l
+        {{ ref('silver__logs2') }}
+        l
         INNER JOIN pools p
         ON p.pool_address = l.contract_address
     WHERE
@@ -98,12 +99,13 @@ buy_base_token AS (
         quote_token,
         quote_token AS tokenIn,
         base_token AS tokenOut,
-        payQuote as amountIn,
-        receiveBase as amountOut,
+        payQuote AS amountIn,
+        receiveBase AS amountOut,
         l._log_id,
         l._inserted_timestamp
     FROM
-        {{ ref('silver__logs') }} l
+        {{ ref('silver__logs2') }}
+        l
         INNER JOIN pools p
         ON p.pool_address = l.contract_address
     WHERE
@@ -137,8 +139,8 @@ SELECT
     origin_from_address AS tx_to,
     tokenIn AS token_in,
     tokenOut AS token_out,
-    amountIn AS amount_in,
-    amountOut AS amount_out,
+    amountIn AS amount_in_unadj,
+    amountOut AS amount_out_unadj,
     'SellBaseToken' AS event_name,
     'dodo-v1' AS platform,
     _log_id,

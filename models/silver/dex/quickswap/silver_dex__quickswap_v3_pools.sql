@@ -19,7 +19,7 @@ WITH pool_creation AS (
         _log_id,
         _inserted_timestamp
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('silver__logs2') }}
     WHERE
         topics [0] = '0x91ccaa7a278130b65168c3a0c8d3bcae84cf5e43704342bd3ec0b59e59c036db'
         AND contract_address = LOWER('0x411b0fAcC3489691f28ad58c47006AF5E3Ab3A28')

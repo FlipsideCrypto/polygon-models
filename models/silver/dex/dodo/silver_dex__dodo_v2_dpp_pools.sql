@@ -19,12 +19,13 @@ WITH pools AS (
         _log_id,
         _inserted_timestamp
     FROM
-        {{ ref ('silver__logs') }}
+        {{ ref ('silver__logs2') }}
     WHERE
         contract_address IN (
-            '0x95e887adf9eaa22cc1c6e3cb7f07adc95b4b25a8' --dpp - factory,
+            '0x95e887adf9eaa22cc1c6e3cb7f07adc95b4b25a8',
+            --dpp - factory,
             '0xd24153244066f0afa9415563bfc7ba248bfb7a51' --dpp advanced - private pool factory
-        ) 
+        )
         AND topics [0] :: STRING = '0x8494fe594cd5087021d4b11758a2bbc7be28a430e94f2b268d668e5991ed3b8a' --NewDPP
 
 {% if is_incremental() %}
@@ -55,4 +56,6 @@ SELECT
     _log_id,
     _inserted_timestamp
 FROM
-    pools
+    pools qualify(ROW_NUMBER() over (PARTITION BY dpp
+ORDER BY
+    _inserted_timestamp DESC)) = 1
