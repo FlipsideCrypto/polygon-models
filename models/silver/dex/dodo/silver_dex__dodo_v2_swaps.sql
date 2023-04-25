@@ -7,12 +7,9 @@
 WITH pools AS (
 
     SELECT
-        base_token,
-        quote_token,
-        creator,
-        dvm
+        DISTINCT pool_address
     FROM
-        {{ ref('silver_dex__dodo_v2_dvm_pools') }}
+        {{ ref('silver_dex__dodo_v2_pools') }}
 ),
 proxies AS (
     SELECT
@@ -32,8 +29,22 @@ swaps_base AS (
         l.event_index,
         l.contract_address,
         regexp_substr_all(SUBSTR(l.data, 3, len(l.data)), '.{64}') AS l_segmented_data,
-        CONCAT('0x', SUBSTR(l_segmented_data [0] :: STRING, 25, 40)) AS fromToken,
-        CONCAT('0x', SUBSTR(l_segmented_data [1] :: STRING, 25, 40)) AS toToken,
+        CONCAT(
+            '0x',
+            SUBSTR(
+                l_segmented_data [0] :: STRING,
+                25,
+                40
+            )
+        ) AS fromToken,
+        CONCAT(
+            '0x',
+            SUBSTR(
+                l_segmented_data [1] :: STRING,
+                25,
+                40
+            )
+        ) AS toToken,
         TRY_TO_NUMBER(
             ethereum.public.udf_hex_to_int(
                 l_segmented_data [2] :: STRING
@@ -44,15 +55,30 @@ swaps_base AS (
                 l_segmented_data [3] :: STRING
             )
         ) AS toAmount,
-        CONCAT('0x', SUBSTR(l_segmented_data [4] :: STRING, 25, 40)) AS trader_address,
-        CONCAT('0x', SUBSTR(l_segmented_data [5] :: STRING, 25, 40)) AS receiver_address,
+        CONCAT(
+            '0x',
+            SUBSTR(
+                l_segmented_data [4] :: STRING,
+                25,
+                40
+            )
+        ) AS trader_address,
+        CONCAT(
+            '0x',
+            SUBSTR(
+                l_segmented_data [5] :: STRING,
+                25,
+                40
+            )
+        ) AS receiver_address,
         l._log_id,
         l._inserted_timestamp
     FROM
         {{ ref('silver__logs2') }}
         l
-        INNER JOIN pools p
-        ON p.dvm = l.contract_address
+    INNER JOIN pools p
+    ON
+        l.contract_address = p.pool_address
     WHERE
         l.topics [0] :: STRING = '0xc2c0245e056d5fb095f04cd6373bc770802ebd1e6c918eb78fdef843cdb37b0f' --dodoswap
         AND trader_address NOT IN (

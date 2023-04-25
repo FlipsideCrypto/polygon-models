@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_dex__dodo_v2_dvm_swaps
+  - name: silver_dex__dodo_v2_swaps
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
