@@ -29,7 +29,6 @@ SELECT
     s,
     v,
     tx_type,
-    chain_id,
-    _inserted_timestamp
+    chain_id
 FROM
     {{ ref('silver__transactions') }}
