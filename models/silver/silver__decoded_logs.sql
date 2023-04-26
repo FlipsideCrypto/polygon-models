@@ -3,7 +3,7 @@
     unique_key = "_log_id",
     cluster_by = "ROUND(block_number, -3)",
     merge_update_columns = ["_log_id"],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
+    full_refresh = false
 ) }}
 
 {% if is_incremental() %}
@@ -86,7 +86,7 @@ WHERE
     s._partition_by_created_date IN (
         CURRENT_DATE,
         CURRENT_DATE -1
-    )
+    ) and bp._partition_by_block_number = s._partition_by_block_number
 {% endif %}
 
 qualify(ROW_NUMBER() over (PARTITION BY _log_id
