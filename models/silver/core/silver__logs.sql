@@ -81,7 +81,7 @@ new_records AS (
         ) AS _log_id
     FROM
         flat_logs l
-        LEFT OUTER JOIN {{ ref('silver__transactions2') }}
+        LEFT OUTER JOIN {{ ref('silver__transactions') }}
         txs USING (
             block_number,
             tx_hash
@@ -118,7 +118,7 @@ missing_data AS (
     FROM
         {{ this }}
         t
-        INNER JOIN {{ ref('silver__transactions2') }}
+        INNER JOIN {{ ref('silver__transactions') }}
         txs USING (
             block_number,
             tx_hash

@@ -1,11 +1,11 @@
-name: dbt_run_scheduled_streamline_incremental
-run-name: dbt_run_scheduled_streamline_incremental
+name: dbt_test_intraday
+run-name: dbt_test_intraday
 
 on:
   workflow_dispatch:
   schedule:
-    # Runs every "At minute 15.” (see https://crontab.guru)
-    - cron: '15 * * * *'
+    # Runs “At minute 0 past every 4th hour.” (see https://crontab.guru)
+    - cron: '0 */4 * * *'
     
 env:
   DBT_PROFILES_DIR: ./
@@ -41,4 +41,7 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run -m models/silver/core --exclude models/silver/core/tests
+          dbt test -m tag:recent_test
+  
+
+

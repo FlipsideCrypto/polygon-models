@@ -487,10 +487,7 @@ curve_swaps AS (
     origin_to_address,
     contract_address,
     pool_name,
-    CASE
-      WHEN event_name IS NULL THEN 'TokenExchange'
-      ELSE event_name
-    END AS event_name,
+    event_name,
     s.tokens_sold AS amount_in_unadj,
     s.tokens_bought AS amount_out_unadj,
     sender,

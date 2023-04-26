@@ -14,14 +14,21 @@ SELECT
     origin_function_signature,
     from_address,
     to_address,
-    matic_value,
+    VALUE AS matic_value,
     tx_fee,
     gas_price,
-    gas_limit,
+    gas AS gas_limit,
     gas_used,
-    cumulative_Gas_Used,
+    cumulative_gas_used,
     input_data,
-    status,
-    tx_json
+    tx_status AS status,
+    effective_gas_price,
+    max_fee_per_gas,
+    max_priority_fee_per_gas,
+    r,
+    s,
+    v,
+    tx_type,
+    chain_id
 FROM
     {{ ref('silver__transactions') }}
