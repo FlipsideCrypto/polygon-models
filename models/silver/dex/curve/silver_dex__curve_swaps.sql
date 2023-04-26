@@ -66,7 +66,7 @@ curve_base AS (
         _log_id,
         _inserted_timestamp
     FROM
-        {{ ref('silver__logs2') }}
+        {{ ref('silver__logs') }}
         INNER JOIN pools
         ON pools.pool_address = contract_address
     WHERE
@@ -112,7 +112,7 @@ token_transfers AS (
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS from_address,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS to_address
     FROM
-        {{ ref('silver__logs2') }}
+        {{ ref('silver__logs') }}
     WHERE
         topics [0] :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
         AND tx_hash IN (

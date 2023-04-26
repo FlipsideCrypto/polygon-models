@@ -117,7 +117,7 @@ new_records AS (
         r
         ON A.block_number = r.block_number
         AND A.data :hash :: STRING = r.tx_hash
-        LEFT OUTER JOIN {{ ref('silver__blocks2') }}
+        LEFT OUTER JOIN {{ ref('silver__blocks') }}
         b
         ON A.block_number = b.block_number
 
@@ -175,7 +175,7 @@ missing_data AS (
     FROM
         {{ this }}
         t
-        INNER JOIN {{ ref('silver__blocks2') }}
+        INNER JOIN {{ ref('silver__blocks') }}
         b
         ON t.block_number = b.block_number
         INNER JOIN {{ ref('silver__receipts') }}
