@@ -7,8 +7,8 @@
 SELECT
     block_number,
     block_timestamp,
-    network,
-    blockchain,
+    'mainnet' as network,
+    'polygon' as blockchain,
     tx_count,
     difficulty,
     total_difficulty,
@@ -20,7 +20,7 @@ SELECT
     receipts_root,
     sha3_uncles,
     SIZE,
-    uncle_blocks,
+    uncles as uncle_blocks,
     OBJECT_CONSTRUCT(
         'baseFeePerGas',
         base_fee_per_gas,
