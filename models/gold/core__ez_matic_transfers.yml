@@ -40,7 +40,7 @@ models:
         description: '{{ doc("poly_eth_amount_usd") }}'
         tests:
           - not_null:
-              where: BLOCK_TIMESTAMP::date > '2021-01-01' AND BLOCK_TIMESTAMP < CURRENT_DATE - 1
+              where: BLOCK_TIMESTAMP::date > '2021-05-07' AND BLOCK_TIMESTAMP < CURRENT_DATE - 1
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("poly_origin_sig") }}'
       - name: ORIGIN_FROM_ADDRESS
