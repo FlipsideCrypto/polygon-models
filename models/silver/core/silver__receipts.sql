@@ -88,4 +88,4 @@ FROM
 WHERE
     tx_hash IS NOT NULL qualify(ROW_NUMBER() over (PARTITION BY tx_hash
 ORDER BY
-    block_number DESC, _inserted_timestamp DESC)) = 1
+    _inserted_timestamp DESC)) = 1

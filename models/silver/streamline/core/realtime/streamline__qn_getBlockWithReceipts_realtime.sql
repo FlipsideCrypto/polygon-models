@@ -6,7 +6,7 @@
     )
 ) }}
 
-{# WITH last_3_days AS (
+WITH last_3_days AS (
 
     SELECT
         block_number
@@ -45,21 +45,17 @@ blocks AS (
                     last_3_days
             )
         )
-) #}
-WITH blocks AS (
+),
+all_blocks AS (
     SELECT
         block_number
     FROM
-        {{ ref("streamline__blocks") }}
-    WHERE
-        block_number >= 40000000
-    EXCEPT
+        blocks
+    UNION ALL
     SELECT
         block_number
     FROM
-        {{ ref("streamline__complete_qn_getBlockWithReceipts") }}
-    WHERE
-        block_number >= 40000000
+        {{ ref("silver__retry_blocks") }}
 )
 SELECT
     PARSE_JSON(
@@ -84,6 +80,6 @@ SELECT
         )
     ) AS request
 FROM
-    blocks
+    all_blocks
 ORDER BY
     block_number ASC

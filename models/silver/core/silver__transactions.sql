@@ -126,7 +126,7 @@ WHERE
     r._INSERTED_TIMESTAMP >= '{{ lookback() }}'
 {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY A.block_number, A.data :hash :: STRING
+qualify(ROW_NUMBER() over (PARTITION BY A.data :hash :: STRING
 ORDER BY
     A._inserted_timestamp DESC)) = 1
 )
@@ -261,4 +261,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over (PARTITION BY tx_hash
 ORDER BY
-    block_number DESC, _inserted_timestamp DESC, is_pending ASC)) = 1
+    _inserted_timestamp DESC, is_pending ASC)) = 1
