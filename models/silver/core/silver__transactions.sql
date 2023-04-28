@@ -261,4 +261,4 @@ SELECT
 FROM
     FINAL qualify(ROW_NUMBER() over (PARTITION BY tx_hash
 ORDER BY
-    _inserted_timestamp DESC, is_pending ASC)) = 1
+    block_number DESC, _inserted_timestamp DESC, is_pending ASC)) = 1
