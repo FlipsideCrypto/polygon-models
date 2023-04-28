@@ -11,7 +11,7 @@ WITH LAST_DAY AS (
         qualify ROW_NUMBER() over (
             ORDER BY
                 block_number DESC
-        ) = 1
+        ) = 2
 ),
 transactions AS (
     SELECT
