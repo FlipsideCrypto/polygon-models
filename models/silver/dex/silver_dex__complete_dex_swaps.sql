@@ -665,7 +665,7 @@ quickswap_v3_swaps AS (
   WHERE token_in <> token_out
 
 {% if is_incremental() %}
-WHERE
+AND
   _inserted_timestamp >= (
     SELECT
       MAX(_inserted_timestamp) :: DATE - 1
