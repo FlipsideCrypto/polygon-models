@@ -2,7 +2,7 @@
     materialized = 'view',
     persist_docs ={ "relation": true,
     "columns": true },
-    meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'NFT' }} }
+    meta ={ 'database_tags':{ 'table':{ 'PURPOSE': 'NFT' } } }
 ) }}
 
 SELECT
@@ -20,7 +20,7 @@ SELECT
     erc1155_value,
     tokenId,
     CASE
-        WHEN currency_address = 'MATIC' THEN 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 'MATIC'
         ELSE cc2.token_symbol
     END AS currency_symbol,
     currency_address,
@@ -28,20 +28,20 @@ SELECT
         10,
         COALESCE(
             CASE
-                WHEN currency_address = 'MATIC' THEN 18
+                WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                 ELSE cc2.token_decimals
             END,
             0
         )
     ) AS price,
     CASE
-        WHEN currency_address = 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         OR cc2.token_decimals IS NOT NULL THEN (
             s1.price / pow(
                 10,
                 COALESCE(
                     CASE
-                        WHEN currency_address = 'MATIC' THEN 18
+                        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                         ELSE cc2.token_decimals
                     END,
                     0
@@ -53,7 +53,7 @@ SELECT
         10,
         COALESCE(
             CASE
-                WHEN currency_address = 'MATIC' THEN 18
+                WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                 ELSE cc2.token_decimals
             END,
             0
@@ -63,7 +63,7 @@ SELECT
         10,
         COALESCE(
             CASE
-                WHEN currency_address = 'MATIC' THEN 18
+                WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                 ELSE cc2.token_decimals
             END,
             0
@@ -73,20 +73,20 @@ SELECT
         10,
         COALESCE(
             CASE
-                WHEN currency_address = 'MATIC' THEN 18
+                WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                 ELSE cc2.token_decimals
             END,
             0
         )
     ) AS creator_fee,
     CASE
-        WHEN currency_address = 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         OR cc2.token_decimals IS NOT NULL THEN (
             s1.total_fees / pow(
                 10,
                 COALESCE(
                     CASE
-                        WHEN currency_address = 'MATIC' THEN 18
+                        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                         ELSE cc2.token_decimals
                     END,
                     0
@@ -95,13 +95,13 @@ SELECT
         ) * p1.price
     END AS total_fees_usd,
     CASE
-        WHEN currency_address = 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         OR cc2.token_decimals IS NOT NULL THEN (
             s1.platform_fee / pow(
                 10,
                 COALESCE(
                     CASE
-                        WHEN currency_address = 'MATIC' THEN 18
+                        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                         ELSE cc2.token_decimals
                     END,
                     0
@@ -110,13 +110,13 @@ SELECT
         ) * p1.price
     END AS platform_fee_usd,
     CASE
-        WHEN currency_address = 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         OR cc2.token_decimals IS NOT NULL THEN (
             s1.creator_fee / pow(
                 10,
                 COALESCE(
                     CASE
-                        WHEN currency_address = 'MATIC' THEN 18
+                        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                         ELSE cc2.token_decimals
                     END,
                     0
@@ -140,14 +140,14 @@ FROM
     ON s1.currency_address = cc2.contract_address
     LEFT JOIN {{ ref('silver__prices') }}
     p1
-    ON s1.currency_address = p1.matic_address
+    ON s1.currency_address = p1.token_address
     AND DATE_TRUNC(
         'hour',
         s1.block_timestamp
     ) = p1.hour
     LEFT JOIN {{ ref('silver__prices') }}
     p2
-    ON p2.matic_address = 'MATIC'
+    ON p2.token_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
     AND DATE_TRUNC(
         'hour',
         s1.block_timestamp
@@ -168,7 +168,7 @@ SELECT
     erc1155_value,
     tokenId,
     CASE
-        WHEN currency_address = 'MATIC' THEN 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 'MATIC'
         ELSE cc2.token_symbol
     END AS currency_symbol,
     currency_address,
@@ -176,20 +176,20 @@ SELECT
         10,
         COALESCE(
             CASE
-                WHEN currency_address = 'MATIC' THEN 18
+                WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                 ELSE cc2.token_decimals
             END,
             0
         )
     ) AS price,
     CASE
-        WHEN currency_address = 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         OR cc2.token_decimals IS NOT NULL THEN (
             s4.price / pow(
                 10,
                 COALESCE(
                     CASE
-                        WHEN currency_address = 'MATIC' THEN 18
+                        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                         ELSE cc2.token_decimals
                     END,
                     0
@@ -201,7 +201,7 @@ SELECT
         10,
         COALESCE(
             CASE
-                WHEN currency_address = 'MATIC' THEN 18
+                WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                 ELSE cc2.token_decimals
             END,
             0
@@ -211,7 +211,7 @@ SELECT
         10,
         COALESCE(
             CASE
-                WHEN currency_address = 'MATIC' THEN 18
+                WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                 ELSE cc2.token_decimals
             END,
             0
@@ -221,20 +221,20 @@ SELECT
         10,
         COALESCE(
             CASE
-                WHEN currency_address = 'MATIC' THEN 18
+                WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                 ELSE cc2.token_decimals
             END,
             0
         )
     ) AS creator_fee,
     CASE
-        WHEN currency_address = 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         OR cc2.token_decimals IS NOT NULL THEN (
             s4.total_fees / pow(
                 10,
                 COALESCE(
                     CASE
-                        WHEN currency_address = 'MATIC' THEN 18
+                        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                         ELSE cc2.token_decimals
                     END,
                     0
@@ -243,13 +243,13 @@ SELECT
         ) * p1.price
     END AS total_fees_usd,
     CASE
-        WHEN currency_address = 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         OR cc2.token_decimals IS NOT NULL THEN (
             s4.platform_fee / pow(
                 10,
                 COALESCE(
                     CASE
-                        WHEN currency_address = 'MATIC' THEN 18
+                        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                         ELSE cc2.token_decimals
                     END,
                     0
@@ -258,13 +258,13 @@ SELECT
         ) * p1.price
     END AS platform_fee_usd,
     CASE
-        WHEN currency_address = 'MATIC'
+        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
         OR cc2.token_decimals IS NOT NULL THEN (
             s4.creator_fee / pow(
                 10,
                 COALESCE(
                     CASE
-                        WHEN currency_address = 'MATIC' THEN 18
+                        WHEN currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 18
                         ELSE cc2.token_decimals
                     END,
                     0
@@ -288,14 +288,14 @@ FROM
     ON s4.currency_address = cc2.contract_address
     LEFT JOIN {{ ref('silver__prices') }}
     p1
-    ON s4.currency_address = p1.matic_address
+    ON s4.currency_address = p1.token_address
     AND DATE_TRUNC(
         'hour',
         s4.block_timestamp
     ) = p1.hour
     LEFT JOIN {{ ref('silver__prices') }}
     p2
-    ON p2.matic_address = 'MATIC'
+    ON p2.token_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
     AND DATE_TRUNC(
         'hour',
         s4.block_timestamp

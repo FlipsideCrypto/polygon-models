@@ -41,12 +41,9 @@ matic_price AS (
         HOUR,
         price AS matic_price
     FROM
-        {{ source(
-            'ethereum',
-            'fact_hourly_token_prices'
-        ) }}
+        {{ ref('silver__prices') }}
     WHERE
-        token_address = LOWER('0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0')
+        token_address = LOWER('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270')
 ),
 tx_table AS (
     SELECT
