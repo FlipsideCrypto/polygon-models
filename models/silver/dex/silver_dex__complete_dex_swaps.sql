@@ -662,16 +662,16 @@ quickswap_v3_swaps AS (
       'hour',
       block_timestamp
     ) = p2.hour
-  WHERE token_in <> token_out
+  WHERE
+    token_in <> token_out
 
 {% if is_incremental() %}
-AND
-  _inserted_timestamp >= (
-    SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
-    FROM
-      {{ this }}
-  )
+AND _inserted_timestamp >= (
+  SELECT
+    MAX(_inserted_timestamp) :: DATE - 1
+  FROM
+    {{ this }}
+)
 {% endif %}
 ),
 quickswap_v2_swaps AS (
@@ -827,7 +827,6 @@ WHERE
   )
 {% endif %}
 ),
-
 --union all standard dex CTEs here (excludes amount_usd)
 all_dex_standard AS (
   SELECT
@@ -1311,14 +1310,16 @@ SELECT
   amount_in_unadj,
   amount_in,
   CASE
-    WHEN ABS((amount_in_usd - amount_out_usd) / NULLIF(amount_out_usd, 0)) > 0.75
+    WHEN amount_out_usd IS NULL
+    OR ABS((amount_in_usd - amount_out_usd) / NULLIF(amount_out_usd, 0)) > 0.75
     OR ABS((amount_in_usd - amount_out_usd) / NULLIF(amount_in_usd, 0)) > 0.75 THEN NULL
     ELSE amount_in_usd
   END AS amount_in_usd,
   amount_out_unadj,
   amount_out,
   CASE
-    WHEN ABS((amount_out_usd - amount_in_usd) / NULLIF(amount_in_usd, 0)) > 0.75
+    WHEN amount_in_usd IS NULL
+    OR ABS((amount_out_usd - amount_in_usd) / NULLIF(amount_in_usd, 0)) > 0.75
     OR ABS((amount_out_usd - amount_in_usd) / NULLIF(amount_out_usd, 0)) > 0.75 THEN NULL
     ELSE amount_out_usd
   END AS amount_out_usd,
