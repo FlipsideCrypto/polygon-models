@@ -1,11 +1,11 @@
-name: dbt_run_scheduled
-run-name: dbt_run_scheduled
+name: dbt_run_abi_refresh
+run-name: dbt_run_abi_refresh
 
 on:
   workflow_dispatch:
   schedule:
-    # Runs every "At minute 15.” (see https://crontab.guru)
-    - cron: '15 * * * *'
+    # Runs “At minute 0 past every 12th hour.” (see https://crontab.guru)
+    - cron: '0 */12 * * *'
     
 env:
   DBT_PROFILES_DIR: ./
@@ -41,4 +41,7 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --exclude models/silver/abis models/silver/API_udf models/silver/streamline/* models/silver/silver__decoded_logs.sql models/silver/silver__decoded_logs_full.sql models/bronze/api_udf/bronze_api__contract_abis.sql models/silver/core/tests
+          dbt run -m models/silver/abis
+  
+
+

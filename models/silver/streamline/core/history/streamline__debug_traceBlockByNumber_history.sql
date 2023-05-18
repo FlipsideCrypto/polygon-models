@@ -6,10 +6,20 @@
     )
 ) }}
 
-{% for item in range(40) %}
+{% for item in range(45) %}
     (
-        WITH blocks AS (
+        WITH last_3_days AS (
 
+            SELECT
+                block_number
+            FROM
+                {{ ref("_max_block_by_date") }}
+                qualify ROW_NUMBER() over (
+                    ORDER BY
+                        block_number DESC
+                ) = 3
+        ),
+        blocks AS (
             SELECT
                 block_number
             FROM
@@ -19,6 +29,12 @@
                 AND {{(
                     item + 1
                 ) * 1000000 }}
+                AND block_number <= (
+                    SELECT
+                        block_number
+                    FROM
+                        last_3_days
+                )
             EXCEPT
             SELECT
                 block_number
@@ -29,6 +45,12 @@
                 AND {{(
                     item + 1
                 ) * 1000000 }}
+                AND block_number <= (
+                    SELECT
+                        block_number
+                    FROM
+                        last_3_days
+                )
         )
         SELECT
             PARSE_JSON(
