@@ -1111,6 +1111,6 @@ SELECT
 FROM
     base_sales_buy_and_offer s
     INNER JOIN tx_data t
-    ON t.tx_hash = s.tx_hash qualify(ROW_NUMBER() over(PARTITION BY log_id_nft
+    ON t.tx_hash = s.tx_hash qualify(ROW_NUMBER() over(PARTITION BY nft_log_id
 ORDER BY
     _inserted_timestamp DESC)) = 1

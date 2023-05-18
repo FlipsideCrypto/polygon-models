@@ -21,10 +21,10 @@ WITH base AS (
         erc1155_value,
         tokenId,
         currency_address,
-        price AS price_raw,
-        total_fees AS total_fees_raw,
-        platform_fee AS platform_fee_raw,
-        creator_fee AS creator_fee_raw,
+        price_raw,
+        total_fees_raw,
+        platform_fee_raw,
+        creator_fee_raw,
         tx_fee,
         origin_from_address,
         origin_to_address,
@@ -46,16 +46,41 @@ WITH base AS (
         erc1155_value,
         tokenId,
         currency_address,
-        price AS price_raw,
-        total_fees AS total_fees_raw,
-        platform_fee AS platform_fee_raw,
-        creator_fee AS creator_fee_raw,
+        price_raw,
+        total_fees_raw,
+        platform_fee_raw,
+        creator_fee_raw,
         tx_fee,
         origin_from_address,
         origin_to_address,
         origin_function_signature
     FROM
         {{ ref('silver__seaport_1_4') }}
+    UNION ALL
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        event_type,
+        platform_address,
+        platform_name,
+        platform_exchange_version,
+        seller_address,
+        buyer_address,
+        nft_address,
+        erc1155_value,
+        tokenId,
+        currency_address,
+        price_raw,
+        total_fees_raw,
+        platform_fee_raw,
+        creator_fee_raw,
+        tx_fee,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature
+    FROM
+        {{ ref('silver__seaport_1_5') }}
 ),
 all_prices AS (
     SELECT
