@@ -17,7 +17,7 @@ WITH last_3_days AS (
 SELECT
     *
 FROM
-    {{ ref('silver__decoded_logs_full') }}
+    {{ ref('silver__decoded_logs') }}
 WHERE
     block_number >= (
         SELECT
