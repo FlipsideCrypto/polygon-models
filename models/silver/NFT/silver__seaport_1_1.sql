@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'log_id_nft',
+    unique_key = 'nft_log_id',
     cluster_by = ['block_timestamp::DATE']
 ) }}
 
@@ -1077,19 +1077,19 @@ SELECT
     COALESCE (
         total_sale_amount_raw,
         0
-    ) AS price,
+    ) AS price_raw,
     COALESCE (
         total_fees_raw,
         0
-    ) AS total_fees,
+    ) AS total_fees_raw,
     COALESCE (
         platform_fee_raw,
         0
-    ) AS platform_fee,
+    ) AS platform_fee_raw,
     COALESCE (
         creator_fee_raw,
         0
-    ) AS creator_fee,
+    ) AS creator_fee_raw,
     t.tx_fee,
     t.from_address AS origin_from_address,
     t.to_address AS origin_to_address,
@@ -1099,16 +1099,18 @@ SELECT
     offer,
     input_data,
     CONCAT(
-        _log_id,
-        '-',
         s.nft_address,
         '-',
-        s.tokenId
-    ) AS log_id_nft,
+        s.tokenId,
+        '-',
+        platform_exchange_version,
+        '-',
+        _log_id
+    ) AS nft_log_id,
     _inserted_timestamp
 FROM
     base_sales_buy_and_offer s
     INNER JOIN tx_data t
-    ON t.tx_hash = s.tx_hash qualify(ROW_NUMBER() over(PARTITION BY log_id_nft
+    ON t.tx_hash = s.tx_hash qualify(ROW_NUMBER() over(PARTITION BY nft_log_id
 ORDER BY
     _inserted_timestamp DESC)) = 1
