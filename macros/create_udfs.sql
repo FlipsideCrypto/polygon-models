@@ -18,6 +18,10 @@
 
         {% endset %}
         {% do run_query(sql) %}
+        {% set name %}
+        {{- reference_models.create_udfs() -}}
+        {% endset %}
+        {% do run_query(sql) %}
         {% if target.database != "POLYGON_COMMUNITY_DEV" %}
             {% set sql %}
             {{ create_udf_get_chainhead() }}
