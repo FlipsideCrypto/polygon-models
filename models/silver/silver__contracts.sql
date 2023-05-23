@@ -34,35 +34,13 @@ token_names AS (
         block_number,
         function_signature,
         read_output,
-        regexp_substr_all(SUBSTR(read_output, 3, len(read_output)), '.{64}') AS segmented_output,
-        TRY_TO_NUMBER(
-            PUBLIC.udf_hex_to_int(
-                segmented_output [1] :: STRING
-            )
-        ) AS sub_len,
-        TRY_HEX_DECODE_STRING(
-            SUBSTR(
-                segmented_output [2] :: STRING,
-                0,
-                sub_len * 2
-            )
-        ) AS name1,
-        TRY_HEX_DECODE_STRING(RTRIM(segmented_output [2] :: STRING, 0)) AS name2,
-        TRY_HEX_DECODE_STRING(RTRIM(segmented_output [0] :: STRING, 0)) AS name3,
-        TRY_HEX_DECODE_STRING(
-            CONCAT(RTRIM(segmented_output [0] :: STRING, 0), '0')
-        ) AS name4,
-        COALESCE(
-            name1,
-            name2,
-            name3,
-            name4
-        ) AS token_name
+        utils.udf_hex_to_string(
+            SUBSTR(read_output,(64*2+3),LEN(read_output))) AS token_name
     FROM
         base_metadata
     WHERE
         function_signature = '0x06fdde03'
-        AND segmented_output [1] :: STRING IS NOT NULL
+        AND token_name IS NOT NULL
 ),
 token_symbols AS (
     SELECT
@@ -70,40 +48,18 @@ token_symbols AS (
         block_number,
         function_signature,
         read_output,
-        regexp_substr_all(SUBSTR(read_output, 3, len(read_output)), '.{64}') AS segmented_output,
-        TRY_TO_NUMBER(
-            PUBLIC.udf_hex_to_int(
-                segmented_output [1] :: STRING
-            )
-        ) AS sub_len,
-        TRY_HEX_DECODE_STRING(
-            SUBSTR(
-                segmented_output [2] :: STRING,
-                0,
-                sub_len * 2
-            )
-        ) AS symbol1,
-        TRY_HEX_DECODE_STRING(RTRIM(segmented_output [2] :: STRING, 0)) AS symbol2,
-        TRY_HEX_DECODE_STRING(RTRIM(segmented_output [0] :: STRING, 0)) AS symbol3,
-        TRY_HEX_DECODE_STRING(
-            CONCAT(RTRIM(segmented_output [0] :: STRING, 0), '0')
-        ) AS symbol4,
-        COALESCE(
-            symbol1,
-            symbol2,
-            symbol3,
-            symbol4
-        ) AS token_symbol
+        utils.udf_hex_to_string(
+            SUBSTR(read_output,(64*2+3),LEN(read_output))) AS token_symbol
     FROM
         base_metadata
     WHERE
         function_signature = '0x95d89b41'
-        AND segmented_output [1] :: STRING IS NOT NULL
+        AND token_symbol IS NOT NULL
 ),
 token_decimals AS (
     SELECT
         contract_address,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             read_output :: STRING
         ) AS token_decimals,
         LENGTH(token_decimals) AS dec_length

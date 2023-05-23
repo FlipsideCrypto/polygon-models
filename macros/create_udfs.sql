@@ -9,13 +9,10 @@
         {{ create_udtf_get_base_table(
             schema = "streamline"
         ) }}
-        {{ create_udf_keccak(
-            schema = 'silver'
-        ) }}
-          {{ create_udf_simple_event_names(
-            schema = 'silver'
-        ) }}
-
+        {% endset %}
+        {% do run_query(sql) %}
+        {% set name %}
+        {{- fsc_utils.create_udfs() -}}
         {% endset %}
         {% do run_query(sql) %}
         {% if target.database != "POLYGON_COMMUNITY_DEV" %}
