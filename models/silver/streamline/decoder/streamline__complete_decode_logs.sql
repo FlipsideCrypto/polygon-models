@@ -19,13 +19,14 @@ FROM
 WHERE
     TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
         SELECT
-            DATEADD('hour', -3, MAX(_inserted_timestamp))
+            MAX(_inserted_timestamp)
         FROM
-            {{ this }})
-        {% else %}
-            {{ ref('bronze__fr_decoded_logs') }}
-        {% endif %}
+            {{ this }}
+    )
+{% else %}
+    {{ ref('bronze__fr_decoded_logs') }}
+{% endif %}
 
-        qualify(ROW_NUMBER() over (PARTITION BY id
-        ORDER BY
-            _inserted_timestamp DESC)) = 1
+qualify(ROW_NUMBER() over (PARTITION BY id
+ORDER BY
+    _inserted_timestamp DESC)) = 1
