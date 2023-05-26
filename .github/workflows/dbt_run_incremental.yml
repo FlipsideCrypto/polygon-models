@@ -42,4 +42,4 @@ jobs:
       - name: Run DBT Jobs
         run: |
           dbt run --exclude models/silver/abis models/silver/API_udf models/silver/streamline/* models/silver/silver__decoded_logs.sql models/bronze/api_udf/bronze_api__contract_abis.sql models/silver/core/tests
-          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True,"WAIT":10}' -m models/silver/streamline/decoder/streamline__complete_decode_logs.sql models/silver/streamline/decoder/streamline__decode_logs_realtime.sql
+          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m models/silver/streamline/decoder/streamline__complete_decode_logs.sql models/silver/streamline/decoder/streamline__decode_logs_realtime.sql
