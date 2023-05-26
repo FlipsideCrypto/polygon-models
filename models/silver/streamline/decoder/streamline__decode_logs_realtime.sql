@@ -31,7 +31,7 @@ FROM
     l
     INNER JOIN {{ ref("silver__complete_event_abis") }} A
     ON A.parent_contract_address = l.contract_address
-    AND A.event_signature = l.topics[0]:: STRING
+    AND A.event_signature = l.topics[0]::STRING
     AND l.block_number BETWEEN A.start_block
     AND A.end_block
 WHERE
@@ -44,6 +44,7 @@ WHERE
         )
     )
     AND l.block_number IS NOT NULL
+    AND l.block_timestamp >= DATEADD('day', -2, CURRENT_DATE())
     AND _log_id NOT IN (
         SELECT
             _log_id
@@ -56,4 +57,5 @@ WHERE
                 FROM
                     look_back
             )
+            AND _inserted_timestamp >= DATEADD('day', -2, CURRENT_DATE())
     )

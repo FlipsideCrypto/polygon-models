@@ -47,3 +47,4 @@ vars:
   "dbt_date:time_zone": GMT
   UPDATE_UDFS_AND_SPS: False
   UPDATE_SNOWFLAKE_TAGS: True
+  WAIT: 0
