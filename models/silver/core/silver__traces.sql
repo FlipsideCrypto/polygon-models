@@ -252,7 +252,11 @@ flattened_traces AS (
                 t
                 ON f.tx_position = t.position
                 AND f.block_number = t.block_number
-        )
+
+{% if is_incremental() %}
+AND t._INSERTED_TIMESTAMP >= '{{ lookback() }}'
+{% endif %}
+)
 
 {% if is_incremental() %},
 missing_data AS (
