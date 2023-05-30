@@ -41,4 +41,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True,"WAIT":600,"row_limit":2400000}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_030* models/silver/streamline/decoder/history/streamline__decode_logs_history_031* models/silver/streamline/decoder/history/streamline__decode_logs_history_032* models/silver/streamline/decoder/history/streamline__decode_logs_history_033* models/silver/streamline/decoder/history/streamline__decode_logs_history_034*
+          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True,"WAIT":120,"row_limit":2400000}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_030* models/silver/streamline/decoder/history/streamline__decode_logs_history_031* models/silver/streamline/decoder/history/streamline__decode_logs_history_032* models/silver/streamline/decoder/history/streamline__decode_logs_history_033* models/silver/streamline/decoder/history/streamline__decode_logs_history_034*
