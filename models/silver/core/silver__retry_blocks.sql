@@ -2,18 +2,8 @@
     materialized = "view"
 ) }}
 
-WITH LAST_DAY AS (
+WITH transactions AS (
 
-    SELECT
-        block_number
-    FROM
-        {{ ref("_max_block_by_date") }}
-        qualify ROW_NUMBER() over (
-            ORDER BY
-                block_number DESC
-        ) = 2
-),
-transactions AS (
     SELECT
         block_number,
         tx_hash,
@@ -29,11 +19,10 @@ transactions AS (
     FROM
         {{ ref("silver__transactions") }}
     WHERE
-        block_number >= (
-            SELECT
-                block_number
-            FROM
-                LAST_DAY
+        block_timestamp >= DATEADD(
+            'day',
+            -2,
+            CURRENT_DATE
         )
 ),
 missing_txs AS (
@@ -53,16 +42,15 @@ missing_traces AS (
         tr
         ON tx.block_number = tr.block_number
         AND tx.tx_hash = tr.tx_hash
+        AND tr.block_timestamp >= DATEADD(
+            'day',
+            -2,
+            CURRENT_DATE
+        )
     WHERE
         (
             tr.tx_hash IS NULL
             OR tr.block_number IS NULL
-        )
-        AND tr.block_number >= (
-            SELECT
-                block_number
-            FROM
-                LAST_DAY
         )
 )
 SELECT
