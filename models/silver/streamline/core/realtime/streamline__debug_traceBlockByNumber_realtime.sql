@@ -55,7 +55,12 @@ all_blocks AS (
     SELECT
         block_number
     FROM
-        {{ ref("silver__retry_blocks") }}
+        (
+            SELECT
+                block_number
+            FROM
+                {{ ref("_missing_tracess") }}
+        )
 )
 SELECT
     PARSE_JSON(
