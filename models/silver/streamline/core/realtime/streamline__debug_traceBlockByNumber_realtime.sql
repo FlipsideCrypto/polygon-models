@@ -51,7 +51,7 @@ all_blocks AS (
         block_number
     FROM
         blocks
-    UNION ALL
+    UNION
     SELECT
         block_number
     FROM
