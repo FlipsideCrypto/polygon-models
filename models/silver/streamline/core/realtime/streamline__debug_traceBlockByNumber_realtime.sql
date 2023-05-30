@@ -59,7 +59,7 @@ all_blocks AS (
             SELECT
                 block_number
             FROM
-                {{ ref("_missing_tracess") }}
+                {{ ref("_missing_traces") }}
         )
 )
 SELECT
