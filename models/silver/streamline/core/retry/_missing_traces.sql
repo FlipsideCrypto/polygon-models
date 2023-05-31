@@ -23,3 +23,7 @@ WHERE
         CURRENT_DATE
     )
     AND tr.tx_hash IS NULL
+    AND (
+        tx.from_address <> '0x0000000000000000000000000000000000000000'
+        AND tx.to_address <> '0x0000000000000000000000000000000000000000'
+    )
