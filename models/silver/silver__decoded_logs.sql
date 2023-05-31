@@ -1,7 +1,7 @@
 -- depends_on: {{ ref('bronze__decoded_logs') }}
 {{ config (
     materialized = "incremental",
-    unique_key = "_log_id",
+    unique_key = ['block_number', 'event_index'],
     cluster_by = "block_timestamp::date",
     incremental_predicates = ["dynamic_range", "block_number"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
@@ -44,7 +44,7 @@ WHERE
     _partition_by_block_number <= 2500000
 {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY id
+qualify(ROW_NUMBER() over (PARTITION BY block_number, event_index
 ORDER BY
     _inserted_timestamp DESC)) = 1
 ),
