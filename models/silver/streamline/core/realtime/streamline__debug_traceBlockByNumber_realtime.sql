@@ -86,6 +86,6 @@ SELECT
         )
     ) AS request
 FROM
-    blocks
+    all_blocks
 ORDER BY
     block_number ASC
