@@ -1,9 +1,9 @@
 -- depends_on: {{ ref('bronze__streamline_receipts') }}
 {{ config(
     materialized = 'incremental',
-    unique_key = ['block_number', 'position'],
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
     cluster_by = "ROUND(block_number, -3)",
-    incremental_predicates = ["dynamic_range", "block_number"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)",
     full_refresh = False
 ) }}
