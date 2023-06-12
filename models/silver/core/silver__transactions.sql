@@ -155,9 +155,6 @@ AND r._INSERTED_TIMESTAMP >= (
 )
 {% endif %}
 
-qualify(ROW_NUMBER() over (PARTITION BY t.tx_hash
-ORDER BY
-    t._inserted_timestamp DESC)) = 1
 )
 
 {% if is_incremental() %},
