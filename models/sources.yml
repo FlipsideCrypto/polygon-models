@@ -41,6 +41,7 @@ sources:
       - name: transactions
       - name: debug_traceBlockByNumber
       - name: decoded_logs
+      - name: confirm_blocks
   - name: streamline_crosschain
     database: streamline
     schema: crosschain
