@@ -1,7 +1,7 @@
 {{ config (
     materialized = "view",
     post_hook = if_data_call_function(
-        func = "{{this.schema}}.udf_json_rpc(object_construct('sql_source', '{{this.identifier}}', 'external_table', 'confirm_blocks', 'method', 'eth_getBlockByNumber', 'producer_batch_size',5000, 'producer_limit_size', 5000000, 'worker_batch_size',500))",
+        func = "{{this.schema}}.udf_bulk_json_rpc(object_construct('sql_source', '{{this.identifier}}', 'external_table', 'confirm_blocks', 'sql_limit', {{var('sql_limit','40000')}}, 'producer_batch_size', {{var('producer_batch_size','10000')}}, 'worker_batch_size', {{var('worker_batch_size','1000')}}, 'batch_call_limit', {{var('batch_call_limit','10')}}))",
         target = "{{this.schema}}.{{this.identifier}}"
     )
 ) }}
@@ -45,17 +45,27 @@ tbl AS (
         )
 )
 SELECT
-    block_number,
-    'eth_getBlockByNumber' AS method,
-    CONCAT(
-        REPLACE(
-            concat_ws('', '0x', to_char(block_number, 'XXXXXXXX')),
-            ' ',
-            ''
-        ),
-        '_-_',
-        'false'
-    ) AS params
+    PARSE_JSON(
+        CONCAT(
+            '{"jsonrpc": "2.0",',
+            '"method": "eth_getBlockByNumber", "params":["',
+            REPLACE(
+                concat_ws(
+                    '',
+                    '0x',
+                    to_char(
+                        block_number :: INTEGER,
+                        'XXXXXXXX'
+                    )
+                ),
+                ' ',
+                ''
+            ),
+            '", false],"id":"',
+            block_number :: INTEGER,
+            '"}'
+        )
+    ) AS request
 FROM
     tbl
 ORDER BY
