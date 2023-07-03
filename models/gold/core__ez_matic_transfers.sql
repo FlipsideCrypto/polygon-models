@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'tx_hash',
+    unique_key = 'block_number',
     cluster_by = ['block_timestamp::DATE'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
 ) }}
@@ -28,9 +28,7 @@ WITH matic_base AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(
-            _inserted_timestamp
-        ) :: DATE - 2
+        MAX(_inserted_timestamp) - INTERVAL '72 hours'
     FROM
         {{ this }}
 )
@@ -64,9 +62,7 @@ tx_table AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(
-            _inserted_timestamp
-        ) :: DATE - 2
+        MAX(_inserted_timestamp) - INTERVAL '72 hours'
     FROM
         {{ this }}
 )
