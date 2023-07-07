@@ -1,11 +1,11 @@
-name: dbt_run_streamline_decoder_history_35_39m
-run-name: dbt_run_streamline_decoder_history_35_39m
+name: dbt_run_temp
+run-name: dbt_run_temp
 
 on:
   workflow_dispatch:
   schedule:
-    # Runs "at 10:00 UTC PM" (see https://crontab.guru)
-    - cron: '0 22 * * *'
+    # Runs every "At minute 30.” (see https://crontab.guru)
+    - cron: '30 * * * *'
     
 env:
   DBT_PROFILES_DIR: ./
@@ -26,7 +26,7 @@ jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
     environment: 
-      name: workflow_prod_backfill
+      name: workflow_prod_2xl
 
     steps:
       - uses: actions/checkout@v3
@@ -41,4 +41,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --threads 8 --vars '{"STREAMLINE_INVOKE_STREAMS":True,"WAIT":120,"row_limit":2400000}' -m models/silver/streamline/decoder/history/streamline__decode_logs_history_035* models/silver/streamline/decoder/history/streamline__decode_logs_history_036* models/silver/streamline/decoder/history/streamline__decode_logs_history_037* models/silver/streamline/decoder/history/streamline__decode_logs_history_038* models/silver/streamline/decoder/history/streamline__decode_logs_history_039*    
+          dbt run -m models/silver/streamline/decoder/streamline__complete_decode_logs.sql
