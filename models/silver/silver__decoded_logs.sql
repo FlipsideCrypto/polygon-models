@@ -38,7 +38,6 @@ WHERE
         FROM
             {{ this }}
     )
-    AND block_number >= 18000000
 {% else %}
     {{ ref('bronze__fr_decoded_logs') }}
 WHERE
