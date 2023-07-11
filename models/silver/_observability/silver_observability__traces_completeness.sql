@@ -38,6 +38,11 @@ txs AS (
             FROM
                 block_range
         )
+        AND from_address <> '0x0000000000000000000000000000000000000000'
+        AND IFNULL(
+            to_address,
+            '0x0000000000000000000000000000000000000000'
+        ) <> '0x0000000000000000000000000000000000000000'
 
 {% if is_incremental() %}
 AND (
@@ -87,6 +92,13 @@ traces AS (
                 end_block
             FROM
                 block_range
+        )
+        AND (
+            IFNULL(
+                to_address,
+                '0x0000000000000000000000000000000000000000'
+            ) <> '0x0000000000000000000000000000000000000000'
+            AND identifier = 'CALL_ORIGIN'
         )
 
 {% if is_incremental() %}
