@@ -1,12 +1,12 @@
-name: dbt_run_streamline_realtime
-run-name: dbt_run_streamline_realtime
+name: dbt_run_full_observability
+run-name: dbt_run_full_observability
 
 on:
   workflow_dispatch:
   schedule:
-    # Runs “At every 15th and 45th minute.” (see https://crontab.guru)
-    - cron: '15,45 * * * *'
-
+    # Runs “At 12:00 on day-of-month 1.” (see https://crontab.guru)
+    - cron: '0 12 1 * *'
+    
 env:
   DBT_PROFILES_DIR: ./
 
@@ -25,8 +25,8 @@ concurrency:
 jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
-    environment:
-      name: workflow_prod
+    environment: 
+      name: workflow_prod_2xl
 
     steps:
       - uses: actions/checkout@v3
@@ -37,8 +37,11 @@ jobs:
 
       - name: install dependencies
         run: |
-          pip3 install dbt-snowflake~=${{ vars.DBT_VERSION }} cli_passthrough requests click
+          pip3 install dbt-snowflake==${{ vars.DBT_VERSION }} cli_passthrough requests click
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m 1+models/silver/streamline/core/realtime
+          dbt run --vars '{"OBSERV_FULL_TEST":True}' -m models/silver/_observability
+  
+
+
