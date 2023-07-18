@@ -9,8 +9,8 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    contract_address AS nft_address,
-    NAME AS project_name,
+    a.contract_address AS nft_address,
+    token_name AS project_name,
     from_address AS nft_from_address,
     to_address AS nft_to_address,
     tokenId,
@@ -18,9 +18,9 @@ SELECT
     event_index
 FROM
     {{ ref('silver__nft_transfers') }} A
-    LEFT JOIN {{ ref('core__dim_contracts') }}
+    LEFT JOIN {{ ref('silver__contracts') }}
     b
-    ON A.contract_address = b.address
+    ON A.contract_address = b.contract_address
 WHERE
     event_type = 'mint'
     AND from_address = '0x0000000000000000000000000000000000000000'
