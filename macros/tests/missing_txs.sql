@@ -72,9 +72,14 @@ WHERE
         FROM
             {{ ref('test_silver__transactions_full') }}
         WHERE
-        block_number NOT IN (SELECT block_number FROM {{ref('silver_observability__excluded_trace_blocks')}})
-        AND from_address <> '0x0000000000000000000000000000000000000000'
-        AND to_address <> '0x0000000000000000000000000000000000000000'
+            block_number NOT IN (
+                SELECT
+                    block_number
+                FROM
+                    {{ ref('silver_observability__excluded_trace_blocks') }}
+            )
+            AND from_address <> '0x0000000000000000000000000000000000000000'
+            AND to_address <> '0x0000000000000000000000000000000000000000'
     ),
     model_name AS (
         SELECT
@@ -94,8 +99,8 @@ FROM
     ON base_block_number = model_block_number
     AND base_tx_hash = model_tx_hash
 WHERE
-    (model_tx_hash IS NULL
-    OR model_block_number IS NULL)
+    model_tx_hash IS NULL
+    OR model_block_number IS NULL
 {% endmacro %}
 
 {% macro recent_missing_traces(
