@@ -72,7 +72,7 @@ WHERE
         FROM
             {{ ref('test_silver__transactions_full') }}
         WHERE
-            AND from_address <> '0x0000000000000000000000000000000000000000'
+            from_address <> '0x0000000000000000000000000000000000000000'
             AND to_address <> '0x0000000000000000000000000000000000000000'
     ),
     model_name AS (
