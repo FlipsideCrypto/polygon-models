@@ -1,7 +1,8 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "pool_id",
-    full_refresh = false
+    full_refresh = false,
+    tags = ['non_realtime']
 ) }}
 
 WITH contract_deployments AS (
