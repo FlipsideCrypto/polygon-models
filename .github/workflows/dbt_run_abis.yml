@@ -1,5 +1,5 @@
-name: dbt_run_scheduled_abi
-run-name: dbt_run_scheduled_abi
+name: dbt_run_contract_abis
+run-name: dbt_run_contract_abis
 
 on:
   workflow_dispatch:
@@ -41,4 +41,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run -m models/bronze/api_udf/bronze_api__contract_abis.sql
+          dbt run -m tag:contract_abis

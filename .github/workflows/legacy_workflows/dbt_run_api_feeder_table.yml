@@ -42,3 +42,6 @@ jobs:
       - name: Run DBT Jobs
         run: |
           dbt run -m models/silver/API_udf/silver__relevant_abi_contracts.sql models/silver/API_udf/silver__relevant_contracts.sql
+# moved to non_realtime job to match ethereum's structure 
+# relevant_abi_contracts now running in abi_refresh job
+# relevant contracts now in non_realtime incremental job (will need to be here when we add contract_reads anyway)

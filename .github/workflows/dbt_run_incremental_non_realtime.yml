@@ -1,5 +1,5 @@
-name: dbt_run_scheduled
-run-name: dbt_run_scheduled
+name: dbt_run_scheduled_non_realtime
+run-name: dbt_run_scheduled_non_realtime
 
 on:
   workflow_dispatch:
@@ -41,5 +41,5 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --exclude models/silver/abis models/silver/API_udf models/silver/streamline/* models/silver/silver__decoded_logs.sql models/bronze/api_udf/bronze_api__contract_abis.sql models/silver/core/tests models/silver/silver__decoded_logs_legacy.sql models/silver/_observability
-          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m models/silver/streamline/decoder/streamline__decode_logs_realtime.sql models/silver/streamline/decoder/streamline__complete_decode_logs.sql
+          dbt run -m tag:non_realtime
+          
