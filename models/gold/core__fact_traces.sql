@@ -11,8 +11,11 @@ SELECT
     from_address,
     to_address,
     matic_value,
-    utils.udf_hex_to_int(
-        DATA :value :: STRING
+    IFNULL(
+        utils.udf_hex_to_int(
+            DATA :value :: STRING
+        ),
+        '0'
     ) AS matic_value_precise_raw,
     utils.udf_decimal_adjust(
         matic_value_precise_raw,
