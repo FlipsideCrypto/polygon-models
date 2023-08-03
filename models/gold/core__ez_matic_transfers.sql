@@ -17,14 +17,7 @@ WITH matic_base AS (
         to_address,
         matic_value,
         _call_id,
-        _inserted_timestamp,
-        utils.udf_hex_to_int(
-            DATA :value :: STRING
-        ) AS matic_value_precise_raw,
-        utils.udf_decimal_adjust(
-            matic_value_precise_raw,
-            18
-        ) AS matic_value_precise
+        _inserted_timestamp
     FROM
         {{ ref('silver__traces') }}
     WHERE
@@ -86,8 +79,6 @@ SELECT
     A.from_address AS matic_from_address,
     A.to_address AS matic_to_address,
     A.matic_value AS amount,
-    A.matic_value_precise_raw AS amount_precise_raw,
-    A.matic_value_precise AS amount_precise,
     ROUND(
         A.matic_value * matic_price,
         2
