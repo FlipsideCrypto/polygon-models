@@ -132,10 +132,16 @@ new_records AS (
         tx_status,
         cumulative_gas_used,
         effective_gas_price,
-        utils.udf_decimal_adjust(
-            t.gas_price * r.gas_used,
-            9
-        ) AS tx_fee_precise,
+        CASE
+            WHEN t.block_number >= 19040000 THEN utils.udf_decimal_adjust(
+                effective_gas_price * r.gas_used,
+                9
+            )
+            ELSE utils.udf_decimal_adjust(
+                gas_price * r.gas_used,
+                9
+            )
+        END AS tx_fee_precise,
         tx_fee_precise :: FLOAT AS tx_fee,
         r.type AS tx_type,
         t._inserted_timestamp,
@@ -191,10 +197,16 @@ missing_data AS (
         r.tx_status,
         r.cumulative_gas_used,
         r.effective_gas_price,
-        utils.udf_decimal_adjust(
-            t.gas_price * r.gas_used,
-            9
-        ) AS tx_fee_precise,
+        CASE
+            WHEN t.block_number >= 19040000 THEN utils.udf_decimal_adjust(
+                r.effective_gas_price * r.gas_used,
+                9
+            )
+            ELSE utils.udf_decimal_adjust(
+                gas_price * r.gas_used,
+                9
+            )
+        END AS tx_fee_precise,
         tx_fee_precise :: FLOAT AS tx_fee,
         r.type AS tx_type,
         GREATEST(
