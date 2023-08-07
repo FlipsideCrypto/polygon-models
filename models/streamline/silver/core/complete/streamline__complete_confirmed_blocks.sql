@@ -3,7 +3,7 @@
     materialized = "incremental",
     unique_key = "id",
     cluster_by = "ROUND(block_number, -3)",
-    tags = ['streamline_confirm_blocks_complete'],
+    tags = ['streamline_core_complete']
 ) }}
 
 SELECT
