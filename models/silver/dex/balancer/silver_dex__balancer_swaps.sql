@@ -89,7 +89,5 @@ SELECT
     _inserted_timestamp
 FROM
     swaps_base s
-    LEFT JOIN pool_name pn
+    INNER JOIN pool_name pn
     ON pn.pool_address = s.pool_address
-WHERE
-    pool_name IS NOT NULL
