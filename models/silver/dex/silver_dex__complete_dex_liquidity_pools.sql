@@ -380,12 +380,6 @@ all_pools_standard AS (
     UNION ALL
     SELECT *
     FROM sushi
-    UNION ALL
-    SELECT *
-    FROM trader_joe_v1
-    UNION ALL
-    SELECT *
-    FROM trader_joe_v2
 ),
 
 all_pools_v3 AS (
