@@ -43,3 +43,13 @@ sources:
     schema: bronze_public
     tables:
       - name: user_abis
+  - name: polygon_silver
+    database: polygon
+    schema: silver
+    tables:
+      - name: verified_abis
+  - name: polygon_bronze_api
+    database: polygon
+    schema: bronze_api
+    tables:
+      - name: contract_abis
