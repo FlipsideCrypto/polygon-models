@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__seaport_1_5
+  - name: silver__complete_nft_sales 
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -21,6 +21,7 @@ models:
               interval: 1
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
+                - TIMESTAMP_LTZ
                 - TIMESTAMP_NTZ
       - name: TX_HASH
         tests:
@@ -35,8 +36,6 @@ models:
       - name: PLATFORM_NAME
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['opensea']
       - name: SELLER_ADDRESS
         tests:
           - not_null
@@ -57,32 +56,56 @@ models:
           - not_null
       - name: CURRENCY_ADDRESS
         tests:
-          - not_null:
-              where: "price_raw > 0"
-      - name: PRICE_RAW
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - NUMBER    
-                - FLOAT  
-      - name: TOTAL_FEES_RAW
+          - not_null: 
+              where: platform_exchange_version not in ('seaport_1_1', 'seaport_1_4', 'seaport_1_5') 
+      - name: PRICE
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER    
                 - FLOAT 
-      - name: PLATFORM_FEE_RAW
+      - name: PRICE_USD
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER    
+                - FLOAT  
+      - name: TOTAL_FEES
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER    
+                - FLOAT 
+      - name: PLATFORM_FEE
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER    
                 - FLOAT
-      - name: CREATOR_FEE_RAW
+      - name: CREATOR_FEE
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER    
+                - FLOAT
+      - name: TOTAL_FEES_USD
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER    
+                - FLOAT 
+      - name: PLATFORM_FEE_USD
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER    
+                - FLOAT
+      - name: CREATOR_FEE_USD
+        tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER    
@@ -93,19 +116,13 @@ models:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER    
-                - FLOAT  
+                - FLOAT 
       - name: NFT_LOG_ID
         tests:
-          - not_null
-      - name: _INSERTED_TIMESTAMP
+          - not_null 
+      - name: _LOG_ID
         tests:
-          - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 1
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - TIMESTAMP_NTZ
+          - not_null 
       - name: ORIGIN_FROM_ADDRESS
         tests:
           - not_null
@@ -124,8 +141,6 @@ models:
       - name: EVENT_TYPE
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['bid_won', 'sale']
       - name: INPUT_DATA
         tests:
           - not_null

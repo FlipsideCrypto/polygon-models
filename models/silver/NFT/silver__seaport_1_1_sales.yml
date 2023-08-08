@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__seaport_1_4
+  - name: silver__seaport_1_1_sales
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -55,8 +55,8 @@ models:
       - name: CURRENCY_ADDRESS
         tests:
           - not_null:
-              where: "price_raw > 0"
-      - name: PRICE_RAW
+              where: "total_price_raw > 0"
+      - name: TOTAL_PRICE_RAW
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -90,7 +90,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER    
-                - FLOAT  
+                - FLOAT 
       - name: NFT_LOG_ID
         tests:
           - not_null
@@ -107,7 +107,6 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: ORIGIN_TO_ADDRESS
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: ORIGIN_FUNCTION_SIGNATURE

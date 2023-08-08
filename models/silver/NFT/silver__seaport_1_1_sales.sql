@@ -1136,7 +1136,7 @@ SELECT
     COALESCE (
         total_sale_amount_raw,
         0
-    ) AS price_raw,
+    ) AS total_price_raw,
     COALESCE (
         total_fees_raw,
         0
@@ -1166,6 +1166,7 @@ SELECT
         '-',
         _log_id
     ) AS nft_log_id,
+    _log_id,
     _inserted_timestamp
 FROM
     base_sales_buy_and_offer s
