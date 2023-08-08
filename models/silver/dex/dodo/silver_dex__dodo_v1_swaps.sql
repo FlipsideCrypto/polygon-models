@@ -8,12 +8,11 @@
 WITH pools AS (
 
     SELECT
-        '0x813fddeccd0401c4fa73b092b074802440544e52' AS pool_address,
-        'USDC' AS base_token_symbol,
-        'USDT' AS quote_token_symbol,
-        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174' AS base_token,
-        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f' AS quote_token
-),
+        pool_address,
+        base_token,
+        quote_token
+    FROM {{ ref('silver_dex__dodo_v1_pools') }}
+),  
 proxies AS (
     SELECT
         '0xdbfaf391c37339c903503495395ad7d6b096e192' AS proxy_address
