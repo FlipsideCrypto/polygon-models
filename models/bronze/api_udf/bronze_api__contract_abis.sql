@@ -33,7 +33,7 @@ WHERE
     abi_data :data :result :: STRING <> 'Max rate limit reached'
 {% endif %}
 LIMIT
-    50
+    75
 ), all_contracts AS (
     SELECT
         contract_address
@@ -58,7 +58,7 @@ row_nos AS (
         JOIN api_keys
         ON 1 = 1
 ),
-batched AS ({% for item in range(101) %}
+batched AS ({% for item in range(151) %}
 SELECT
     rn.contract_address, ethereum.streamline.udf_api('GET', CONCAT('https://api.polygonscan.com/api?module=contract&action=getabi&address=', rn.contract_address, '&apikey=', api_key),{},{}) AS abi_data, SYSDATE() AS _inserted_timestamp
 FROM
