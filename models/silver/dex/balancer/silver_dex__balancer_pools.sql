@@ -136,7 +136,7 @@ JOIN {{ source(
             'streamline_crosschain',
             'node_mapping'
         ) }} ON 1=1 
-    AND chain = 'arbitrum'
+    AND chain = 'polygon'
 ) {% if not loop.last %}
 UNION ALL
 {% endif %}
