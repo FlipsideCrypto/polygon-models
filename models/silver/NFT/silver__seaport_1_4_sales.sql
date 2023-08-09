@@ -23,8 +23,8 @@ raw_decoded_logs AS (
     FROM
         {{ ref('silver__decoded_logs') }}
     WHERE
-        block_number >= 42031942
-        AND contract_address = '0x00000000000000adc04c56bf30ac9d3c0aaf14dc'
+        block_number >= 35000000
+        AND contract_address = '0x00000000000001ad428e4906ae43d8f9852d0dd6'
         AND event_name = 'OrderFulfilled'
 
 {% if is_incremental() %}
@@ -84,8 +84,8 @@ raw_logs AS (
     FROM
         {{ ref('silver__logs') }}
     WHERE
-        block_number >= 42031942
-        AND contract_address = '0x00000000000000adc04c56bf30ac9d3c0aaf14dc'
+        block_number >= 35000000
+        AND contract_address = '0x00000000000001ad428e4906ae43d8f9852d0dd6'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -198,7 +198,7 @@ mao_orderhash AS (
             FROM
                 raw_logs
             WHERE
-                block_timestamp >= '2023-04-01'
+                block_timestamp >= '2023-02-01'
                 AND topics [0] = '0x9d9af8e38d66c62e2c12f0225249fd9d721c54b83f48d9352c97c6cacdcb6f31'
         ),
         decoded AS (
@@ -1715,7 +1715,7 @@ final_seaport AS (
         s.event_index,
         s.contract_address AS platform_address,
         'opensea' AS platform_name,
-        'seaport_1_5' AS platform_exchange_version,
+        'seaport_1_4' AS platform_exchange_version,
         s.event_name,
         offer_length,
         offerer AS seller_address,
@@ -1742,7 +1742,7 @@ final_seaport AS (
         COALESCE (
             total_sale_amount_raw,
             0
-        ) AS price_raw,
+        ) AS total_price_raw,
         COALESCE (
             total_fees_raw,
             0

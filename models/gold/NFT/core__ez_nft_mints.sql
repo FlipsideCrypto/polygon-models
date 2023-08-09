@@ -9,7 +9,7 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
-    a.contract_address AS nft_address,
+    A.contract_address AS nft_address,
     token_name AS project_name,
     from_address AS nft_from_address,
     to_address AS nft_to_address,
