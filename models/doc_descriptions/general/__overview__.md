@@ -26,7 +26,6 @@ There is more information on how to use dbt docs in the last section of this doc
 - [fact_blocks](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_blocks)
 - [fact_decoded_event_logs](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_decoded_event_logs)
 - [fact_event_logs](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_event_logs)
-- [fact_hourly_token_prices](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_hourly_token_prices)
 - [fact_token_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_token_transfers)
 - [fact_traces](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_traces)
 - [fact_transactions](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__fact_transactions)
@@ -35,6 +34,12 @@ There is more information on how to use dbt docs in the last section of this doc
 - [ez_decoded_event_logs](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_decoded_event_logs)
 - [ez_matic_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_matic_transfers)
 - [ez_token_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_token_transfers)
+
+### Price Tables (polygon.price)
+- [fact_hourly_token_prices](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__fact_hourly_token_prices)
+- [ez_hourly_token_prices](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__ez_hourly_token_prices)
+- [dim_asset_metadata](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__dim_asset_metadata)
+- [ez_asset_metadata](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__ez_asset_metadata)
 
 
 ### DeFi Tables (polygon.defi)
