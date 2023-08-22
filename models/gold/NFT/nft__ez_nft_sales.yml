@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__ez_nft_sales
+  - name: nft__ez_nft_sales
     description: This table contains NFT sales from Opensea Seaport 1.1, 1.4 and 1.5 on Polygon.
 
     columns:

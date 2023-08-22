@@ -138,7 +138,7 @@ prices_raw AS (
         decimals,
         price AS hourly_prices
     FROM
-        {{ ref('silver__prices') }}
+        {{ ref('price__ez_hourly_token_prices') }}
     WHERE
         HOUR :: DATE IN (
             SELECT

@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__ez_nft_mints
+  - name: nft__ez_nft_mints
     description: 'This table contains all ERC721 and ERC1155 mint events.'
       
     columns:
