@@ -2,11 +2,9 @@ version: 2
 
 sources:
   - name: crosschain
-    database: crosschain
+    database: "{{ 'crosschain' if target.database == 'BASE' else 'crosschain_dev' }}"
     schema: core
     tables:
-      - name: address_labels
-      - name: ez_hourly_prices
       - name: dim_labels
       - name: ez_hourly_token_prices
   - name: ethereum
@@ -33,7 +31,7 @@ sources:
     tables:
       - name: node_mapping
   - name: crosschain_silver
-    database: crosschain
+    database: "{{ 'crosschain' if target.database == 'BASE' else 'crosschain_dev' }}"
     schema: silver
     tables:
       - name: apis_keys
