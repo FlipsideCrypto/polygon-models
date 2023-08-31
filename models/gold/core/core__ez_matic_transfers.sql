@@ -42,16 +42,17 @@ matic_price AS (
         HOUR,
         price AS matic_price
     FROM
-        {{ ref('silver__hourly_prices_priority_matic') }}
+        {{ ref('price__ez_hourly_token_prices') }}
+    WHERE
+        token_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
 
 {% if is_incremental() %}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(_inserted_timestamp) - INTERVAL '72 hours'
-        FROM
-            {{ this }}
-    )
+AND HOUR >= (
+    SELECT
+        MAX(_inserted_timestamp) - INTERVAL '72 hours'
+    FROM
+        {{ this }}
+)
 {% endif %}
 ),
 tx_table AS (

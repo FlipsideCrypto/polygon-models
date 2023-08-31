@@ -1,11 +1,12 @@
 version: 2
 models:
-  - name: silver__hourly_prices_priority_matic
+  - name: silver__hourly_prices_all_providers
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TOKEN_ADDRESS
             - HOUR
+            - PROVIDER
 
     columns:   
       - name: HOUR
