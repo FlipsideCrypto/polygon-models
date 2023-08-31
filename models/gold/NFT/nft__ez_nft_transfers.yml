@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: core__ez_nft_mints
-    description: Deprecating soon! This is a notice that we're replacing this table with `nft__ez_nft_mints`. Please migrate queries to the new table by 9/14/23. There will be no column changes or any other changes of any kind.
+  - name: nft__ez_nft_transfers
+    description: 'This table contains all ERC721 transfer and ERC1155 transfer single events.'
       
     columns:
       - name: BLOCK_NUMBER
@@ -10,6 +10,8 @@ models:
         description: 'The block timestamp of the NFT transfer.'
       - name: TX_HASH
         description: 'The transaction hash of the NFT transfer. Please note this is not unique, as it is possible to have multiple NFT transfers in a single transaction.'
+      - name: EVENT_TYPE
+        description: 'The type of NFT transfer. This can be either "mint" or "other".'
       - name: NFT_ADDRESS
         description: 'The address of the NFT contract.'
       - name: PROJECT_NAME

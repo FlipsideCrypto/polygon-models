@@ -8,10 +8,10 @@
 WITH contracts AS (
 
   SELECT
-    contract_address as address,
-    token_symbol as symbol,
-    token_name as NAME,
-    token_decimals as decimals
+    contract_address AS address,
+    token_symbol AS symbol,
+    token_name AS NAME,
+    token_decimals AS decimals
   FROM
     {{ ref('silver__contracts') }}
 ),
@@ -21,7 +21,7 @@ prices AS (
     token_address,
     price
   FROM
-    {{ ref('core__fact_hourly_token_prices') }}
+    {{ ref('price__ez_hourly_token_prices') }}
   WHERE
     token_address IN (
       SELECT
@@ -172,13 +172,25 @@ woofi_swaps AS (
     token_out,
     CONCAT(
       LEAST(
-          COALESCE(symbol_in, CONCAT(SUBSTRING(token_in, 1, 5), '...', SUBSTRING(token_in, 39, 42))),
-          COALESCE(symbol_out, CONCAT(SUBSTRING(token_out, 1, 5), '...', SUBSTRING(token_out, 39, 42)))
+        COALESCE(
+          symbol_in,
+          CONCAT(SUBSTRING(token_in, 1, 5), '...', SUBSTRING(token_in, 39, 42))
+        ),
+        COALESCE(
+          symbol_out,
+          CONCAT(SUBSTRING(token_out, 1, 5), '...', SUBSTRING(token_out, 39, 42))
+        )
       ),
       '-',
       GREATEST(
-          COALESCE(symbol_in, CONCAT(SUBSTRING(token_in, 1, 5), '...', SUBSTRING(token_in, 39, 42))),
-          COALESCE(symbol_out, CONCAT(SUBSTRING(token_out, 1, 5), '...', SUBSTRING(token_out, 39, 42)))
+        COALESCE(
+          symbol_in,
+          CONCAT(SUBSTRING(token_in, 1, 5), '...', SUBSTRING(token_in, 39, 42))
+        ),
+        COALESCE(
+          symbol_out,
+          CONCAT(SUBSTRING(token_out, 1, 5), '...', SUBSTRING(token_out, 39, 42))
+        )
       )
     ) AS pool_name,
     _log_id,
@@ -1341,5 +1353,6 @@ SELECT
   f._inserted_timestamp
 FROM
   FINAL f
-LEFT JOIN {{ ref('silver_dex__complete_dex_liquidity_pools') }} p
+  LEFT JOIN {{ ref('silver_dex__complete_dex_liquidity_pools') }}
+  p
   ON f.contract_address = p.pool_address
