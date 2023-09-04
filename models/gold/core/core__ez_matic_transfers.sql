@@ -37,24 +37,6 @@ AND _inserted_timestamp >= (
 )
 {% endif %}
 ),
-matic_price AS (
-    SELECT
-        HOUR,
-        price AS matic_price
-    FROM
-        {{ ref('price__ez_hourly_token_prices') }}
-    WHERE
-        token_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
-
-{% if is_incremental() %}
-AND HOUR >= (
-    SELECT
-        MAX(_inserted_timestamp) - INTERVAL '72 hours'
-    FROM
-        {{ this }}
-)
-{% endif %}
-),
 tx_table AS (
     SELECT
         tx_hash,
@@ -92,17 +74,17 @@ SELECT
     A.to_address AS matic_to_address,
     A.matic_value AS amount,
     ROUND(
-        A.matic_value * matic_price,
+        A.matic_value * price,
         2
     ) AS amount_usd,
     _call_id,
-    _inserted_timestamp
+    A._inserted_timestamp
 FROM
     matic_base A
-    LEFT JOIN matic_price
+    LEFT JOIN {{ ref('silver__hourly_prices_priority') }}
     ON DATE_TRUNC(
         'hour',
-        block_timestamp
+        A.block_timestamp
     ) = HOUR
-    LEFT JOIN tx_table
-    ON A.tx_hash = tx_table.tx_hash
+    AND token_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+    JOIN tx_table USING (tx_hash)
