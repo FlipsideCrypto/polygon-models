@@ -155,7 +155,6 @@ AND r._INSERTED_TIMESTAMP >= (
         {{ this }}
 )
 {% endif %}
-
 )
 
 {% if is_incremental() %},
@@ -286,6 +285,8 @@ FROM
 SELECT
     *
 FROM
-    FINAL qualify(ROW_NUMBER() over (PARTITION BY block_number, POSITION
+    FINAL
+WHERE
+    tx_hash IS NOT NULL qualify(ROW_NUMBER() over (PARTITION BY block_number, POSITION
 ORDER BY
     _inserted_timestamp DESC, is_pending ASC)) = 1
