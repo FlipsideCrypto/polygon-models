@@ -134,4 +134,4 @@ FROM
 ORDER BY
     block_number ASC
 LIMIT
-    10 -- TODO: remove this limit
+    1000 -- TODO: remove this limit
