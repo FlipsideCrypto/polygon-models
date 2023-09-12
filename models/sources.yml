@@ -25,6 +25,8 @@ sources:
       - name: debug_traceBlockByNumber
       - name: decoded_logs
       - name: confirm_blocks
+      - name: matic_balances
+      - name: token_balances
   - name: streamline_crosschain
     database: streamline
     schema: crosschain
