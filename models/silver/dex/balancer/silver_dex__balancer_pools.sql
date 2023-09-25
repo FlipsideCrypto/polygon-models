@@ -1,10 +1,10 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "pool_address",
+    incremental_strategy = 'delete+insert',
+    unique_key = 'block_number',
+    full_refresh = false,
     tags = ['non_realtime']
 ) }}
-
---    full_refresh = false
 
 WITH pools_registered AS (
 
@@ -27,7 +27,7 @@ WITH pools_registered AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE - 2
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -217,3 +217,4 @@ FROM FINAL f
 LEFT JOIN pools_registered p ON f.pool_address = p.pool_address
 LEFT JOIN tokens_registered t ON p.pool_id = t.pool_id
 WHERE t.token0 IS NOT NULL
+QUALIFY(ROW_NUMBER() OVER(PARTITION BY f.pool_address ORDER BY f._inserted_timestamp DESC)) = 1

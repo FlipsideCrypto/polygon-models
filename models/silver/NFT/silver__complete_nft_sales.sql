@@ -1,6 +1,7 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'nft_log_id',
+    incremental_strategy = 'delete+insert',
+    unique_key = 'block_number',
     cluster_by = ['block_timestamp::DATE'],
     tags = ['non_realtime']
 ) }}
@@ -41,8 +42,8 @@ WHERE
     _inserted_timestamp >= (
         SELECT
             MAX(
-                _inserted_timestamp
-            ) :: DATE - 1
+            _inserted_timestamp
+        ) - INTERVAL '24 hours'
         FROM
             {{ this }}
     )
@@ -82,8 +83,8 @@ WHERE
     _inserted_timestamp >= (
         SELECT
             MAX(
-                _inserted_timestamp
-            ) :: DATE - 1
+            _inserted_timestamp
+        ) - INTERVAL '24 hours'
         FROM
             {{ this }}
     )
@@ -123,8 +124,8 @@ WHERE
     _inserted_timestamp >= (
         SELECT
             MAX(
-                _inserted_timestamp
-            ) :: DATE - 1
+            _inserted_timestamp
+        ) - INTERVAL '24 hours'
         FROM
             {{ this }}
     )
@@ -156,7 +157,7 @@ prices_raw AS (
 {% if is_incremental() %}
 AND HOUR >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE - 2
+        MAX(_inserted_timestamp) - INTERVAL '48 hours'
     FROM
         {{ this }}
 )
