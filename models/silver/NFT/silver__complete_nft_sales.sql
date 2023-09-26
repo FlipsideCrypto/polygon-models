@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'block_number',
+    unique_key = ['block_number','platform_name','platform_exchange_version'],
     cluster_by = ['block_timestamp::DATE'],
     tags = ['non_realtime']
 ) }}
@@ -43,7 +43,7 @@ WHERE
         SELECT
             MAX(
             _inserted_timestamp
-        ) - INTERVAL '24 hours'
+        ) - INTERVAL '36 hours'
         FROM
             {{ this }}
     )
@@ -84,7 +84,7 @@ WHERE
         SELECT
             MAX(
             _inserted_timestamp
-        ) - INTERVAL '24 hours'
+        ) - INTERVAL '36 hours'
         FROM
             {{ this }}
     )
@@ -125,7 +125,7 @@ WHERE
         SELECT
             MAX(
             _inserted_timestamp
-        ) - INTERVAL '24 hours'
+        ) - INTERVAL '36 hours'
         FROM
             {{ this }}
     )
@@ -153,15 +153,6 @@ prices_raw AS (
             FROM
                 nft_base_models
         )
-
-{% if is_incremental() %}
-AND HOUR >= (
-    SELECT
-        MAX(_inserted_timestamp) - INTERVAL '48 hours'
-    FROM
-        {{ this }}
-)
-{% endif %}
 ),
 all_prices AS (
     SELECT
