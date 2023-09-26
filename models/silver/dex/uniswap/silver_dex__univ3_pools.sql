@@ -1,6 +1,7 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'pool_address',
+    incremental_strategy = 'delete+insert',
+    unique_key = 'created_block',
     cluster_by = ['_inserted_timestamp::DATE'],
     tags = ['non_realtime']
 ) }}
@@ -37,7 +38,7 @@ AND _inserted_timestamp >= (
     SELECT
         MAX(
             _inserted_timestamp
-        ) :: DATE - 2
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -63,7 +64,7 @@ AND _inserted_timestamp >= (
     SELECT
         MAX(
             _inserted_timestamp
-        ) :: DATE - 2
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
