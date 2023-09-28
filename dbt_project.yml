@@ -24,6 +24,9 @@ clean-targets: # directories to be removed by `dbt clean`
   - "dbt_modules"
   - "dbt_packages"
 
+models:
+  +copy_grants: true
+
 tests:
   +store_failures: true # all tests
 
@@ -34,6 +37,17 @@ on-run-start:
 
 on-run-end:
   - '{{ apply_meta_as_tags(results) }}'
+
+dispatch:
+  - macro_namespace: dbt
+    search_order:
+      - polygon-models
+      - dbt_snowflake_query_tags
+      - dbt
+
+query-comment:
+  comment: '{{ dbt_snowflake_query_tags.get_query_comment(node) }}'
+  append: true # Snowflake removes prefixed comments.
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -48,3 +62,6 @@ vars:
   UPDATE_UDFS_AND_SPS: False
   UPDATE_SNOWFLAKE_TAGS: True
   WAIT: 0
+  OBSERV_FULL_TEST: False
+  BALANCES_START: 0
+  BALANCES_END: 15000000

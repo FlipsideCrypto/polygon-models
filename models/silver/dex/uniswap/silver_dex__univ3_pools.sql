@@ -1,7 +1,9 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'pool_address',
-    cluster_by = ['_inserted_timestamp::DATE']
+    incremental_strategy = 'delete+insert',
+    unique_key = 'created_block',
+    cluster_by = ['_inserted_timestamp::DATE'],
+    tags = ['non_realtime']
 ) }}
 
 WITH created_pools AS (
@@ -10,18 +12,20 @@ WITH created_pools AS (
         block_number AS created_block,
         block_timestamp AS created_time,
         tx_hash AS created_tx_hash,
+        contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         LOWER(CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40))) AS token0_address,
         LOWER(CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))) AS token1_address,
-        TRY_TO_NUMBER(ethereum.public.udf_hex_to_int(
+        TRY_TO_NUMBER(utils.udf_hex_to_int(
             's2c',
             topics [3] :: STRING
         )) AS fee, 
-        TRY_TO_NUMBER(ethereum.public.udf_hex_to_int(
+        TRY_TO_NUMBER(utils.udf_hex_to_int(
             's2c',
             segmented_data [0] :: STRING
         )) AS tick_spacing,
         CONCAT('0x', SUBSTR(segmented_data [1] :: STRING, 25, 40)) AS pool_address,
+        _log_id,
         _inserted_timestamp
     FROM
         {{ ref('silver__logs') }}
@@ -34,7 +38,7 @@ AND _inserted_timestamp >= (
     SELECT
         MAX(
             _inserted_timestamp
-        ) :: DATE - 2
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -44,8 +48,8 @@ initial_info AS (
     SELECT
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        ethereum.public.udf_hex_to_int('s2c', CONCAT('0x', segmented_data [0] :: STRING)) :: FLOAT AS init_sqrtPriceX96,
-        ethereum.public.udf_hex_to_int('s2c', CONCAT('0x', segmented_data [1] :: STRING)) :: FLOAT AS init_tick,
+        utils.udf_hex_to_int('s2c', CONCAT('0x', segmented_data [0] :: STRING)) :: FLOAT AS init_sqrtPriceX96,
+        utils.udf_hex_to_int('s2c', CONCAT('0x', segmented_data [1] :: STRING)) :: FLOAT AS init_tick,
         pow(
             1.0001,
             init_tick
@@ -60,7 +64,7 @@ AND _inserted_timestamp >= (
     SELECT
         MAX(
             _inserted_timestamp
-        ) :: DATE - 2
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -72,6 +76,7 @@ FINAL AS (
         created_block,
         created_time,
         created_tx_hash,
+        p.contract_address,
         token0_address,
         token1_address,
         fee :: INTEGER AS fee,
@@ -84,11 +89,12 @@ FINAL AS (
             init_tick,
             0
         ) AS init_tick,
-        _inserted_timestamp
+        p._log_id,
+        p._inserted_timestamp
     FROM
-        created_pools
-        LEFT JOIN initial_info
-        ON pool_address = contract_address
+        created_pools p
+        LEFT JOIN initial_info i
+        ON p.pool_address = i.contract_address
 )
 
 SELECT

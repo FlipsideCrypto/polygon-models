@@ -1,18 +1,19 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = '_log_id',
-    cluster_by = ['block_timestamp::DATE']
+    incremental_strategy = 'delete+insert',
+    unique_key = 'block_number',
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['non_realtime']
 ) }}
 
 WITH pools AS (
 
     SELECT
-        '0x813fddeccd0401c4fa73b092b074802440544e52' AS pool_address,
-        'USDC' AS base_token_symbol,
-        'USDT' AS quote_token_symbol,
-        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174' AS base_token,
-        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f' AS quote_token
-),
+        pool_address,
+        base_token,
+        quote_token
+    FROM {{ ref('silver_dex__dodo_v1_pools') }}
+),  
 proxies AS (
     SELECT
         '0xdbfaf391c37339c903503495395ad7d6b096e192' AS proxy_address
@@ -33,12 +34,12 @@ sell_base_token AS (
         regexp_substr_all(SUBSTR(l.data, 3, len(l.data)), '.{64}') AS l_segmented_data,
         CONCAT('0x', SUBSTR(l.topics [1] :: STRING, 27, 40)) AS seller_address,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 l_segmented_data [0] :: STRING
             )
         ) AS payBase,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 l_segmented_data [1] :: STRING
             )
         ) AS receiveQuote,
@@ -67,7 +68,7 @@ sell_base_token AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -86,12 +87,12 @@ buy_base_token AS (
         regexp_substr_all(SUBSTR(l.data, 3, len(l.data)), '.{64}') AS l_segmented_data,
         CONCAT('0x', SUBSTR(l.topics [1] :: STRING, 27, 40)) AS buyer_address,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 l_segmented_data [0] :: STRING
             )
         ) AS receiveBase,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 l_segmented_data [1] :: STRING
             )
         ) AS payQuote,
@@ -120,7 +121,7 @@ buy_base_token AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )

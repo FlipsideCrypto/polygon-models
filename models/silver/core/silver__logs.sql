@@ -1,10 +1,11 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = ['block_number', 'event_index'],
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
     cluster_by = "block_timestamp::date, _inserted_timestamp::date",
-    incremental_predicates = ["dynamic_range", "block_timestamp::date"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    full_refresh = False
+    full_refresh = false,
+    tags = ['non_realtime']
 ) }}
 
 WITH base AS (
@@ -41,7 +42,7 @@ flat_logs AS (
         VALUE :address :: STRING AS contract_address,
         VALUE :blockHash :: STRING AS block_hash,
         VALUE :data :: STRING AS DATA,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             VALUE :logIndex :: STRING
         ) :: INT AS event_index,
         VALUE :removed :: BOOLEAN AS event_removed,
@@ -87,7 +88,12 @@ new_records AS (
         AND l.tx_hash = txs.tx_hash
 
 {% if is_incremental() %}
-AND txs._INSERTED_TIMESTAMP >= '{{ lookback() }}'
+AND txs._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(_inserted_timestamp) :: DATE - 1
+    FROM
+        {{ this }}
+)
 {% endif %}
 )
 

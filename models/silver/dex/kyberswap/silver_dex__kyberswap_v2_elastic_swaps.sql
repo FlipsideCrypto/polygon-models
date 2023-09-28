@@ -1,7 +1,9 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = '_log_id',
-    cluster_by = ['block_timestamp::DATE']
+    incremental_strategy = 'delete+insert',
+    unique_key = 'block_number',
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['non_realtime']
 ) }}
 
 WITH pools AS (
@@ -27,29 +29,29 @@ swaps_base AS (
         CONCAT('0x', SUBSTR(l.topics [1] :: STRING, 27, 40)) AS sender_address,
         CONCAT('0x', SUBSTR(l.topics [2] :: STRING, 27, 40)) AS reipient_address,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 's2c',
                 l_segmented_data [0] :: STRING
             )
         ) AS deltaQty0,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 's2c',
                 l_segmented_data [1] :: STRING
             )
         ) AS deltaQty1,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 l_segmented_data [2] :: STRING
             )
         ) AS sqrtP,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 l_segmented_data [3] :: STRING
             )
         ) AS liquidity,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 's2c',
                 l_segmented_data [4] :: STRING
             )
@@ -79,7 +81,7 @@ swaps_base AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )

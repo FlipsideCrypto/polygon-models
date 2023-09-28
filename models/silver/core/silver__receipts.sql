@@ -1,11 +1,12 @@
 -- depends_on: {{ ref('bronze__streamline_receipts') }}
 {{ config(
     materialized = 'incremental',
-    unique_key = "tx_hash",
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
     cluster_by = "ROUND(block_number, -3)",
-    incremental_predicates = ["dynamic_range", "block_number"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION on equality(tx_hash)",
-    full_refresh = False
+    full_refresh = false,
+    tags = ['non_realtime']
 ) }}
 
 WITH base AS (
@@ -36,25 +37,25 @@ FINAL AS (
     SELECT
         block_number,
         DATA :blockHash :: STRING AS block_hash,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :blockNumber :: STRING
         ) :: INT AS blockNumber,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :cumulativeGasUsed :: STRING
         ) :: INT AS cumulative_gas_used,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :effectiveGasPrice :: STRING
         ) :: INT / pow(
             10,
             9
         ) AS effective_gas_price,
         DATA :from :: STRING AS from_address,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :gasUsed :: STRING
         ) :: INT AS gas_used,
         DATA :logs AS logs,
         DATA :logsBloom :: STRING AS logs_bloom,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :status :: STRING
         ) :: INT AS status,
         CASE
@@ -71,10 +72,10 @@ FINAL AS (
             ELSE to_address1
         END AS to_address,
         DATA :transactionHash :: STRING AS tx_hash,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :transactionIndex :: STRING
         ) :: INT AS POSITION,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :type :: STRING
         ) :: INT AS TYPE,
         _inserted_timestamp
@@ -86,6 +87,6 @@ SELECT
 FROM
     FINAL
 WHERE
-    tx_hash IS NOT NULL qualify(ROW_NUMBER() over (PARTITION BY tx_hash
+    tx_hash IS NOT NULL qualify(ROW_NUMBER() over (PARTITION BY block_number, POSITION
 ORDER BY
     _inserted_timestamp DESC)) = 1

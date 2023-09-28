@@ -1,40 +1,30 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "_log_id",
-    cluster_by = ['block_timestamp::DATE']
+    incremental_strategy = 'delete+insert',
+    unique_key = 'block_number',
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['non_realtime']
 ) }}
 
 WITH pool_meta AS (
 
     SELECT
-        DISTINCT pool_address,
-        CASE 
-            WHEN pool_name IS NULL AND pool_symbol IS NULL THEN CONCAT('Curve.fi Pool: ',SUBSTRING(pool_address, 1, 5),'...',SUBSTRING(pool_address, 39, 42))
-            WHEN pool_name IS NULL THEN CONCAT('Curve.fi Pool: ',replace(regexp_replace(agg_symbol, '[^[:alnum:],]', '', 1, 0), ',', '-'))
-        ELSE pool_name
-    END AS pool_name,
-    token_address,
-    pool_symbol AS symbol,
-    token_id::INTEGER AS token_id,
-    token_type::STRING AS token_type
+        pool_address,
+        pool_name,
+        token_address,
+        pool_symbol AS symbol,
+        token_id::INTEGER AS token_id,
+        token_type::STRING AS token_type
     FROM
         {{ ref('silver_dex__curve_pools') }}
-    LEFT JOIN (
-        SELECT
-            pool_address,
-            array_agg(DISTINCT pool_symbol)::STRING AS agg_symbol
-        FROM {{ ref('silver_dex__curve_pools') }}
-        GROUP BY 1
-        ) USING(pool_address)
 ),
 
 pools AS (
-
-SELECT 
-	DISTINCT pool_address,
-	pool_name
-FROM pool_meta
-QUALIFY (ROW_NUMBER() OVER (PARTITION BY pool_address ORDER BY pool_name ASC)) = 1
+    SELECT 
+        DISTINCT pool_address,
+        pool_name
+    FROM pool_meta
+    QUALIFY (ROW_NUMBER() OVER (PARTITION BY pool_address ORDER BY pool_name ASC NULLS LAST)) = 1
 ),
 
 curve_base AS (
@@ -55,24 +45,24 @@ curve_base AS (
         pool_name,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS sender,
-        TRY_TO_NUMBER(ethereum.public.udf_hex_to_int(
+        TRY_TO_NUMBER(utils.udf_hex_to_int(
             segmented_data [0] :: STRING
         )) AS sold_id,
-        TRY_TO_NUMBER(ethereum.public.udf_hex_to_int(
+        TRY_TO_NUMBER(utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         )) AS tokens_sold,
-        TRY_TO_NUMBER(ethereum.public.udf_hex_to_int(
+        TRY_TO_NUMBER(utils.udf_hex_to_int(
             segmented_data [2] :: STRING
         )) AS bought_id,
-        TRY_TO_NUMBER(ethereum.public.udf_hex_to_int(
+        TRY_TO_NUMBER(utils.udf_hex_to_int(
             segmented_data [3] :: STRING
         )) AS tokens_bought,
         _log_id,
         _inserted_timestamp
     FROM
-        {{ ref('silver__logs') }}
-        INNER JOIN pools
-        ON pools.pool_address = contract_address
+        {{ ref('silver__logs') }} l
+        INNER JOIN pools p
+        ON p.pool_address = l.contract_address
     WHERE
         topics [0] :: STRING IN (
             '0x8b3e96f2b889fa771c53c981b40daf005f63f637f1869f707052d15a3dd97140',
@@ -83,7 +73,7 @@ curve_base AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -109,7 +99,7 @@ token_transfers AS (
         tx_hash,
         contract_address AS token_address,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 DATA :: STRING
             )
         ) AS amount,
@@ -130,7 +120,7 @@ token_transfers AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )

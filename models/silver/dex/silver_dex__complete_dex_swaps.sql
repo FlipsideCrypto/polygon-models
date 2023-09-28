@@ -1,18 +1,20 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "_log_id",
-  cluster_by = ['block_timestamp::DATE']
+  incremental_strategy = 'delete+insert',
+  unique_key = ['block_number','platform','version'],
+  cluster_by = ['block_timestamp::DATE'],
+  tags = ['non_realtime']
 ) }}
 
 WITH contracts AS (
 
   SELECT
-    address,
-    symbol,
-    NAME,
-    decimals
+    contract_address AS address,
+    token_symbol AS symbol,
+    token_name AS NAME,
+    token_decimals AS decimals
   FROM
-    {{ ref('core__dim_contracts') }}
+    {{ ref('silver__contracts') }}
 ),
 prices AS (
   SELECT
@@ -20,7 +22,7 @@ prices AS (
     token_address,
     price
   FROM
-    {{ ref('core__fact_hourly_token_prices') }}
+    {{ ref('price__ez_hourly_token_prices') }}
   WHERE
     token_address IN (
       SELECT
@@ -28,15 +30,6 @@ prices AS (
       FROM
         contracts
     )
-
-{% if is_incremental() %}
-AND HOUR >= (
-  SELECT
-    MAX(_inserted_timestamp) :: DATE - 2
-  FROM
-    {{ this }}
-)
-{% endif %}
 ),
 univ3_swaps AS (
   SELECT
@@ -47,15 +40,7 @@ univ3_swaps AS (
     origin_from_address,
     origin_to_address,
     pool_address AS contract_address,
-    CONCAT(
-      c1.symbol,
-      '-',
-      c2.symbol,
-      ' ',
-      fee,
-      ' ',
-      tick_spacing
-    ) AS pool_name,
+    NULL AS pool_name,
     'Swap' AS event_name,
     amount0_unadj / pow(10, COALESCE(c1.decimals, 18)) AS amount0_adjusted,
     amount1_unadj / pow(10, COALESCE(c2.decimals, 18)) AS amount1_adjusted,
@@ -99,6 +84,7 @@ univ3_swaps AS (
     recipient AS tx_to,
     event_index,
     'uniswap-v3' AS platform,
+    'v3' AS version,
     CASE
       WHEN amount0_unadj > 0 THEN token0_address
       ELSE token1_address
@@ -141,7 +127,7 @@ univ3_swaps AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -175,9 +161,32 @@ woofi_swaps AS (
     tx_to,
     event_index,
     platform,
+    'v1' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    CONCAT(
+      LEAST(
+        COALESCE(
+          symbol_in,
+          CONCAT(SUBSTRING(token_in, 1, 5), '...', SUBSTRING(token_in, 39, 42))
+        ),
+        COALESCE(
+          symbol_out,
+          CONCAT(SUBSTRING(token_out, 1, 5), '...', SUBSTRING(token_out, 39, 42))
+        )
+      ),
+      '-',
+      GREATEST(
+        COALESCE(
+          symbol_in,
+          CONCAT(SUBSTRING(token_in, 1, 5), '...', SUBSTRING(token_in, 39, 42))
+        ),
+        COALESCE(
+          symbol_out,
+          CONCAT(SUBSTRING(token_out, 1, 5), '...', SUBSTRING(token_out, 39, 42))
+        )
+      )
+    ) AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -192,7 +201,7 @@ woofi_swaps AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -226,9 +235,10 @@ kyberswap_v1_dynamic AS (
     tx_to,
     event_index,
     platform,
+    'v1-dynamic' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -243,7 +253,7 @@ kyberswap_v1_dynamic AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -277,9 +287,10 @@ kyberswap_v1_static AS (
     tx_to,
     event_index,
     platform,
+    'v1-static' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -294,7 +305,7 @@ kyberswap_v1_static AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -328,9 +339,10 @@ kyberswap_v2_elastic AS (
     tx_to,
     event_index,
     platform,
+    'v2' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -345,7 +357,7 @@ kyberswap_v2_elastic AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -379,9 +391,10 @@ fraxswap_swaps AS (
     tx_to,
     event_index,
     platform,
+    'v1' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -396,7 +409,7 @@ fraxswap_swaps AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -430,9 +443,10 @@ sushi_swaps AS (
     tx_to,
     event_index,
     platform,
+    'v1' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -447,7 +461,69 @@ sushi_swaps AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
+    FROM
+      {{ this }}
+  )
+{% endif %}
+),
+hashflow_swaps AS (
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    event_name,
+    c1.decimals AS decimals_in,
+    c1.symbol AS symbol_in,
+    amount_in_unadj,
+    CASE
+      WHEN decimals_in IS NULL THEN amount_in_unadj
+      ELSE (amount_in_unadj / pow(10, decimals_in))
+    END AS amount_in,
+    c2.decimals AS decimals_out,
+    c2.symbol AS symbol_out,
+    amount_out_unadj,
+    CASE
+      WHEN decimals_out IS NULL THEN amount_out_unadj
+      ELSE (amount_out_unadj / pow(10, decimals_out))
+    END AS amount_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    'v1' AS version,
+    token_in,
+    token_out,
+    CONCAT(
+      LEAST(
+          COALESCE(symbol_in, CONCAT(SUBSTRING(token_in, 1, 5), '...', SUBSTRING(token_in, 39, 42))),
+          COALESCE(symbol_out, CONCAT(SUBSTRING(token_out, 1, 5), '...', SUBSTRING(token_out, 39, 42)))
+      ),
+      '-',
+      GREATEST(
+          COALESCE(symbol_in, CONCAT(SUBSTRING(token_in, 1, 5), '...', SUBSTRING(token_in, 39, 42))),
+          COALESCE(symbol_out, CONCAT(SUBSTRING(token_out, 1, 5), '...', SUBSTRING(token_out, 39, 42)))
+      )
+    ) AS pool_name,
+    _log_id,
+    _inserted_timestamp
+  FROM
+    {{ ref('silver_dex__hashflow_swaps') }}
+    s
+    LEFT JOIN contracts c1
+    ON s.token_in = c1.address
+    LEFT JOIN contracts c2
+    ON s.token_out = c2.address
+
+{% if is_incremental() %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -462,7 +538,7 @@ curve_swaps AS (
     origin_from_address,
     origin_to_address,
     contract_address,
-    pool_name,
+    NULL AS pool_name,
     event_name,
     s.tokens_sold AS amount_in_unadj,
     s.tokens_bought AS amount_out_unadj,
@@ -470,6 +546,7 @@ curve_swaps AS (
     tx_to,
     event_index,
     platform,
+    'v1' AS version,
     token_in,
     token_out,
     COALESCE(
@@ -515,7 +592,7 @@ curve_swaps AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
   SELECT
-    MAX(_inserted_timestamp) :: DATE - 1
+    MAX(_inserted_timestamp) - INTERVAL '36 hours'
   FROM
     {{ this }}
 )
@@ -530,7 +607,7 @@ balancer_swaps AS (
     origin_from_address,
     origin_to_address,
     contract_address,
-    pool_name,
+    NULL AS pool_name,
     event_name,
     c1.decimals AS decimals_in,
     c1.symbol AS symbol_in,
@@ -550,6 +627,7 @@ balancer_swaps AS (
     tx_to,
     event_index,
     platform,
+    'v1' AS version,
     token_in,
     token_out,
     _log_id,
@@ -566,7 +644,7 @@ balancer_swaps AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -624,6 +702,7 @@ quickswap_v3_swaps AS (
     recipient AS tx_to,
     event_index,
     'quickswap-v3' AS platform,
+    'v3' AS version,
     CASE
       WHEN amount0_unadj > 0 THEN token0_address
       ELSE token1_address
@@ -640,7 +719,7 @@ quickswap_v3_swaps AS (
       WHEN amount0_unadj < 0 THEN c1.symbol
       ELSE c2.symbol
     END AS symbol_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -668,7 +747,7 @@ quickswap_v3_swaps AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
   SELECT
-    MAX(_inserted_timestamp) :: DATE - 1
+    MAX(_inserted_timestamp) - INTERVAL '36 hours'
   FROM
     {{ this }}
 )
@@ -702,9 +781,10 @@ quickswap_v2_swaps AS (
     tx_to,
     event_index,
     platform,
+    'v2' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -719,7 +799,7 @@ quickswap_v2_swaps AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -753,9 +833,10 @@ dodo_v1_swaps AS (
     tx_to,
     event_index,
     platform,
+    'v1' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -770,7 +851,7 @@ dodo_v1_swaps AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -804,9 +885,10 @@ dodo_v2_swaps AS (
     tx_to,
     event_index,
     platform,
+    'v2' AS version,
     token_in,
     token_out,
-    CONCAT(LEAST(symbol_in, symbol_out), '-', GREATEST(symbol_in, symbol_out)) AS pool_name,
+    NULL AS pool_name,
     _log_id,
     _inserted_timestamp
   FROM
@@ -821,7 +903,7 @@ dodo_v2_swaps AS (
 WHERE
   _inserted_timestamp >= (
     SELECT
-      MAX(_inserted_timestamp) :: DATE - 1
+      MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
       {{ this }}
   )
@@ -847,6 +929,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -876,6 +959,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -905,6 +989,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     token_symbol_in AS symbol_in,
@@ -934,6 +1019,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -963,6 +1049,37 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
+    token_in,
+    token_out,
+    symbol_in,
+    symbol_out,
+    decimals_in,
+    decimals_out,
+    _log_id,
+    _inserted_timestamp
+  FROM
+    hashflow_swaps
+  UNION ALL
+  SELECT
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    contract_address,
+    pool_name,
+    event_name,
+    amount_in_unadj,
+    amount_out_unadj,
+    amount_in,
+    amount_out,
+    sender,
+    tx_to,
+    event_index,
+    platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -992,6 +1109,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1021,6 +1139,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1050,6 +1169,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1079,6 +1199,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1108,6 +1229,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1137,6 +1259,7 @@ all_dex_standard AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1170,6 +1293,7 @@ all_dex_custom AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1199,6 +1323,7 @@ all_dex_custom AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1241,6 +1366,7 @@ FINAL AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1288,6 +1414,7 @@ FINAL AS (
     tx_to,
     event_index,
     platform,
+    version,
     token_in,
     token_out,
     symbol_in,
@@ -1298,14 +1425,17 @@ FINAL AS (
     all_dex_custom C
 )
 SELECT
-  block_number,
-  block_timestamp,
-  tx_hash,
+  f.block_number,
+  f.block_timestamp,
+  f.tx_hash,
   origin_function_signature,
   origin_from_address,
   origin_to_address,
-  contract_address,
-  pool_name,
+  f.contract_address,
+  CASE
+    WHEN f.pool_name IS NULL THEN p.pool_name
+    ELSE f.pool_name
+  END AS pool_name,
   event_name,
   amount_in_unadj,
   amount_in,
@@ -1326,12 +1456,16 @@ SELECT
   sender,
   tx_to,
   event_index,
-  platform,
+  f.platform,
+  f.version,
   token_in,
   token_out,
   symbol_in,
   symbol_out,
-  _log_id,
-  _inserted_timestamp
+  f._log_id,
+  f._inserted_timestamp
 FROM
-  FINAL
+  FINAL f
+  LEFT JOIN {{ ref('silver_dex__complete_dex_liquidity_pools') }}
+  p
+  ON f.contract_address = p.pool_address

@@ -1,6 +1,8 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "pool_address"
+    incremental_strategy = 'delete+insert',
+    unique_key = 'block_number',
+    tags = ['non_realtime']
 ) }}
 
 WITH pool_creation AS (
@@ -15,7 +17,7 @@ WITH pool_creation AS (
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS token0,
         CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS token1,
         CONCAT('0x', SUBSTR(segmented_data [0] :: STRING, 25, 40)) AS pool_address,
-        ethereum.public.udf_hex_to_int(
+        utils.udf_hex_to_int(
             segmented_data [1] :: STRING
         ) :: INT AS pool_id,
         _log_id,
@@ -32,7 +34,7 @@ WITH pool_creation AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -48,6 +50,7 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
+    factory_address,
     event_index,
     token0,
     token1,

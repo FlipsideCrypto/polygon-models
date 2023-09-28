@@ -33,19 +33,29 @@ There is more information on how to use dbt docs in the last section of this doc
 **Convenience Tables:**
 - [ez_decoded_event_logs](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_decoded_event_logs)
 - [ez_matic_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_matic_transfers)
-- [ez_nft_mints](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_nft_mints)
-- [ez_nft_sales](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_nft_sales)
-- [ez_nft_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_nft_transfers)
+- [ez_token_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__ez_token_transfers)
+
+### Price Tables (polygon.price)
+- [fact_hourly_token_prices](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__fact_hourly_token_prices)
+- [ez_hourly_token_prices](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__ez_hourly_token_prices)
+- [dim_asset_metadata](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__dim_asset_metadata)
+- [ez_asset_metadata](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__ez_asset_metadata)
+
+
+### DeFi Tables (polygon.defi)
+- [dim_dex_liquidity_pools](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__dim_dex_liquidity_pools)
+- [ez_dex_swaps](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_dex_swaps)
+
+### NFT Tables (polygon.nft)
+- [ez_nft_mints](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.nft__ez_nft_mints)
+- [ez_nft_sales](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.nft__ez_nft_sales)
+- [ez_nft_transfers](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.nft__ez_nft_transfers)
 
 ## **Helpful User-Defined Functions (UDFs)**
 
-UDFs are custom functions built by the Flipside team that can be used in your queries to make your life easier.
+UDFs are custom functions built by the Flipside team that can be used in your queries to make your life easier. 
 
-Helpful UDFs for working with EVM data:
-```sql
--- Convert a hex encoded value to an integer with ethereum.public.udf_hex_to_int(FIELD::string)
-select '0xFC3C88'::string as hex_value, ethereum.public.udf_hex_to_int('0xFC3C88') as int_value
-```
+Please visit [LiveQuery Functions Overview](https://flipsidecrypto.github.io/livequery-models/#!/overview) for a full list of helpful UDFs.
 
 ## **Data Model Overview**
 
@@ -96,7 +106,7 @@ Note that you can also right-click on models to interactively filter and explore
 - [Flipside](https://flipsidecrypto.xyz)
 - [Tutorials](https://docs.flipsidecrypto.com/our-data/tutorials)
 - [Github](https://github.com/FlipsideCrypto/polygon-models)
-- [Query Editor Shortcuts](https://docs.flipsidecrypto.com/velocity/query-editor-shortcuts)
+- [Data Studio](https://flipsidecrypto.xyz/edit)
 - [What is dbt?](https://docs.getdbt.com/docs/introduction)
 
 {% enddocs %}

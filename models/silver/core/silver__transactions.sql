@@ -1,11 +1,12 @@
 -- depends_on: {{ ref('bronze__streamline_transactions') }}
 {{ config(
     materialized = 'incremental',
-    unique_key = "tx_hash",
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
     cluster_by = "block_timestamp::date, _inserted_timestamp::date",
-    incremental_predicates = ["dynamic_range", "block_timestamp::date"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    full_refresh = False
+    full_refresh = false,
+    tags = ['non_realtime']
 ) }}
 
 WITH base AS (
@@ -32,21 +33,21 @@ WHERE
     IS_OBJECT(DATA)
 {% endif %}
 ),
-new_records AS (
+base_tx AS (
     SELECT
         A.block_number AS block_number,
         A.data :blockHash :: STRING AS block_hash,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :blockNumber :: STRING
         ) :: INT AS blockNumber,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :chainId :: STRING
         ) :: INT AS chain_id,
         A.data :from :: STRING AS from_address,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :gas :: STRING
         ) :: INT AS gas,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :gasPrice :: STRING
         ) :: INT / pow(
             10,
@@ -59,19 +60,19 @@ new_records AS (
             1,
             10
         ) AS origin_function_signature,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :maxFeePerGas :: STRING
         ) :: INT / pow(
             10,
             9
         ) AS max_fee_per_gas,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :maxPriorityFeePerGas :: STRING
         ) :: INT / pow(
             10,
             9
         ) AS max_priority_fee_per_gas,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :nonce :: STRING
         ) :: INT AS nonce,
         A.data :r :: STRING AS r,
@@ -81,17 +82,42 @@ new_records AS (
             WHEN to_address1 = '' THEN NULL
             ELSE to_address1
         END AS to_address,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :transactionIndex :: STRING
         ) :: INT AS POSITION,
         A.data :type :: STRING AS TYPE,
         A.data :v :: STRING AS v,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             A.data :value :: STRING
         ) / pow(
             10,
             18
         ) :: FLOAT AS VALUE,
+        A._INSERTED_TIMESTAMP
+    FROM
+        base A
+),
+new_records AS (
+    SELECT
+        t.block_number,
+        t.block_hash,
+        t.chain_id,
+        t.from_address,
+        t.gas,
+        t.gas_price,
+        t.tx_hash,
+        t.input_data,
+        t.origin_function_signature,
+        t.max_fee_per_gas,
+        t.max_priority_fee_per_gas,
+        t.nonce,
+        t.r,
+        t.s,
+        t.to_address,
+        t.position,
+        t.type,
+        t.v,
+        t.value,
         block_timestamp,
         CASE
             WHEN block_timestamp IS NULL
@@ -110,22 +136,25 @@ new_records AS (
             9
         ) AS tx_fee,
         r.type AS tx_type,
-        A._INSERTED_TIMESTAMP
+        t._inserted_timestamp
     FROM
-        base A
+        base_tx t
+        LEFT OUTER JOIN {{ ref('silver__blocks') }}
+        b
+        ON t.block_number = b.block_number
         LEFT OUTER JOIN {{ ref('silver__receipts') }}
         r
-        ON A.block_number = r.block_number
-        AND A.data :hash :: STRING = r.tx_hash
+        ON t.block_number = r.block_number
+        AND t.tx_hash = r.tx_hash
 
 {% if is_incremental() %}
-AND r._INSERTED_TIMESTAMP >= '{{ lookback() }}'
+AND r._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(_inserted_timestamp) :: DATE - 1
+    FROM
+        {{ this }}
+)
 {% endif %}
-LEFT OUTER JOIN {{ ref('silver__blocks') }}
-b
-ON A.block_number = b.block_number qualify(ROW_NUMBER() over (PARTITION BY A.data :hash :: STRING
-ORDER BY
-    A._inserted_timestamp DESC)) = 1
 )
 
 {% if is_incremental() %},
@@ -256,6 +285,8 @@ FROM
 SELECT
     *
 FROM
-    FINAL qualify(ROW_NUMBER() over (PARTITION BY tx_hash
+    FINAL
+WHERE
+    tx_hash IS NOT NULL qualify(ROW_NUMBER() over (PARTITION BY block_number, POSITION
 ORDER BY
     _inserted_timestamp DESC, is_pending ASC)) = 1

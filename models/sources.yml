@@ -1,29 +1,12 @@
 version: 2
 
 sources:
-  - name: prod
-    database: chainwalkers
-    schema: prod
-    tables:
-      - name: polygon_blocks
-      - name: polygon_txs
   - name: crosschain
-    database: crosschain
+    database: "{{ 'crosschain' if target.database == 'POLYGON' else 'crosschain_dev' }}"
     schema: core
     tables:
-      - name: address_labels
-      - name: ez_hourly_prices
-  - name: symbols_cross_tab
-    database: FLIPSIDE_PROD_DB
-    schema: SILVER
-    tables:
-      - name: MARKET_ASSET_METADATA
-  - name: polygon_dex_pools
-    database: polygon
-    schema: bronze
-    tables:
-      - name: SUSHI_DIM_DEX_POOLS
-      - name: SUSHI_DIM_KASHI_PAIRS
+      - name: dim_labels
+      - name: ez_hourly_token_prices
   - name: ethereum
     database: ethereum
     schema: core
@@ -41,20 +24,35 @@ sources:
       - name: transactions
       - name: debug_traceBlockByNumber
       - name: decoded_logs
+      - name: confirm_blocks
+      - name: matic_balances
+      - name: token_balances
   - name: streamline_crosschain
     database: streamline
     schema: crosschain
     tables:
       - name: node_mapping
   - name: crosschain_silver
-    database: crosschain
+    database: "{{ 'crosschain' if target.database == 'POLYGON' else 'crosschain_dev' }}"
     schema: silver
     tables:
       - name: apis_keys
       - name: token_prices_priority_hourly
+      - name: token_prices_all_providers_hourly
       - name: asset_metadata_priority
+      - name: asset_metadata_all_providers
   - name: crosschain_public
     database: crosschain
     schema: bronze_public
     tables:
       - name: user_abis
+  - name: polygon_silver
+    database: polygon
+    schema: silver
+    tables:
+      - name: verified_abis
+  - name: polygon_bronze_api
+    database: polygon
+    schema: bronze_api
+    tables:
+      - name: contract_abis

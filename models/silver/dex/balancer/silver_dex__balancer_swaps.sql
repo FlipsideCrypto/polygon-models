@@ -1,7 +1,9 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = '_log_id',
-    cluster_by = ['block_timestamp::DATE']
+    incremental_strategy = 'delete+insert',
+    unique_key = 'block_number',
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['non_realtime']
 ) }}
 
 WITH pool_name AS (
@@ -28,12 +30,12 @@ swaps_base AS (
         event_index,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 segmented_data [0] :: STRING
             )
         ) AS amount_in_unadj,
         TRY_TO_NUMBER(
-            ethereum.public.udf_hex_to_int(
+            utils.udf_hex_to_int(
                 segmented_data [1] :: STRING
             )
         ) AS amount_out_unadj,
@@ -59,7 +61,7 @@ swaps_base AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) :: DATE
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -88,7 +90,5 @@ SELECT
     _inserted_timestamp
 FROM
     swaps_base s
-    LEFT JOIN pool_name pn
+    INNER JOIN pool_name pn
     ON pn.pool_address = s.pool_address
-WHERE
-    pool_name IS NOT NULL

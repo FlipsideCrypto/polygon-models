@@ -1,11 +1,12 @@
 -- depends_on: {{ ref('bronze__streamline_traces') }}
 {{ config (
     materialized = "incremental",
-    unique_key = ['block_number', 'tx_position', 'trace_index'],
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
     cluster_by = "block_timestamp::date, _inserted_timestamp::date",
-    incremental_predicates = ["dynamic_range", "block_number"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    full_refresh = False
+    full_refresh = false,
+    tags = ['non_realtime']
 ) }}
 
 WITH traces_txs AS (
@@ -82,10 +83,10 @@ base_table AS (
 flattened_traces AS (
     SELECT
         DATA :from :: STRING AS from_address,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :gas :: STRING
         ) AS gas,
-        PUBLIC.udf_hex_to_int(
+        utils.udf_hex_to_int(
             DATA :gasUsed :: STRING
         ) AS gas_used,
         DATA :input :: STRING AS input,
@@ -94,7 +95,7 @@ flattened_traces AS (
         DATA :to :: STRING AS to_address,
         DATA :type :: STRING AS TYPE,
         CASE
-            WHEN DATA :type :: STRING = 'CALL' THEN PUBLIC.udf_hex_to_int(
+            WHEN DATA :type :: STRING = 'CALL' THEN utils.udf_hex_to_int(
                 DATA :value :: STRING
             ) / pow(
                 10,
@@ -254,7 +255,12 @@ flattened_traces AS (
                 AND f.block_number = t.block_number
 
 {% if is_incremental() %}
-AND t._INSERTED_TIMESTAMP >= '{{ lookback() }}'
+AND t._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(_inserted_timestamp) :: DATE - 1
+    FROM
+        {{ this }}
+)
 {% endif %}
 )
 
