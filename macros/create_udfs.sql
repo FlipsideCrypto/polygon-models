@@ -19,7 +19,6 @@
             {% set sql %}
             {{ create_udf_get_chainhead() }}
             {{ create_udf_bulk_json_rpc() }}
-            {{ create_udf_bulk_get_traces() }}
             {{ create_udf_decode_array_string() }}
             {{ create_udf_decode_array_object() }}
             {{ create_udf_bulk_decode_logs() }}
