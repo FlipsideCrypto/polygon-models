@@ -78,9 +78,8 @@ swaps_base AS (
     FROM
         {{ ref('silver__logs') }}
         l
-    INNER JOIN pools p
-    ON
-        l.contract_address = p.pool_address
+        INNER JOIN pools p
+        ON l.contract_address = p.pool_address
     WHERE
         l.topics [0] :: STRING = '0xc2c0245e056d5fb095f04cd6373bc770802ebd1e6c918eb78fdef843cdb37b0f' --dodoswap
         AND trader_address NOT IN (
@@ -120,3 +119,6 @@ SELECT
     _inserted_timestamp
 FROM
     swaps_base
+qualify(DENSE_RANK() over (PARTITION BY tx_hash
+ORDER BY
+    block_number DESC, _inserted_timestamp DESC)) = 1

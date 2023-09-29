@@ -1469,3 +1469,6 @@ FROM
   LEFT JOIN {{ ref('silver_dex__complete_dex_liquidity_pools') }}
   p
   ON f.contract_address = p.pool_address
+qualify(DENSE_RANK() over (PARTITION BY f.tx_hash
+ORDER BY
+    f.block_number DESC, f._inserted_timestamp DESC)) = 1
