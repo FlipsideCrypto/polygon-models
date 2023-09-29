@@ -116,3 +116,6 @@ FROM
     swaps_base
 WHERE
     token_in <> token_out
+qualify(DENSE_RANK() over (PARTITION BY tx_hash
+ORDER BY
+    block_number DESC, _inserted_timestamp DESC)) = 1

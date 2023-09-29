@@ -214,3 +214,6 @@ SELECT
     'curve' AS platform
 FROM
     ready_pool_info
+qualify(DENSE_RANK() over (PARTITION BY tx_hash
+ORDER BY
+    block_number DESC, _inserted_timestamp DESC)) = 1

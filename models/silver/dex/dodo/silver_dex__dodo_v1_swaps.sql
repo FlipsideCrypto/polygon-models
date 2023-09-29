@@ -12,8 +12,9 @@ WITH pools AS (
         pool_address,
         base_token,
         quote_token
-    FROM {{ ref('silver_dex__dodo_v1_pools') }}
-),  
+    FROM
+        {{ ref('silver_dex__dodo_v1_pools') }}
+),
 proxies AS (
     SELECT
         '0xdbfaf391c37339c903503495395ad7d6b096e192' AS proxy_address
@@ -126,47 +127,55 @@ AND _inserted_timestamp >= (
         {{ this }}
 )
 {% endif %}
+),
+FINAL AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        origin_function_signature,
+        origin_from_address,
+        origin_to_address,
+        event_index,
+        contract_address,
+        seller_address AS sender,
+        origin_from_address AS tx_to,
+        tokenIn AS token_in,
+        tokenOut AS token_out,
+        amountIn AS amount_in_unadj,
+        amountOut AS amount_out_unadj,
+        'SellBaseToken' AS event_name,
+        'dodo-v1' AS platform,
+        _log_id,
+        _inserted_timestamp
+    FROM
+        sell_base_token
+    UNION ALL
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        origin_function_signature,
+        origin_from_address,
+        origin_to_address,
+        event_index,
+        contract_address,
+        buyer_address AS sender,
+        origin_from_address AS tx_to,
+        tokenIn AS token_in,
+        tokenOut AS token_out,
+        amountIn AS amount_in_unadj,
+        amountOut AS amount_out_unadj,
+        'BuyBaseToken' AS event_name,
+        'dodo-v1' AS platform,
+        _log_id,
+        _inserted_timestamp
+    FROM
+        buy_base_token
 )
 SELECT
-    block_number,
-    block_timestamp,
-    tx_hash,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
-    event_index,
-    contract_address,
-    seller_address AS sender,
-    origin_from_address AS tx_to,
-    tokenIn AS token_in,
-    tokenOut AS token_out,
-    amountIn AS amount_in_unadj,
-    amountOut AS amount_out_unadj,
-    'SellBaseToken' AS event_name,
-    'dodo-v1' AS platform,
-    _log_id,
-    _inserted_timestamp
+    *
 FROM
-    sell_base_token
-UNION ALL
-SELECT
-    block_number,
-    block_timestamp,
-    tx_hash,
-    origin_function_signature,
-    origin_from_address,
-    origin_to_address,
-    event_index,
-    contract_address,
-    buyer_address AS sender,
-    origin_from_address AS tx_to,
-    tokenIn AS token_in,
-    tokenOut AS token_out,
-    amountIn AS amount_in_unadj,
-    amountOut AS amount_out_unadj,
-    'BuyBaseToken' AS event_name,
-    'dodo-v1' AS platform,
-    _log_id,
-    _inserted_timestamp
-FROM
-    buy_base_token
+    FINAL qualify(DENSE_RANK() over (PARTITION BY tx_hash
+ORDER BY
+    block_number DESC, _inserted_timestamp DESC)) = 1

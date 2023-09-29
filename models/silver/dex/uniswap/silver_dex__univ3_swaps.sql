@@ -93,6 +93,6 @@ FINAL AS (
 SELECT
     *
 FROM
-    FINAL qualify(ROW_NUMBER() over(PARTITION BY _log_id
+    FINAL qualify(DENSE_RANK() over (PARTITION BY tx_hash
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    block_number DESC, _inserted_timestamp DESC)) = 1

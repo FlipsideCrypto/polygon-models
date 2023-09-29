@@ -92,3 +92,6 @@ FROM
     swaps_base s
     INNER JOIN pool_name pn
     ON pn.pool_address = s.pool_address
+qualify(DENSE_RANK() over (PARTITION BY tx_hash
+ORDER BY
+    block_number DESC, _inserted_timestamp DESC)) = 1
