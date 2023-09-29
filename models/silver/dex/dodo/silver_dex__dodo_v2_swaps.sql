@@ -98,7 +98,50 @@ AND _inserted_timestamp >= (
         {{ this }}
 )
 {% endif %}
+),
+errors as (
+    select 
+        tx_hash
+    from 
+        swaps_base
+    WHERE 
+        tx_hash IN (
+        SELECT tx_hash
+        FROM swaps_base
+        GROUP BY tx_hash
+        HAVING COUNT(DISTINCT block_number) > 1
+    )
+),
+re_org_iso AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY tx_hash ORDER BY block_number DESC) as rn
+    FROM swaps_base
+    WHERE tx_hash IN (select * from errors)
 )
+SELECT 
+    block_number,
+    block_timestamp,
+    tx_hash,
+    origin_function_signature,
+    origin_from_address,
+    origin_to_address,
+    event_index,
+    contract_address,
+    fromToken AS token_in,
+    toToken AS token_out,
+    fromAmount AS amount_in_unadj,
+    toAmount AS amount_out_unadj,
+    trader_address AS sender,
+    receiver_address AS tx_to,
+    'DodoSwap' AS event_name,
+    'dodo-v2' AS platform,
+    _log_id,
+    _inserted_timestamp
+FROM 
+    re_org_iso
+WHERE 
+    rn = 1
+UNION ALL
 SELECT
     block_number,
     block_timestamp,
@@ -120,3 +163,5 @@ SELECT
     _inserted_timestamp
 FROM
     swaps_base
+where 
+    tx_hash not in (select * from errors)
