@@ -26,7 +26,7 @@ jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
     environment: 
-      name: workflow_dev
+      name: workflow_prod
 
     steps:
       - uses: actions/checkout@v3
@@ -46,7 +46,6 @@ jobs:
         run: |
           reorg_model_list=$(dbt list --select tag:reorg --resource-type model | awk -F'.' '{print $NF}' | tr '\n' ',' | sed 's/,$//')
           echo "::set-output name=model_list::$reorg_model_list"
-          echo "{name}={value}" >> $GITHUB_OUTPUT
   
       - name: Execute block_reorg macro
         run: |
