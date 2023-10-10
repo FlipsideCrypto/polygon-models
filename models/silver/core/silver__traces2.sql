@@ -187,14 +187,14 @@ final_traces AS (
         trace_json :error :: STRING AS error_reason,
         trace_json :from :: STRING AS from_address,
         trace_json :to :: STRING AS to_address,
-        utils.udf_decimal_adjust(
+        IFNULL(
             utils.udf_hex_to_int(
-                IFF(
-                    trace_json :value IS NULL,
-                    '0x0',
-                    trace_json :value :: STRING
-                )
+                trace_json :value :: STRING
             ),
+            '0'
+        ) AS matic_value_precise_raw,
+        utils.udf_decimal_adjust(
+            matic_value_precise_raw,
             18
         ) AS matic_value_precise,
         matic_value_precise :: FLOAT AS matic_value,
@@ -234,6 +234,7 @@ new_records AS (
         f.trace_index,
         f.from_address,
         f.to_address,
+        f.matic_value_precise_raw,
         f.matic_value_precise,
         f.matic_value,
         f.gas,
@@ -286,6 +287,7 @@ missing_data AS (
         t.trace_index,
         t.from_address,
         t.to_address,
+        t.matic_value_precise_raw,
         t.matic_value_precise,
         t.matic_value,
         t.gas,
@@ -325,6 +327,7 @@ FINAL AS (
         trace_index,
         from_address,
         to_address,
+        matic_value_precise_raw,
         matic_value_precise,
         matic_value,
         gas,
@@ -354,6 +357,7 @@ SELECT
     trace_index,
     from_address,
     to_address,
+    matic_value_precise_raw,
     matic_value_precise,
     matic_value,
     gas,
@@ -374,7 +378,30 @@ FROM
 {% endif %}
 )
 SELECT
-    *
+    block_number,
+    tx_hash,
+    block_timestamp,
+    tx_status,
+    tx_position,
+    trace_index,
+    from_address,
+    to_address,
+    matic_value_precise,
+    matic_value,
+    gas,
+    gas_used,
+    input,
+    output,
+    TYPE,
+    identifier,
+    sub_traces,
+    error_reason,
+    trace_status,
+    DATA,
+    is_pending,
+    _call_id,
+    _inserted_timestamp,
+    matic_value_precise_raw
 FROM
     FINAL qualify(ROW_NUMBER() over(PARTITION BY block_number, tx_position, trace_index
 ORDER BY
