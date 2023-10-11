@@ -15,24 +15,27 @@ WITH bronze_traces AS (
         DATA :result AS full_traces,
         _inserted_timestamp
     FROM
-        {{ ref('bronze__streamline_FR_traces') }}
-    WHERE
-        block_number IN (
-            SELECT
-                DISTINCT missing_block
-            FROM
-                {{ source(
-                    "polygon_silver",
-                    "replay_trace_blocks"
-                ) }}
-        )
-        AND (
-            _partition_by_block_id < 23000000
-            OR _partition_by_block_id > 42000000
-        )
-        AND DATA :result IS NOT NULL qualify(ROW_NUMBER() over (PARTITION BY block_number, tx_position
-    ORDER BY
-        _inserted_timestamp DESC)) = 1
+
+{% if is_incremental() %}
+{{ ref('bronze__streamline_traces') }}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) _inserted_timestamp
+        FROM
+            {{ this }}
+    )
+    AND DATA :result IS NOT NULL
+{% else %}
+    {{ ref('bronze__streamline_FR_traces') }}
+WHERE
+    _partition_by_block_id <= 2300000
+    AND DATA :result IS NOT NULL
+{% endif %}
+
+qualify(ROW_NUMBER() over (PARTITION BY block_number, tx_position
+ORDER BY
+    _inserted_timestamp DESC)) = 1
 ),
 flatten_traces AS (
     SELECT
@@ -264,13 +267,15 @@ new_records AS (
         LEFT OUTER JOIN {{ ref('silver__transactions') }}
         t
         ON f.tx_position = t.position
-        AND f.block_number = t.block_number -- {% if is_incremental() %}
-        -- AND t._INSERTED_TIMESTAMP >= (
-        --     SELECT
-        --         DATEADD('hour', -24, MAX(_inserted_timestamp))
-        --     FROM
-        --         {{ this }})
-        --     {% endif %}
+        AND f.block_number = t.block_number
+
+{% if is_incremental() %}
+AND t._INSERTED_TIMESTAMP >= (
+    SELECT
+        DATEADD('hour', -24, MAX(_inserted_timestamp))
+    FROM
+        {{ this }})
+    {% endif %}
 )
 
 {% if is_incremental() %},
