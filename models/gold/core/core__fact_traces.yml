@@ -16,6 +16,10 @@ models:
         description: '{{ doc("poly_traces_to") }}'
       - name: MATIC_VALUE
         description: '{{ doc("poly_traces_value") }}'
+      - name: MATIC_VALUE_PRECISE_RAW
+        description: '{{ doc("precise_amount_unadjusted") }}'
+      - name: MATIC_VALUE_PRECISE
+        description: '{{ doc("precise_amount_adjusted") }}'
       - name: GAS
         description: '{{ doc("poly_traces_gas") }}'
       - name: GAS_USED

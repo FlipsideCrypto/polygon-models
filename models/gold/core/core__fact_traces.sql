@@ -11,6 +11,8 @@ SELECT
     from_address,
     to_address,
     matic_value,
+    matic_value_precise_raw,
+    matic_value_precise,
     gas,
     gas_used,
     input,
