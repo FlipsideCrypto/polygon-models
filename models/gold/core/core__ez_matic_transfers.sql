@@ -20,7 +20,11 @@ WITH matic_base AS (
         to_address,
         matic_value,
         _call_id,
-        _inserted_timestamp
+        _inserted_timestamp,
+        matic_value_precise,
+        matic_value_precise_raw,
+        tx_position,
+        trace_index
     FROM
         {{ ref('silver__traces') }}
     WHERE
@@ -39,6 +43,7 @@ AND _inserted_timestamp >= (
 ),
 tx_table AS (
     SELECT
+        block_number,
         tx_hash,
         from_address AS origin_from_address,
         to_address AS origin_to_address,
@@ -73,12 +78,16 @@ SELECT
     A.from_address AS matic_from_address,
     A.to_address AS matic_to_address,
     A.matic_value AS amount,
+    A.matic_value_precise_raw AS amount_precise_raw,
+    A.matic_value_precise AS amount_precise,
     ROUND(
         A.matic_value * price,
         2
     ) AS amount_usd,
     _call_id,
-    A._inserted_timestamp
+    A._inserted_timestamp,
+    tx_position,
+    trace_index
 FROM
     matic_base A
     LEFT JOIN {{ ref('silver__hourly_prices_priority') }}
@@ -87,4 +96,7 @@ FROM
         A.block_timestamp
     ) = HOUR
     AND token_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
-    JOIN tx_table USING (tx_hash)
+    JOIN tx_table USING (
+        tx_hash,
+        block_number
+    )
