@@ -89,7 +89,7 @@ vars:
         - INTERNAL_DEV
     prod:
       API_INTEGRATION: AWS_POLYGON_API
-      EXTERNAL_FUNCTION_URI: XXX.execute-api.us-east-1.amazonaws.com/prod/
+      EXTERNAL_FUNCTION_URI: p6dhi5vxn4.execute-api.us-east-1.amazonaws.com/prod/
       ROLES:
         - VELOCITY_INTERNAL
         - VELOCITY_ETHEREUM

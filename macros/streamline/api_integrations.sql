@@ -5,8 +5,8 @@
 
     {% if target.name == "prod" %}
         {% set sql %}
-        CREATE api integration IF NOT EXISTS aws_polygon_api api_provider = aws_api_gateway api_aws_role_arn = 'arn:aws:iam::490041342817:role/polygon-api-prod-rolesnowflakeudfsXXX' api_allowed_prefixes = (
-            'https://XXX.execute-api.us-east-1.amazonaws.com/prod/'
+        CREATE api integration IF NOT EXISTS aws_polygon_api api_provider = aws_api_gateway api_aws_role_arn = 'arn:aws:iam::490041342817:role/polygon-api-prod-rolesnowflakeudfsAF733095-9hTxS6yYCWlj' api_allowed_prefixes = (
+            'https://p6dhi5vxn4.execute-api.us-east-1.amazonaws.com/prod/'
         ) enabled = TRUE;
 {% endset %}
         {% do run_query(sql) %}
