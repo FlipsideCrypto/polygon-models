@@ -25,6 +25,13 @@ clean-targets: # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 models:
+  polygon_models:
+    deploy:
+      +materialized: ephemeral
+      core:
+        +tags: core
+      marketplace:
+        +tags: marketplace
   +copy_grants: true
 
 tests:
@@ -65,3 +72,26 @@ vars:
   OBSERV_FULL_TEST: False
   BALANCES_START: 0
   BALANCES_END: 15000000
+  DROP_UDFS_AND_SPS: False
+  STUDIO_TEST_USER_ID: '{{ env_var("STUDIO_TEST_USER_ID", "98d15c30-9fa5-43cd-9c69-3d4c0bb269f5") }}'
+  ENABLE_SNOWFLAKE_SECRETS: '{{ env_var("ENABLE_SNOWFLAKE_SECRETS", "") }}'
+
+  API_INTEGRATION: '{{ var("config")[target.name]["API_INTEGRATION"] }}'
+  EXTERNAL_FUNCTION_URI: '{{ var("config")[target.name]["EXTERNAL_FUNCTION_URI"] }}'
+  ROLES: '{{ var("config")[target.name]["ROLES"] }}'
+
+  config:
+  # The keys correspond to dbt profiles and are case sensitive
+    dev:
+      API_INTEGRATION: AWS_POLYGON_API_DEV
+      EXTERNAL_FUNCTION_URI: rzyjrd54s6.execute-api.us-east-1.amazonaws.com/dev/
+      ROLES:
+        - INTERNAL_DEV
+    prod:
+      API_INTEGRATION: AWS_POLYGON_API
+      EXTERNAL_FUNCTION_URI: p6dhi5vxn4.execute-api.us-east-1.amazonaws.com/prod/
+      ROLES:
+        - VELOCITY_INTERNAL
+        - VELOCITY_ETHEREUM
+        - INTERNAL_DEV
+        - BI_ANALYTICS_READER
