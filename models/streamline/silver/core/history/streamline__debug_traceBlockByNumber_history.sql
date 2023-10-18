@@ -12,11 +12,7 @@ WITH last_3_days AS (
     SELECT
         block_number
     FROM
-        {{ ref("_max_block_by_date") }}
-        qualify ROW_NUMBER() over (
-            ORDER BY
-                block_number DESC
-        ) = 3
+        {{ ref("_block_lookback") }}
 ),
 blocks AS (
     SELECT
@@ -60,9 +56,9 @@ SELECT
                 ' ',
                 ''
             ),
-            '",{"tracer": "callTracer","timeout": "30s"}',
+            '",{"tracer": "callTracer"}',
             '],"id":"',
-            block_number :: INTEGER,
+            block_number :: STRING,
             '"}'
         )
     ) AS request
@@ -70,5 +66,11 @@ FROM
     blocks
 WHERE
     block_number IS NOT NULL
+    AND block_number NOT IN (
+        SELECT
+            block_number
+        FROM
+            {{ ref("silver_observability__excluded_trace_blocks") }}
+    )
 ORDER BY
     block_number ASC

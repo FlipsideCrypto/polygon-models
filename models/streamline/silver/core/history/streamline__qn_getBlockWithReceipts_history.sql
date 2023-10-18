@@ -12,11 +12,7 @@ WITH last_3_days AS (
     SELECT
         block_number
     FROM
-        {{ ref("_max_block_by_date") }}
-        qualify ROW_NUMBER() over (
-            ORDER BY
-                block_number DESC
-        ) = 3
+        {{ ref("_block_lookback") }}
 ),
 blocks AS (
     SELECT
@@ -32,7 +28,7 @@ blocks AS (
         )
     EXCEPT
     SELECT
-        block_number :: STRING
+        block_number
     FROM
         {{ ref("streamline__complete_qn_getBlockWithReceipts") }}
     WHERE
@@ -61,13 +57,11 @@ SELECT
                 ''
             ),
             '"],"id":"',
-            block_number :: INTEGER,
+            block_number :: STRING,
             '"}'
         )
     ) AS request
 FROM
     blocks
-WHERE
-    block_number IS NOT NULL
 ORDER BY
     block_number ASC

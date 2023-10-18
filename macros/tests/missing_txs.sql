@@ -97,7 +97,7 @@ WHERE
         model_tx_hash IS NULL
         OR model_block_number IS NULL
     )
-    AND block_number NOT IN (
+    AND base_block_number NOT IN (
         SELECT
             block_number
         FROM
