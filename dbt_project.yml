@@ -30,6 +30,8 @@ models:
       +materialized: ephemeral
       core:
         +tags: core
+        secrets:
+          +enabled: false
       marketplace:
         +tags: marketplace
   +copy_grants: true
