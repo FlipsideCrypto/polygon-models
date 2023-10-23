@@ -10,7 +10,7 @@ DECLARE
   output string;
 BEGIN
   rs := (SELECT github_actions.workflow_dispatches(\'FlipsideCrypto\', \'polygon-models\', \'dbt_run_dummy.yml\', NULL)::status_code::int AS status_code);
-  SELECT LISTAGG($1, ';') INTO :output FROM TABLE(result_scan(LAST_QUERY_ID())) LIMIT 1;
+  SELECT LISTAGG($1, \';\') INTO :output FROM TABLE(result_scan(LAST_QUERY_ID())) LIMIT 1;
   CALL SYSTEM$SET_RETURN_VALUE(:output);
 END;'
 {% endset %}
