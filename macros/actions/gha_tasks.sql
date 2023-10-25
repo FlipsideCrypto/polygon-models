@@ -81,7 +81,7 @@ FROM
                 {% endif %}
             {% endfor %}) AS subquery
         WHERE
-            database_name = 'POLYGON' -- '{{ target.database }}' -- replace for prod
+            database_name = '{{ target.database }}' 
             AND schema_name = 'GITHUB_ACTIONS')
         SELECT
             *
