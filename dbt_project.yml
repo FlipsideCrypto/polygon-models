@@ -25,15 +25,6 @@ clean-targets: # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 models:
-  polygon_models:
-    deploy:
-      +materialized: ephemeral
-      core:
-        +tags: core
-        secrets:
-          +enabled: false
-      marketplace:
-        +tags: marketplace
   +copy_grants: true
 
 tests:
