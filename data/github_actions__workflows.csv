@@ -1,0 +1,4 @@
+workflow_name,workflow_schedule
+dbt_run_dummy,"0,20,40 * * * *"
+dbt_run_dummy2,"22 * * * *"
+dbt_test_tasks,"0,30 * * * *"
