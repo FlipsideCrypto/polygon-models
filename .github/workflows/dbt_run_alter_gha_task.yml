@@ -54,4 +54,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run-operation alter_gha_task(${{ inputs.task_name }},${{ inputs.task_action }})
+          dbt run-operation alter_gha_task(TRIGGER_${{ inputs.workflow_name.upper() }},${{ inputs.task_action }})
