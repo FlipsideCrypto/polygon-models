@@ -41,4 +41,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt test -m models/silver/utilities/workflows/silver__gha_task_status.sql
+          dbt test -m models/github_actions/github_actions__current_task_status.sql
