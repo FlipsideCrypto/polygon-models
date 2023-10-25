@@ -18,6 +18,8 @@
         {% set results_list = [] %}
     {% endif %}
 
+    {% set prod_db = target.database.lower().replace('_dev', '') %}
+
     {# Loop through the results and create tasks dynamically #}
     {% for result in results_list %}
         {% set task_name = result[0] %}
@@ -29,12 +31,12 @@
           'CREATE OR REPLACE TASK github_actions.{{ task_name }} 
           WAREHOUSE = DBT_CLOUD
           SCHEDULE = \'USING CRON {{ workflow_schedule }} UTC\'
-          COMMENT = \'Trigger Dummy Workflow\' AS 
+          COMMENT = \'Task to trigger {{ workflow_name }}.yml workflow according to {{ workflow_schedule }}\' AS 
       DECLARE
         rs resultset;
         output string;
       BEGIN
-        rs := (SELECT github_actions.workflow_dispatches(\'FlipsideCrypto\', \'polygon-models\', \'{{ workflow_name }}.yml\', NULL):status_code::int AS status_code);
+        rs := (SELECT github_actions.workflow_dispatches(\'FlipsideCrypto\', \'{{ prod_db }}-models\', \'{{ workflow_name }}.yml\', NULL):status_code::int AS status_code);
         SELECT LISTAGG($1, \';\') INTO :output FROM TABLE(result_scan(LAST_QUERY_ID())) LIMIT 1;
         CALL SYSTEM$SET_RETURN_VALUE(:output);
       END;'
@@ -42,7 +44,7 @@
 
         {% do run_query(sql) %}
 
-        {% if target.database.upper() == 'POLYGON' %}
+        {% if target.database.lower() == prod_db %}
             {% set sql %}
                 ALTER TASK github_actions.{{ task_name }} RESUME;
             {% endset %}
