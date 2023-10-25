@@ -1,5 +1,5 @@
-name: dbt_run_test_workflows
-run-name: dbt_test_workflows
+name: dbt_test_tasks
+run-name: dbt_test_tasks
 
 on:
   workflow_dispatch:
@@ -41,4 +41,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt test -m models/silver/utilities/workflows/silver__gha_task_results.sql
+          dbt test -m models/silver/utilities/workflows/silver__gha_task_status.sql

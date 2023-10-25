@@ -1,0 +1,9 @@
+version: 2
+models:
+  - name: silver__gha_task_status
+    columns:
+      - name: WAS_SUCCESSFUL
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set:
+                - TRUE

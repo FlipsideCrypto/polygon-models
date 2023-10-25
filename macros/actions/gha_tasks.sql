@@ -98,7 +98,7 @@ FROM
         FROM
             {{ ref('silver__gha_workflows') }} AS w
             CROSS JOIN TABLE(
-                silver.cron_to_timestamps(
+                utils.udf_cron_to_timestamps(
                     w.workflow_name,
                     w.workflow_schedule
                 )
@@ -131,6 +131,20 @@ FROM
 ORDER BY
     task_name,
     scheduled_time
+{% endmacro %}
+
+
+{% macro gha_task_current_status() %}
+
+select 
+task_name,
+workflow_name,
+scheduled_time,
+return_value,
+iff(return_value = 204, true, false) as was_successful
+from {{ ref('silver__gha_task_results') }}
+qualify row_number() over (partition by task_name order by scheduled_time desc) = 1
+    
 {% endmacro %}
 
 {% macro alter_task(task_name, task_action) %}
