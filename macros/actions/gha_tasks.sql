@@ -2,11 +2,11 @@
     {# Fetch task_name, workflow_name, and cron_schedule from the view #}
     {% set query %}
         SELECT
-            task_name2 as task_name,
+            task_name,
             workflow_name,
             workflow_schedule
         FROM
-            {{ ref('silver__gha_workflows') }}
+            {{ ref('github_actions__tasks') }}
     {% endset %}
 
     {% set results = run_query(query) %}
@@ -26,7 +26,7 @@
 
         {% set sql %}
           EXECUTE IMMEDIATE 
-          'CREATE OR REPLACE TASK silver.{{ task_name }} 
+          'CREATE OR REPLACE TASK github_actions.{{ task_name }} 
           WAREHOUSE = DBT_CLOUD
           SCHEDULE = \'USING CRON {{ workflow_schedule }} UTC\'
           COMMENT = \'Trigger Dummy Workflow\' AS 
@@ -44,7 +44,7 @@
 
         {% if target.database.upper() == 'POLYGON' %}
             {% set sql %}
-                ALTER TASK silver.{{ task_name }} RESUME;
+                ALTER TASK github_actions.{{ task_name }} RESUME;
             {% endset %}
             {% do run_query(sql) %}
         {% endif %}
@@ -57,7 +57,7 @@
 SELECT
     DISTINCT task_name
 FROM
-    {{ ref('silver__gha_workflows') }}
+    {{ ref('github_actions__tasks') }}
 
     {% endset %}
     {% set results = run_query(query) %}
@@ -82,7 +82,7 @@ FROM
             {% endfor %}) AS subquery
         WHERE
             database_name = 'POLYGON' -- '{{ target.database }}' -- replace for prod
-            AND schema_name = 'SILVER')
+            AND schema_name = 'GITHUB_ACTIONS')
         SELECT
             *
         FROM
@@ -96,7 +96,7 @@ FROM
             w.workflow_schedule AS workflow_schedule,
             t.timestamp AS scheduled_time
         FROM
-            {{ ref('silver__gha_workflows') }} AS w
+            {{ ref('github_actions__tasks') }} AS w
             CROSS JOIN TABLE(
                 utils.udf_cron_to_timestamps(
                     w.workflow_name,
@@ -120,13 +120,13 @@ SELECT
     s.scheduled_time,
     h.return_value
 FROM
-    {{ ref('silver__gha_task_schedule') }}
+    {{ ref('github_actions__task_schedule') }}
     s
-    LEFT JOIN {{ ref('silver__gha_task_history') }}
+    LEFT JOIN {{ ref('github_actions__task_history') }}
     h
     ON s.task_name = h.task_name
-    AND TO_TIMESTAMP_NTZ(DATE_TRUNC('second', s.scheduled_time)) = TO_TIMESTAMP_NTZ(DATE_TRUNC('second', h.scheduled_time))
-    AND h.return_value = 204
+    AND TO_TIMESTAMP_NTZ(DATE_TRUNC('minute', s.scheduled_time)) = TO_TIMESTAMP_NTZ(DATE_TRUNC('minute', h.scheduled_time))
+    AND h.return_value between 200 and 299
     AND h.state = 'SUCCEEDED'
 ORDER BY
     task_name,
@@ -141,14 +141,14 @@ task_name,
 workflow_name,
 scheduled_time,
 return_value,
-iff(return_value = 204, true, false) as was_successful
-from {{ ref('silver__gha_task_results') }}
+return_value is not null as was_successful
+from {{ ref('github_actions__task_performance') }}
 qualify row_number() over (partition by task_name order by scheduled_time desc) = 1
     
 {% endmacro %}
 
 {% macro alter_task(task_name, task_action) %}
 
-ALTER TASK IF EXISTS silver.{{ task_name }} {{ task_action }};
+ALTER TASK IF EXISTS github_actions.{{ task_name }} {{ task_action }};
 
 {% endmacro %}
