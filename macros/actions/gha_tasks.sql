@@ -94,6 +94,7 @@ FROM
         SELECT
             w.workflow_name AS workflow_name,
             w.workflow_schedule AS workflow_schedule,
+            w.task_name AS task_name,
             t.timestamp AS scheduled_time
         FROM
             {{ ref('github_actions__tasks') }} AS w
@@ -105,7 +106,7 @@ FROM
             ) AS t
     )
 SELECT
-    concat_ws('_', 'TRIGGER', UPPER(SUBSTR(workflow_name, 9)), 'WORKFLOW') AS task_name,
+    task_name,
     workflow_name,
     workflow_schedule,
     scheduled_time
