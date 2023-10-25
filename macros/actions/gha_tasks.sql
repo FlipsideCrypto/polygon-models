@@ -1,3 +1,57 @@
+{% macro generate_snowflake_tasks() %}
+    {# Fetch task_name, workflow_name, and cron_schedule from the view #}
+    {% set query %}
+        SELECT
+            task_name2 as task_name,
+            workflow_name,
+            workflow_schedule
+        FROM
+            {{ ref('silver__gha_workflows') }}
+    {% endset %}
+
+    {% set results = run_query(query) %}
+
+    {# Execute the query only in "execute" mode #}
+    {% if execute and results is not none %}
+        {% set results_list = results.rows %}
+    {% else %}
+        {% set results_list = [] %}
+    {% endif %}
+
+    {# Loop through the results and create tasks dynamically #}
+    {% for result in results_list %}
+        {% set task_name = result[0] %}
+        {% set workflow_name = result[1] %}
+        {% set workflow_schedule = result[2] %}
+
+        {% set sql %}
+          EXECUTE IMMEDIATE 
+          'CREATE OR REPLACE TASK silver.{{ task_name }} 
+          WAREHOUSE = DBT_CLOUD
+          SCHEDULE = \'USING CRON {{ workflow_schedule }} UTC\'
+          COMMENT = \'Trigger Dummy Workflow\' AS 
+      DECLARE
+        rs resultset;
+        output string;
+      BEGIN
+        rs := (SELECT github_actions.workflow_dispatches(\'FlipsideCrypto\', \'polygon-models\', \'{{ workflow_name }}.yml\', NULL):status_code::int AS status_code);
+        SELECT LISTAGG($1, \';\') INTO :output FROM TABLE(result_scan(LAST_QUERY_ID())) LIMIT 1;
+        CALL SYSTEM$SET_RETURN_VALUE(:output);
+      END;'
+      {% endset %}
+
+        {% do run_query(sql) %}
+
+        {% if target.database.upper() == 'POLYGON' %}
+            {% set sql %}
+                ALTER TASK silver.{{ task_name }} RESUME;
+            {% endset %}
+            {% do run_query(sql) %}
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+
 {% macro gha_task_history() %}
     {% set query %}
 SELECT
@@ -77,4 +131,10 @@ FROM
 ORDER BY
     task_name,
     scheduled_time
+{% endmacro %}
+
+{% macro alter_task(task_name, task_action) %}
+
+ALTER TASK IF EXISTS silver.{{ task_name }} {{ task_action }};
+
 {% endmacro %}
