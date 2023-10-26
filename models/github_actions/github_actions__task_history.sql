@@ -1,4 +1,5 @@
 {{ config(
     materialized = 'view'
 ) }}
-{{ gha_task_history() }}
+
+{{ fsc_utils.gha_task_history_view() }}

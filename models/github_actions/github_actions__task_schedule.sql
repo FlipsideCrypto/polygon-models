@@ -1,4 +1,5 @@
 {{ config(
     materialized = 'view'
 ) }}
-{{ gha_task_schedule() }}
+
+{{ fsc_utils.gha_task_schedule_view() }}
