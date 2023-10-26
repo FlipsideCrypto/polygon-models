@@ -557,7 +557,7 @@ hashflow_v3_swaps AS (
     tx_to,
     event_index,
     platform,
-    'v1' AS version,
+    'v3' AS version,
     token_in,
     token_out,
     CONCAT(
