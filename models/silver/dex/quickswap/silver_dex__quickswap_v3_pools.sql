@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     unique_key = 'block_number',
     cluster_by = ['_inserted_timestamp::DATE'],
-    tags = ['non_realtime']
+    tags = ['curated']
 ) }}
 
 WITH pool_creation AS (
