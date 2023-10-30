@@ -58,4 +58,4 @@ jobs:
 
       - name: Run DBT Jobs
         run: |
-          dbt run-operation fsc_utils.alter_gha_task(TRIGGER_${{ env.WORKFLOW_NAME_UPPER }},${{ inputs.task_action }})
+          dbt run-operation fsc_utils.alter_gha_task --args '{ "task_name": "TRIGGER_${{ env.WORKFLOW_NAME_UPPER }}", "task_action": "${{ inputs.task_action }}" }'
