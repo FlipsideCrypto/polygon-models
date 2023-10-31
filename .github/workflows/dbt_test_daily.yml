@@ -42,4 +42,4 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt test --exclude "polygon_models,tag:full_test" "polygon_models,tag:recent_test" livequery_models
+          dbt test --exclude "polygon_models,tag:full_test" "polygon_models,tag:recent_test" "polygon_models,tag:gha_tasks" livequery_models 
