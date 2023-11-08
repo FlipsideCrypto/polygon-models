@@ -42,8 +42,8 @@ WHERE
     _inserted_timestamp >= (
         SELECT
             MAX(
-            _inserted_timestamp
-        ) - INTERVAL '36 hours'
+                _inserted_timestamp
+            ) - INTERVAL '36 hours'
         FROM
             {{ this }}
     )
@@ -83,8 +83,8 @@ WHERE
     _inserted_timestamp >= (
         SELECT
             MAX(
-            _inserted_timestamp
-        ) - INTERVAL '36 hours'
+                _inserted_timestamp
+            ) - INTERVAL '36 hours'
         FROM
             {{ this }}
     )
@@ -124,8 +124,8 @@ WHERE
     _inserted_timestamp >= (
         SELECT
             MAX(
-            _inserted_timestamp
-        ) - INTERVAL '36 hours'
+                _inserted_timestamp
+            ) - INTERVAL '36 hours'
         FROM
             {{ this }}
     )
@@ -191,9 +191,60 @@ final_base AS (
         tx_hash,
         event_type,
         platform_address,
-        platform_name,
+        CASE
+            WHEN origin_to_address IN (
+                '0x5e06c349a4a1b8dde8da31e0f167d1cb1d99967c'
+            ) THEN 'dew'
+            ELSE platform_name
+        END AS platform_name,
         platform_exchange_version,
-        NULL AS aggregator_name,
+        --credits to hildobby and 0xRob for reservoir calldata logic https://github.com/duneanalytics/spellbook/blob/main/models/nft/ethereum/nft_ethereum_aggregators_markers.sql
+        CASE
+            WHEN RIGHT(
+                input_data,
+                2
+            ) = '1f'
+            AND LEFT(REGEXP_REPLACE(input_data, '^.*00', ''), 2) = '1f'
+            AND REGEXP_REPLACE(
+                input_data,
+                '^.*00',
+                ''
+            ) != '1f'
+            AND LENGTH(REGEXP_REPLACE(input_data, '^.*00', '')) % 2 = 0 THEN REGEXP_REPLACE(
+                input_data,
+                '^.*00',
+                ''
+            )
+            ELSE NULL
+        END AS calldata_hash,
+        IFF(
+            calldata_hash IS NULL,
+            NULL,
+            utils.udf_hex_to_string (
+                SPLIT(
+                    calldata_hash,
+                    '1f'
+                ) [1] :: STRING
+            )
+        ) AS marketplace_decoded,
+        CASE
+            WHEN RIGHT(
+                input_data,
+                8
+            ) = '72db8c0b'
+            AND block_timestamp :: DATE <= '2023-11-01' THEN 'Gem'
+            WHEN RIGHT(
+                input_data,
+                8
+            ) = '72db8c0b'
+            AND block_timestamp :: DATE >= '2023-11-02' THEN 'OpenSea Pro'
+            WHEN RIGHT(
+                input_data,
+                15
+            ) = '9616c6c64617461' THEN 'Rarible'
+            WHEN marketplace_decoded IS NOT NULL THEN marketplace_decoded
+            ELSE NULL
+        END AS aggregator_name,
         seller_address,
         buyer_address,
         nft_address,
@@ -305,7 +356,9 @@ label_fill_sales AS (
         platform_address,
         platform_name,
         platform_exchange_version,
-        NULL AS aggregator_name,
+        calldata_hash,
+        marketplace_decoded,
+        aggregator_name,
         seller_address,
         buyer_address,
         nft_address,
@@ -370,6 +423,8 @@ SELECT
     platform_address,
     platform_name,
     platform_exchange_version,
+    calldata_hash,
+    marketplace_decoded,
     aggregator_name,
     seller_address,
     buyer_address,
