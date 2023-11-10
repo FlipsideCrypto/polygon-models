@@ -17,6 +17,8 @@ WITH override_abis AS (
         1 AS priority
     FROM
         {{ ref('silver__override_abis') }}
+    WHERE
+        contract_address IS NOT NULL
 ),
 verified_abis AS (
     SELECT
@@ -84,7 +86,7 @@ bytecode_abis AS (
     FROM
         {{ ref('silver__bytecode_abis') }}
     WHERE
-        NOT bytecode_dupe
+        1 = 1
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -170,5 +172,3 @@ FROM
     priority_abis p
     LEFT JOIN {{ ref('silver__created_contracts') }}
     ON p.contract_address = created_contract_address
-WHERE
-    p.contract_address IS NOT NULL
