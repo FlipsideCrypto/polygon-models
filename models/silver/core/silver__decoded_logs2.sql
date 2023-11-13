@@ -4,6 +4,7 @@
     unique_key = ['block_number', 'event_index'],
     cluster_by = "block_timestamp::date",
     incremental_predicates = ["dynamic_range", "block_number"],
+    merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
     tags = ['decoded_logs2']
 ) }}
@@ -207,7 +208,13 @@ SELECT
     DATA,
     event_removed,
     tx_status,
-    is_pending
+    is_pending,
+    {{ dbt_utils.generate_surrogate_key(
+        ['tx_hash','event_index']
+    ) }} AS decoded_logs_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     new_records
 
@@ -232,7 +239,13 @@ SELECT
     DATA,
     event_removed,
     tx_status,
-    is_pending
+    is_pending,
+    {{ dbt_utils.generate_surrogate_key(
+        ['tx_hash','event_index']
+    ) }} AS decoded_logs_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     missing_data
 {% endif %}
