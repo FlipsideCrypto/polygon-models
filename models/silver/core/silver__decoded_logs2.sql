@@ -36,12 +36,12 @@ WITH base_data AS (
 {% if is_incremental() %}
 {{ ref('bronze__fr_decoded_logs') }} --revert to bronze__decoded_logs after backfill
 WHERE
-    {# TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
-        SELECT
-            MAX(_inserted_timestamp)
-        FROM
-            {{ this }}
-    ) #}
+    --TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
+        --SELECT
+            --MAX(_inserted_timestamp)
+        --FROM
+            --{{ this }}
+    --)
     _partition_by_block_number BETWEEN (
         SELECT
             ROUND(MAX(block_number), -4)
