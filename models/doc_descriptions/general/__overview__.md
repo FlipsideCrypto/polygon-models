@@ -19,6 +19,7 @@ There is more information on how to use dbt docs in the last section of this doc
 ### Core Tables (polygon.core)
 
 **Dimension Tables:**
+- [dim_contract_abis](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__dim_contract_abis)
 - [dim_contracts](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__dim_contracts)
 - [dim_labels](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.core__dim_labels)
 
@@ -40,7 +41,6 @@ There is more information on how to use dbt docs in the last section of this doc
 - [ez_hourly_token_prices](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__ez_hourly_token_prices)
 - [dim_asset_metadata](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__dim_asset_metadata)
 - [ez_asset_metadata](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.price__ez_asset_metadata)
-
 
 ### DeFi Tables (polygon.defi)
 - [dim_dex_liquidity_pools](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__dim_dex_liquidity_pools)
