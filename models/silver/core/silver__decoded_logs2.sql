@@ -6,12 +6,10 @@
     incremental_predicates = ["dynamic_range", "block_number"],
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
-    tags = ['decoded_logs2']
+    full_refresh = false,
+    tags = ['decoded_logs','reorg']
 ) }}
 
--- revert after backfill
--- full_refresh = false,
--- tags = ['decoded_logs','reorg']
 
 WITH base_data AS (
 
@@ -35,25 +33,14 @@ WITH base_data AS (
     FROM
 
 {% if is_incremental() %}
-{{ ref('bronze__fr_decoded_logs') }} --revert to bronze__decoded_logs after backfill
+{{ ref('bronze__decoded_logs') }}
 WHERE
-    --TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
-        --SELECT
-            --MAX(_inserted_timestamp)
-        --FROM
-            --{{ this }}
-    --)
-    _partition_by_block_number BETWEEN (
+    TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
         SELECT
-            ROUND(MAX(block_number), -4)
+            MAX(_inserted_timestamp)
         FROM
             {{ this }}
     )
-    AND (
-        SELECT
-            ROUND(MAX(block_number), -4) + 1000000
-        FROM
-            {{ this }})
 {% else %}
     {{ ref('bronze__fr_decoded_logs') }}
 WHERE
