@@ -95,4 +95,4 @@ FROM
 ORDER BY
     block_number ASC
 LIMIT
-    3400
+    34000
