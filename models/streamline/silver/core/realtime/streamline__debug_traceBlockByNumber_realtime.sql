@@ -1,7 +1,7 @@
 {{ config (
     materialized = "view",
     post_hook = if_data_call_function(
-        func = "{{this.schema}}.udf_bulk_json_rpc(object_construct('sql_source', '{{this.identifier}}', 'external_table', 'debug_traceBlockByNumber', 'sql_limit', {{var('sql_limit','60000')}}, 'producer_batch_size', {{var('producer_batch_size','15000')}}, 'worker_batch_size', {{var('worker_batch_size','1500')}}, 'call_type', 'rest', 'exploded_key','[\"result\"]'))",
+        func = "{{this.schema}}.udf_bulk_json_rpc(object_construct('sql_source', '{{this.identifier}}', 'external_table', 'debug_traceBlockByNumber', 'sql_limit', {{var('sql_limit','60000')}}, 'producer_batch_size', {{var('producer_batch_size','30000')}}, 'worker_batch_size', {{var('worker_batch_size','1500')}}, 'call_type', 'rest', 'exploded_key','[\"result\"]'))",
         target = "{{this.schema}}.{{this.identifier}}"
     ),
     tags = ['streamline_core_realtime']
