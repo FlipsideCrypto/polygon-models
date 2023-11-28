@@ -12,6 +12,7 @@ WITH nft_base_models AS (
         block_number,
         block_timestamp,
         tx_hash,
+        event_index,
         event_type,
         platform_address,
         platform_name,
@@ -53,6 +54,7 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
+    event_index,
     event_type,
     platform_address,
     platform_name,
@@ -94,6 +96,7 @@ SELECT
     block_number,
     block_timestamp,
     tx_hash,
+    event_index,
     event_type,
     platform_address,
     platform_name,
@@ -189,6 +192,7 @@ final_base AS (
         block_number,
         block_timestamp,
         tx_hash,
+        event_index,
         event_type,
         platform_address,
         CASE
@@ -352,6 +356,7 @@ label_fill_sales AS (
         block_number,
         block_timestamp,
         tx_hash,
+        event_index,
         event_type,
         platform_address,
         platform_name,
@@ -399,6 +404,30 @@ label_fill_sales AS (
     WHERE
         t.project_name IS NULL
         AND C.token_name IS NOT NULL
+),
+blocks_fill AS (
+    SELECT
+        * exclude (
+            complete_nft_sales_id,
+            inserted_timestamp,
+            modified_timestamp,
+            _invocation_id
+        )
+    FROM
+        {{ this }}
+    WHERE
+        block_number IN (
+            SELECT
+                block_number
+            FROM
+                label_fill_sales
+        )
+        AND nft_log_id NOT IN (
+            SELECT
+                nft_log_id
+            FROM
+                label_fill_sales
+        )
 )
 {% endif %},
 final_joins AS (
@@ -408,17 +437,23 @@ final_joins AS (
         final_base
 
 {% if is_incremental() %}
-UNION
+UNION ALL
 SELECT
     *
 FROM
     label_fill_sales
+UNION ALL
+SELECT
+    *
+FROM
+    blocks_fill
 {% endif %}
 )
 SELECT
     block_number,
     block_timestamp,
     tx_hash,
+    event_index,
     event_type,
     platform_address,
     platform_name,
@@ -454,7 +489,13 @@ SELECT
     nft_log_id,
     input_data,
     _log_id,
-    _inserted_timestamp
+    _inserted_timestamp,
+    {{ dbt_utils.generate_surrogate_key(
+        ['tx_hash', 'event_index', 'nft_address','tokenId','platform_exchange_version']
+    ) }} AS complete_nft_sales_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     final_joins qualify(ROW_NUMBER() over(PARTITION BY nft_log_id
 ORDER BY
