@@ -7,10 +7,8 @@
     merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
     full_refresh = false,
-    merge_exclude_columns = ["inserted_timestamp"],
     tags = ['decoded_logs','reorg']
 ) }}
-
 
 WITH base_data AS (
 
@@ -200,11 +198,7 @@ SELECT
     tx_status,
     is_pending,
     {{ dbt_utils.generate_surrogate_key(
-<<<<<<< HEAD
         ['tx_hash', 'event_index']
-=======
-        ['tx_hash','event_index']
->>>>>>> f3cda8ad131f6ef3a247bedcae0b387742388420
     ) }} AS decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
@@ -235,11 +229,7 @@ SELECT
     tx_status,
     is_pending,
     {{ dbt_utils.generate_surrogate_key(
-<<<<<<< HEAD
         ['tx_hash', 'event_index']
-=======
-        ['tx_hash','event_index']
->>>>>>> f3cda8ad131f6ef3a247bedcae0b387742388420
     ) }} AS decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
