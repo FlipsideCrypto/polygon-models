@@ -4,11 +4,13 @@
     unique_key = ['block_number', 'event_index'],
     cluster_by = "block_timestamp::date",
     incremental_predicates = ["dynamic_range", "block_number"],
+    merge_exclude_columns = ["inserted_timestamp"],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
     full_refresh = false,
     merge_exclude_columns = ["inserted_timestamp"],
     tags = ['decoded_logs','reorg']
 ) }}
+
 
 WITH base_data AS (
 
@@ -40,15 +42,17 @@ WHERE
         FROM
             {{ this }}
     )
+    AND DATA NOT ILIKE '%Event topic is not present in given ABI%'
 {% else %}
     {{ ref('bronze__fr_decoded_logs') }}
 WHERE
     _partition_by_block_number <= 2500000
+    AND DATA NOT ILIKE '%Event topic is not present in given ABI%'
 {% endif %}
 
 qualify(ROW_NUMBER() over (PARTITION BY block_number, event_index
 ORDER BY
-    _inserted_timestamp DESC)) = 1
+    _inserted_timestamp DESC, _partition_by_created_date DESC)) = 1
 ),
 transformed_logs AS (
     SELECT
@@ -60,7 +64,7 @@ transformed_logs AS (
         decoded_data,
         _inserted_timestamp,
         _log_id,
-        ethereum.silver.udf_transform_logs(decoded_data) AS transformed
+        utils.udf_transform_logs(decoded_data) AS transformed
     FROM
         base_data
 ),
@@ -196,7 +200,11 @@ SELECT
     tx_status,
     is_pending,
     {{ dbt_utils.generate_surrogate_key(
+<<<<<<< HEAD
         ['tx_hash', 'event_index']
+=======
+        ['tx_hash','event_index']
+>>>>>>> f3cda8ad131f6ef3a247bedcae0b387742388420
     ) }} AS decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
@@ -227,7 +235,11 @@ SELECT
     tx_status,
     is_pending,
     {{ dbt_utils.generate_surrogate_key(
+<<<<<<< HEAD
         ['tx_hash', 'event_index']
+=======
+        ['tx_hash','event_index']
+>>>>>>> f3cda8ad131f6ef3a247bedcae0b387742388420
     ) }} AS decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
