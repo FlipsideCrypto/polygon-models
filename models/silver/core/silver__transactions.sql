@@ -298,7 +298,7 @@ SELECT
     cumulative_gas_used,
     effective_gas_price,
     tx_fee,
-    tx_fee_precise,
+    tx_fee_precise_heal AS tx_fee_precise,
     tx_type,
     _inserted_timestamp,
     DATA

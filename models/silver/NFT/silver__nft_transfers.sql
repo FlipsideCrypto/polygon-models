@@ -39,11 +39,9 @@ WITH base AS (
         )
 
 {% if is_incremental() %}
-AND TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
+AND _inserted_timestamp >= (
     SELECT
-        <<<<<<< head MAX(
-            _inserted_timestamp
-        ) - INTERVAL '24 hours' ======= MAX(_inserted_timestamp) - INTERVAL '12 hours' >>>>>>> f3cda8ad131f6ef3a247bedcae0b387742388420
+        MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
         {{ this }}
 )
