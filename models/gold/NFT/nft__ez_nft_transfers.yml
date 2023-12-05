@@ -10,6 +10,8 @@ models:
         description: 'The block timestamp of the NFT transfer.'
       - name: TX_HASH
         description: 'The transaction hash of the NFT transfer. Please note this is not unique, as it is possible to have multiple NFT transfers in a single transaction.'
+      - name: INTRA_EVENT_INDEX
+        description: '{{ doc("nft_intra_event_index") }}'
       - name: EVENT_TYPE
         description: 'The type of NFT transfer. This can be either "mint" or "other".'
       - name: NFT_ADDRESS
@@ -26,3 +28,9 @@ models:
         description: 'The token ID of the NFT transfer.'      
       - name: EVENT_INDEX
         description: 'The index of the NFT transfer within the transaction. This is used to ensure that multiple NFT transfers in a single transaction are not duplicated.'
+      - name: EZ_NFT_TRANSFERS_ID
+        description: '{{ doc("pk") }}'   
+      - name: INSERTED_TIMESTAMP
+        description: '{{ doc("inserted_timestamp") }}'   
+      - name: MODIFIED_TIMESTAMP
+        description: '{{ doc("modified_timestamp") }}' 

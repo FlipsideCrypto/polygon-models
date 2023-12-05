@@ -7,8 +7,8 @@
 SELECT
     block_number,
     block_timestamp,
-    'mainnet' as network,
-    'polygon' as blockchain,
+    'mainnet' AS network,
+    'polygon' AS blockchain,
     tx_count,
     difficulty,
     total_difficulty,
@@ -20,7 +20,7 @@ SELECT
     receipts_root,
     sha3_uncles,
     SIZE,
-    uncles as uncle_blocks,
+    uncles AS uncle_blocks,
     OBJECT_CONSTRUCT(
         'baseFeePerGas',
         base_fee_per_gas,
@@ -60,7 +60,34 @@ SELECT
         transactions_root,
         'uncles',
         uncles
-    ) AS block_header_json
+    ) AS block_header_json,
+    COALESCE (
+        blocks_id,
+        {{ dbt_utils.generate_surrogate_key(
+            ['a.block_number']
+        ) }}
+    ) AS fact_blocks_id,
+    GREATEST(
+        COALESCE(
+            A.inserted_timestamp,
+            '2000-01-01'
+        ),
+        COALESCE(
+            d.inserted_timestamp,
+            '2000-01-01'
+        )
+    ) AS inserted_timestamp,
+    GREATEST(
+        COALESCE(
+            A.modified_timestamp,
+            '2000-01-01'
+        ),
+        COALESCE(
+            d.modified_timestamp,
+            '2000-01-01'
+        )
+    ) AS modified_timestamp
 FROM
-    {{ ref('silver__blocks') }}
-    LEFT JOIN {{ ref('silver__tx_count') }} USING (block_number)
+    {{ ref('silver__blocks') }} A
+    LEFT JOIN {{ ref('silver__tx_count') }}
+    d USING (block_number)

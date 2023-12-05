@@ -39,9 +39,9 @@ WITH base AS (
         )
 
 {% if is_incremental() %}
-AND TO_TIMESTAMP_NTZ(_inserted_timestamp) >= (
+AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
         {{ this }}
 )
@@ -354,7 +354,12 @@ fill_transfers AS (
 ),
 blocks_fill AS (
     SELECT
-        *
+        * exclude (
+            nft_transfers_id,
+            inserted_timestamp,
+            modified_timestamp,
+            _invocation_id
+        )
     FROM
         {{ this }}
     WHERE
@@ -448,7 +453,13 @@ SELECT
     event_type,
     token_transfer_type,
     _log_id,
-    _inserted_timestamp
+    _inserted_timestamp,
+    {{ dbt_utils.generate_surrogate_key(
+        ['tx_hash','event_index','intra_event_index']
+    ) }} AS nft_transfers_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     final_base qualify ROW_NUMBER() over (
         PARTITION BY _log_id

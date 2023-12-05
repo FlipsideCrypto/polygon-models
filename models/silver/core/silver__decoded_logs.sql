@@ -10,7 +10,6 @@
     tags = ['decoded_logs','reorg']
 ) }}
 
-
 WITH base_data AS (
 
     SELECT
@@ -199,7 +198,7 @@ SELECT
     tx_status,
     is_pending,
     {{ dbt_utils.generate_surrogate_key(
-        ['tx_hash','event_index']
+        ['tx_hash', 'event_index']
     ) }} AS decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
@@ -230,7 +229,7 @@ SELECT
     tx_status,
     is_pending,
     {{ dbt_utils.generate_surrogate_key(
-        ['tx_hash','event_index']
+        ['tx_hash', 'event_index']
     ) }} AS decoded_logs_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
