@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = 'block_number',
+    unique_key = 'pool_address',
     tags = ['curated']
 ) }}
 
@@ -26,7 +26,8 @@ WITH pool_creation AS (
         {{ ref ('silver__logs') }}
     WHERE
         contract_address IN (
-            '0xc2544a32872a91f4a553b404c6950e89de901fdb', --v1 factory
+            '0xc2544a32872a91f4a553b404c6950e89de901fdb',
+            --v1 factory
             '0x54f454d747e037da288db568d4121117eab34e79' --v2 factory
         )
         AND topics [0] :: STRING = '0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9' --pairCreated
@@ -35,12 +36,6 @@ WITH pool_creation AS (
 AND _inserted_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
-    FROM
-        {{ this }}
-)
-AND pool_address NOT IN (
-    SELECT
-        DISTINCT pool_address
     FROM
         {{ this }}
 )
@@ -59,4 +54,6 @@ SELECT
     _log_id,
     _inserted_timestamp
 FROM
-    pool_creation
+    pool_creation qualify(ROW_NUMBER() over (PARTITION BY pool_address
+ORDER BY
+    _inserted_timestamp DESC)) = 1
