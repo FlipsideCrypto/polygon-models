@@ -45,6 +45,7 @@ There is more information on how to use dbt docs in the last section of this doc
 ### DeFi Tables (polygon.defi)
 - [dim_dex_liquidity_pools](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__dim_dex_liquidity_pools)
 - [ez_dex_swaps](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_dex_swaps)
+- [ez_bridge_activity](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_bridge_activity)
 
 ### NFT Tables (polygon.nft)
 - [ez_nft_mints](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.nft__ez_nft_mints)
