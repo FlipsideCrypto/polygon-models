@@ -75,3 +75,4 @@ SELECT
     _inserted_timestamp
 FROM
     base_evt
+WHERE destination_chain_id <> 0
