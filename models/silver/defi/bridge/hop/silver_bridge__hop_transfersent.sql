@@ -37,7 +37,7 @@ WITH base_evt AS (
         ) AS deadline,
         TRY_TO_TIMESTAMP(
             decoded_flat :"index" :: STRING
-        ) AS index,
+        ) AS INDEX,
         decoded_flat :"recipient" :: STRING AS recipient,
         decoded_flat :"transferId" :: STRING AS transferId,
         decoded_flat :"transferNonce" :: STRING AS transferNonce,
@@ -84,7 +84,7 @@ SELECT
     event_removed,
     tx_status,
     contract_address AS bridge_address,
-    amm_wrapper_address, 
+    amm_wrapper_address,
     NAME AS platform,
     origin_from_address AS sender,
     recipient AS receiver,
@@ -95,11 +95,13 @@ SELECT
     amountOutMin AS amount_out_min,
     bonderFee AS bonder_fee,
     deadline,
-    index,
+    INDEX,
     transferId AS transfer_id,
-    transferNonce AS transfer_nonce,   
+    transferNonce AS transfer_nonce,
     _log_id,
     _inserted_timestamp
 FROM
     base_evt b
     LEFT JOIN hop_tokens h USING(contract_address)
+WHERE
+    token_address IS NOT NULL
