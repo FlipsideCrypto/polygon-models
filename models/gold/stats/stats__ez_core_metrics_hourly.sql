@@ -16,7 +16,7 @@ SELECT
     transaction_count_failed,
     unique_from_count,
     unique_to_count,
-    total_fees AS total_fees_eth,
+    total_fees AS total_fees_native,
     total_fees * p.price AS total_fees_usd,
     COALESCE (
         core_metrics_hourly_id,
@@ -38,4 +38,4 @@ FROM
     LEFT JOIN {{ ref('price__ez_hourly_token_prices') }}
     p
     ON s.block_timestamp_hour = p.hour
-    AND p.token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' --WETH
+    AND p.token_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' --WMATIC
