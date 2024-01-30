@@ -48,7 +48,7 @@ repayments AS (
         compound_market_decimals,
         C.underlying_asset_address AS underlying_asset,
         C.underlying_asset_symbol,
-        'base' AS blockchain,
+        'polygon' AS blockchain,
         _log_id,
         l._inserted_timestamp
     FROM

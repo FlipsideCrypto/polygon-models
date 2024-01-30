@@ -27,7 +27,7 @@ WITH aave AS (
     debt_asset,
     debt_token_symbol AS debt_asset_symbol,
     'Aave V3' AS platform,
-    'base' AS blockchain,
+    'polygon' AS blockchain,
     _LOG_ID,
     _INSERTED_TIMESTAMP
   FROM
@@ -64,7 +64,7 @@ comp as (
     debt_asset,
     debt_asset_symbol,
     l.compound_version AS platform,
-    'base' AS blockchain,
+    'polygon' AS blockchain,
     l._LOG_ID,
     l._INSERTED_TIMESTAMP
   FROM

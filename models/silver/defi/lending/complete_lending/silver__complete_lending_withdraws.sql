@@ -24,7 +24,7 @@ WITH aave AS (
         amount,
         depositor_address,
         'Aave V3' AS platform,
-        'base' AS blockchain,
+        'polygon' AS blockchain,
         _LOG_ID,
         _INSERTED_TIMESTAMP
     FROM
@@ -59,7 +59,7 @@ comp as (
         amount,
         depositor_address,
         compound_version AS platform,
-        'base' AS blockchain,
+        'polygon' AS blockchain,
         _LOG_ID,
         _INSERTED_TIMESTAMP
     FROM

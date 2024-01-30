@@ -24,7 +24,7 @@ WITH aave AS (
     amount_unadj,
     amount,
     platform,
-    'base' AS blockchain,
+    'polygon' AS blockchain,
     _LOG_ID,
     _INSERTED_TIMESTAMP
   FROM
@@ -57,7 +57,7 @@ SELECT
   amount_unadj,
   amount,
   compound_version AS platform,
-  'base' AS blockchain,
+  'polygon' AS blockchain,
   _LOG_ID,
   _INSERTED_TIMESTAMP
 FROM

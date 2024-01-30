@@ -48,7 +48,7 @@ liquidations AS (
         C.token_name,
         C.token_symbol,
         C.token_decimals,
-        'base' AS blockchain,
+        'polygon' AS blockchain,
         _log_id,
         l._inserted_timestamp
     FROM

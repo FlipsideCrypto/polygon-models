@@ -25,7 +25,7 @@ WITH aave AS (
     payer AS payer_address,
     borrower,
     'Aave V3' AS platform,
-    'base' AS blockchain,
+    'polygon' AS blockchain,
     _LOG_ID,
     _INSERTED_TIMESTAMP
   FROM
@@ -58,7 +58,7 @@ comp as (
     repayer AS payer_address,
     borrower,
     compound_version AS platform,
-    'base' AS blockchain,
+    'polygon' AS blockchain,
     _LOG_ID,
     _INSERTED_TIMESTAMP
   FROM
