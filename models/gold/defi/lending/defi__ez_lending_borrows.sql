@@ -5,7 +5,7 @@
     meta={
         'database_tags':{
             'table': {
-                'PROTOCOL': 'AAVE COMPOUND',
+                'PROTOCOL': 'AAVE, COMPOUND',
                 'PURPOSE': 'LENDING, BORROWS'
             }
         }
