@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__tofunft_sales_test
+  - name: silver__tofunft_sales
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

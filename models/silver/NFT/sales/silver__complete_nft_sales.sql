@@ -162,7 +162,7 @@ SELECT
     _log_id,
     _inserted_timestamp
 FROM
-    {{ ref('silver__tofunft_sales_test') }}
+    {{ ref('silver__tofunft_sales') }}
 
 {% if is_incremental() and 'tofunft' not in var('HEAL_CURATED_MODEL') %}
 WHERE
