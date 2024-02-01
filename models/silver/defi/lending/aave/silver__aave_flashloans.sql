@@ -39,16 +39,21 @@ flashloan AS (
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS target_address,
         origin_to_address AS initiator_address,
-        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS aave_market,
-        utils.udf_hex_to_int(
-            segmented_data [1] :: STRING
-        ) :: INTEGER AS flashloan_quantity,
-        utils.udf_hex_to_int(
-            segmented_data [3] :: STRING
-        ) :: INTEGER AS premium_quantity,
-        utils.udf_hex_to_int(
-            topics [3] :: STRING
-        ) :: INTEGER AS refferalCode,
+                CASE 
+            WHEN contract_address = '0x794a61358d6845594f94dc1db02a252b5b4814ad' THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
+            WHEN contract_address = '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf' THEN CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) 
+            ELSE NULL
+        END AS aave_market,
+        CASE 
+            WHEN contract_address = '0x794a61358d6845594f94dc1db02a252b5b4814ad' THEN utils.udf_hex_to_int(segmented_data [1] :: STRING) :: INTEGER 
+            WHEN contract_address = '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf' THEN utils.udf_hex_to_int(segmented_data [0] :: STRING) :: INTEGER 
+            ELSE NULL
+        END AS flashloan_quantity,
+        CASE    
+            WHEN contract_address = '0x794a61358d6845594f94dc1db02a252b5b4814ad' THEN utils.udf_hex_to_int(segmented_data [2] :: STRING) :: INTEGER 
+            WHEN contract_address = '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf' THEN utils.udf_hex_to_int(segmented_data [1] :: STRING) :: INTEGER 
+            ELSE NULL
+        END AS premium_quantity,
         COALESCE(
             origin_to_address,
             contract_address
@@ -64,8 +69,8 @@ flashloan AS (
         {{ ref('silver__logs') }}
     WHERE
         topics [0] :: STRING IN (
-            '0xc6a898309e823ee50bac64e45ca8adba6690e99e7841c45d754e2a38e9019d9b',
-            '0xb3d084820fb1a9decffb176436bd02558d15fac9b0ddfed8c465bc7359d7dce0'
+            '0xefefaba5e921573100900a3ad9cf29f222d995fb3b6045797eaea7521bd8d6f0', --v3
+            '0x631042c832b07452973831137f2d73e395028b44b250dedc5abb0ee766e168ac' --v2
         )
 
 {% if is_incremental() %}
