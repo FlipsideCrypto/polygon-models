@@ -23,7 +23,7 @@ WITH aave AS (
         amount_unadj,
         amount,
         depositor_address,
-        'Aave V3' AS platform,
+        platform,
         'polygon' AS blockchain,
         _LOG_ID,
         _INSERTED_TIMESTAMP

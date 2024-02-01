@@ -24,7 +24,7 @@ WITH aave AS (
     symbol AS token_symbol,
     payer AS payer_address,
     borrower,
-    'Aave V3' AS platform,
+    platform,
     'polygon' AS blockchain,
     _LOG_ID,
     _INSERTED_TIMESTAMP

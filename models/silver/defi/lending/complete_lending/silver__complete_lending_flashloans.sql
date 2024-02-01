@@ -25,7 +25,7 @@ WITH aave AS (
     premium_amount,
     initiator_address,
     target_address,
-    'Aave V3' AS platform,
+    platform,
     symbol,
     blockchain,
     _LOG_ID,
