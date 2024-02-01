@@ -1,13 +1,13 @@
 {% docs complete_lending_borrows_table_doc %}
 
-This table contains transactions where users borrowed assets across AAVE, COMPOUND, SILO, DFORCE, RADIANT, and LODESTAR protocols. In order to borrow assets, a user must first deposit their preferred asset and amount as collateral.
+This table contains transactions where users borrowed assets across AAVE and COMPOUND protocols. In order to borrow assets, a user must first deposit their preferred asset and amount as collateral.
 
 
 {% enddocs %}
 
 {% docs complete_lending_deposits_table_doc %}
 
-This table contains deposit transactions across AAVE, COMPOUND, SILO, DFORCE, RADIANT, and LODESTAR protocols. A user deposits their preferred asset and amount. After depositing, users earn passive income based on the market borrowing demand. Additionally, depositing allows users to borrow by using their deposited assets as a collateral. Any interest earned by depositing funds helps offset the interest rate accumulated by borrowing.
+This table contains deposit transactions across AAVE and COMPOUND protocols. A user deposits their preferred asset and amount. After depositing, users earn passive income based on the market borrowing demand. Additionally, depositing allows users to borrow by using their deposited assets as a collateral. Any interest earned by depositing funds helps offset the interest rate accumulated by borrowing.
 
 {% enddocs %}
 
@@ -19,18 +19,18 @@ This table contains flash loan transactions across AAVE and RADIANT protocols. F
 
 {% docs complete_lending_liquidations_table_doc %}
 
-This table contains transactions in which a borrower's collateral asset is liquidated across AAVE, COMPOUND, SILO, DFORCE, RADIANT, and LODESTAR protocols. Liquidations occur when a borrower's health factor goes below 1 due to their collateral value not properly covering their loan/debt value. This might happen when the collateral decreases in value or the borrowed debt increases in value against each other. This collateral vs loan value ratio is shown in the health factor. In a liquidation, up to 50% of a borrower's debt is repaid and that value + liquidation fee is taken from the collateral available, so after a liquidation the amount liquidated from one's debt is repaid. 
+This table contains transactions in which a borrower's collateral asset is liquidated across AAVE and COMPOUND protocols. Liquidations occur when a borrower's health factor goes below 1 due to their collateral value not properly covering their loan/debt value. This might happen when the collateral decreases in value or the borrowed debt increases in value against each other. This collateral vs loan value ratio is shown in the health factor. In a liquidation, up to 50% of a borrower's debt is repaid and that value + liquidation fee is taken from the collateral available, so after a liquidation the amount liquidated from one's debt is repaid. 
 
 {% enddocs %}
 
 {% docs complete_lending_repayments_table_doc %}
 
-This table contains transactions in which a borrower repays their loan (debt) across the AAVE, COMPOUND, SILO, DFORCE, RADIANT, and LODESTAR protocols.  Loans are repaid in the same asset borrowed, plus accrued interest. Borrowers can pay back their loan based on the USD price as they can borrow any of the available stable coins (USDC, DAI, USDT, etc.).
+This table contains transactions in which a borrower repays their loan (debt) across the AAVE and COMPOUND protocols.  Loans are repaid in the same asset borrowed, plus accrued interest. Borrowers can pay back their loan based on the USD price as they can borrow any of the available stable coins (USDC, DAI, USDT, etc.).
 
 {% enddocs %}
 
 {% docs complete_lending_withdraws_table_doc %}
 
-This table contains transactions in which a user withdraws liquidity across the AAVE, COMPOUND, SILO, DFORCE, RADIANT, and LODESTAR protocols. Users need to make sure there is enough liquidity (not borrowed) in order to withdraw, if this is not the case, users need to wait for more liquidity from depositors or borrowers repaying.
+This table contains transactions in which a user withdraws liquidity across the AAVE and COMPOUND protocols. Users need to make sure there is enough liquidity (not borrowed) in order to withdraw, if this is not the case, users need to wait for more liquidity from depositors or borrowers repaying.
 
 {% enddocs %}
