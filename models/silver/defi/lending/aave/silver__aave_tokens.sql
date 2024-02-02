@@ -53,6 +53,7 @@ AND _inserted_timestamp >= (
     FROM
         {{ this }}
 )
+AND atoken_version = 'Aave V3'
 {% endif %}
 ),
 a_token_step_1 AS (
@@ -158,6 +159,7 @@ aave_token_pull AS (
         FROM
             {{ this }}
     )
+    AND atoken_version = 'Aave V2'
     {% endif %}
 ),
 aave_token_pull_2 AS (
@@ -171,22 +173,10 @@ aave_token_pull_2 AS (
         a_token_decimals,
         aave_version,
         a_token_name,
-        CASE
-            WHEN underlying_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'ETH'
-            ELSE underlying_symbol
-        END AS underlying_symbol,
-        CASE
-            WHEN underlying_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'Ethereum'
-            ELSE underlying_name
-        END AS underlying_name,
-        CASE
-            WHEN underlying_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 18
-            ELSE underlying_decimals
-        END AS underlying_decimals,
-        CASE
-            WHEN underlying_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-            ELSE underlying_address
-        END AS underlying_address,
+        underlying_symbol,
+        underlying_name,
+        underlying_decimals,
+        underlying_address,
         _inserted_timestamp,
         _log_id
     FROM
