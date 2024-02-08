@@ -8,8 +8,32 @@ WITH contracts as (
         *
     FROM
         {{ ref('silver__contracts') }}
+    WHERE 
+        TOKEN_NAME LIKE '%Aave'
 ),
+LOGS AS (
+    SELECT
+        *
+    FROM
+        {{ ref('silver__logs') }}
+    WHERE
+        topics [0] IN 
+        (
+            '0xb19e051f8af41150ccccb3fc2c2d8d15f4a4cf434f32a559ba75fe73d6eea20b',
+            '0x3a0ca721fc364424566385a1aa271ed508cc2c0949c2272575fb3013a163a45f'
+        )
+{% if is_incremental() %}
+AND _inserted_timestamp >= (
+    SELECT
+        MAX(
+            _inserted_timestamp
+        ) - INTERVAL '12 hours'
+    FROM
+        {{ this }}
+)
+{% endif %}
 
+),
 DECODE AS (
 
     SELECT
@@ -35,7 +59,7 @@ DECODE AS (
         l._inserted_timestamp,
         l._log_id
     FROM
-        {{ ref('silver__logs') }}
+        LOGS
         l
     WHERE
         topics [0] = '0xb19e051f8af41150ccccb3fc2c2d8d15f4a4cf434f32a559ba75fe73d6eea20b'
@@ -43,7 +67,6 @@ DECODE AS (
         aave_version_pool IN 
         ('0x794a61358d6845594f94dc1db02a252b5b4814ad',
         '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf')
-
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
@@ -52,8 +75,9 @@ AND _inserted_timestamp >= (
         ) - INTERVAL '12 hours'
     FROM
         {{ this }}
+    WHERE 
+        atoken_version = 'Aave V3'
 )
-AND atoken_version = 'Aave V3'
 {% endif %}
 ),
 a_token_step_1 AS (
@@ -86,7 +110,7 @@ debt_tokens AS (
         _inserted_timestamp,
         _log_id
     FROM
-        {{ ref('silver__logs') }}
+        LOGS
     WHERE
         topics [0] = '0x3a0ca721fc364424566385a1aa271ed508cc2c0949c2272575fb3013a163a45f'
         AND CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) IN (
@@ -137,7 +161,7 @@ aave_token_pull AS (
         l._inserted_timestamp,
         l._log_id
     FROM
-        {{ ref('silver__logs') }}
+        LOGS
         l
         LEFT JOIN contracts C
         ON a_token_address = C.contract_address
@@ -149,7 +173,6 @@ aave_token_pull AS (
             a_token_name LIKE '%Aave%'
             OR c2.token_symbol = 'GHO'
         )
-
     {% if is_incremental() %}
     AND l._inserted_timestamp >= (
         SELECT
@@ -158,8 +181,9 @@ aave_token_pull AS (
             ) - INTERVAL '12 hours'
         FROM
             {{ this }}
+        WHERE
+            atoken_version = 'Aave V2'
     )
-    AND atoken_version = 'Aave V2'
     {% endif %}
 ),
 aave_token_pull_2 AS (
