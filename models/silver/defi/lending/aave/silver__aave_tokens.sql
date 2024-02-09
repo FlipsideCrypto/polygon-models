@@ -8,8 +8,6 @@ WITH contracts as (
         *
     FROM
         {{ ref('silver__contracts') }}
-    WHERE 
-        TOKEN_NAME LIKE '%Aave'
 ),
 LOGS AS (
     SELECT
@@ -17,6 +15,18 @@ LOGS AS (
     FROM
         {{ ref('silver__logs') }}
     WHERE
+        block_number > 11182261
+    AND
+        origin_function_signature in (
+            '0x0c14caef',
+            '0xcef84c51',
+            '0xfe0d94c1',
+            '0x02fb45e6',
+            '0x7bbaf1ea'
+        )
+    AND
+        tx_status = 'SUCCESS'
+    AND
         topics [0] IN 
         (
             '0xb19e051f8af41150ccccb3fc2c2d8d15f4a4cf434f32a559ba75fe73d6eea20b',
