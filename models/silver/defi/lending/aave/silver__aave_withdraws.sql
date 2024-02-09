@@ -48,7 +48,10 @@ withdraw AS(
             WHEN contract_address = '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf' THEN 'Aave V2'
             ELSE 'ERROR'
         END AS aave_version,
-        origin_to_address AS lending_pool_contract,
+        COALESCE(
+            origin_to_address,
+            contract_address
+        ) AS lending_pool_contract,
         _inserted_timestamp,
         _log_id
     FROM

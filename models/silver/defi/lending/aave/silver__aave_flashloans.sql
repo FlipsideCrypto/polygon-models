@@ -38,7 +38,7 @@ flashloan AS (
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         CONCAT('0x', SUBSTR(topics [1] :: STRING, 27, 40)) AS target_address,
-        origin_to_address AS initiator_address,
+        CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) AS initiator_address,
                 CASE 
             WHEN contract_address = '0x794a61358d6845594f94dc1db02a252b5b4814ad' THEN CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))
             WHEN contract_address = '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf' THEN CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40)) 
