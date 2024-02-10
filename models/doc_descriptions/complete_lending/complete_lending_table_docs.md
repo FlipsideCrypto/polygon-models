@@ -13,7 +13,7 @@ This table contains deposit transactions across AAVE and COMPOUND protocols. A u
 
 {% docs complete_lending_flashloans_table_doc %}
 
-This table contains flash loan transactions across AAVE and RADIANT protocols. Flash loans are a feature designed for developers, due to the technical knowledge required to execute one. Flash Loans allow you to borrow any available amount of assets without providing any collateral, as long as the liquidity is returned to the protocol within one block transaction.  
+This table contains flash loan transactions across AAVE protocols. Flash loans are a feature designed for developers, due to the technical knowledge required to execute one. Flash Loans allow you to borrow any available amount of assets without providing any collateral, as long as the liquidity is returned to the protocol within one block transaction.  
 
 {% enddocs %}
 
