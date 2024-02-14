@@ -46,7 +46,12 @@ There is more information on how to use dbt docs in the last section of this doc
 - [dim_dex_liquidity_pools](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__dim_dex_liquidity_pools)
 - [ez_dex_swaps](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_dex_swaps)
 - [ez_bridge_activity](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_bridge_activity)
-
+- [ez_borrows](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_borrows) 
+- [ez_deposits](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_deposits)
+- [ez_flashloans](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_flashloans)
+- [ez_liquidations](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_liquidations)
+- [ez_repayments](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_repayments)
+- [ez_withdraws](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.defi__ez_withdraws)
 ### NFT Tables (polygon.nft)
 - [ez_nft_mints](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.nft__ez_nft_mints)
 - [ez_nft_sales](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.nft__ez_nft_sales)
