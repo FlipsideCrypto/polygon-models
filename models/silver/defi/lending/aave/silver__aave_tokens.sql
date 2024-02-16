@@ -88,6 +88,12 @@ AND _inserted_timestamp >= (
     WHERE 
         atoken_version = 'Aave V3'
 )
+AND contract_address NOT IN (
+    SELECT
+        atoken_address
+    FROM
+        {{ this }}
+)
 {% endif %}
 ),
 a_token_step_1 AS (
@@ -194,6 +200,12 @@ aave_token_pull AS (
         WHERE
             atoken_version = 'Aave V2'
     )
+    AND CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40)) NOT IN (
+    SELECT
+        atoken_address
+    FROM
+        {{ this }}
+)
     {% endif %}
 ),
 aave_token_pull_2 AS (
