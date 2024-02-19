@@ -38,9 +38,6 @@ SELECT
     COALESCE(
         modified_timestamp,
         '2000-01-01'
-    ) AS modified_timestamp,
-    matic_value,
-    matic_value_precise_raw,
-    matic_value_precise
+    ) AS modified_timestamp
 FROM
     {{ ref('silver__traces') }}
