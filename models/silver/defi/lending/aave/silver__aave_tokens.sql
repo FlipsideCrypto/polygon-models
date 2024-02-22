@@ -236,45 +236,53 @@ aave_backfill_1 as (
         _log_id
     FROM
         aave_token_pull_2
+),
+final as (
+    SELECT
+        A.atoken_created_block,
+        a.aave_version_pool,
+        A.atoken_symbol AS atoken_symbol,
+        A.a_token_address AS atoken_address,
+        b.atoken_stable_debt_address,
+        b.atoken_variable_debt_address,
+        A.atoken_decimals AS atoken_decimals,
+        A.protocol AS atoken_version,
+        atoken_name AS atoken_name,
+        C.token_symbol AS underlying_symbol,
+        A.underlying_asset AS underlying_address,
+        C.token_decimals AS underlying_decimals,
+        C.token_name AS underlying_name,
+        A._inserted_timestamp,
+        A._log_id
+    FROM
+        a_token_step_2 A
+        INNER JOIN debt_tokens b
+        ON A.a_token_address = b.atoken_address
+        INNER JOIN contracts C
+        ON contract_address = A.underlying_asset
+    UNION ALL 
+    SELECT
+        atoken_created_block,
+        aave_version_pool,
+        atoken_symbol,
+        atoken_address,
+        atoken_stable_debt_address,
+        atoken_variable_debt_address,
+        atoken_decimals,
+        atoken_version,
+        atoken_name,
+        underlying_symbol,
+        underlying_address,
+        underlying_decimals,
+        underlying_name,
+        _inserted_timestamp,
+        _log_id
+    FROM
+        aave_backfill_1
 )
 SELECT
-    A.atoken_created_block,
-    a.aave_version_pool,
-    A.atoken_symbol AS atoken_symbol,
-    A.a_token_address AS atoken_address,
-    b.atoken_stable_debt_address,
-    b.atoken_variable_debt_address,
-    A.atoken_decimals AS atoken_decimals,
-    A.protocol AS atoken_version,
-    atoken_name AS atoken_name,
-    C.token_symbol AS underlying_symbol,
-    A.underlying_asset AS underlying_address,
-    C.token_decimals AS underlying_decimals,
-    C.token_name AS underlying_name,
-    A._inserted_timestamp,
-    A._log_id
+    *
 FROM
-    a_token_step_2 A
-    INNER JOIN debt_tokens b
-    ON A.a_token_address = b.atoken_address
-    INNER JOIN contracts C
-    ON contract_address = A.underlying_asset
-UNION ALL 
-SELECT
-    atoken_created_block,
-    aave_version_pool,
-    atoken_symbol,
-    atoken_address,
-    atoken_stable_debt_address,
-    atoken_variable_debt_address,
-    atoken_decimals,
-    atoken_version,
-    atoken_name,
-    underlying_symbol,
-    underlying_address,
-    underlying_decimals,
-    underlying_name,
-    _inserted_timestamp,
-    _log_id
-FROM
-    aave_backfill_1
+    final qualify(ROW_NUMBER() over(PARTITION BY atoken_address
+ORDER BY
+    atoken_created_block DESC)) = 1
