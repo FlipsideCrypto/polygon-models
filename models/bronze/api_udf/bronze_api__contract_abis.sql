@@ -46,7 +46,7 @@ row_nos AS (
 ),
 batched AS ({% for item in range(151) %}
 SELECT
-    rn.contract_address, live.udf_api('GET', CONCAT('https://api.polygonscan.com/api?module=contract&action=getabi&address=', rn.contract_address, '&apikey={poly_key}'),{},{},'EXPLORER') AS abi_data, SYSDATE() AS _inserted_timestamp
+    rn.contract_address, live.udf_api('GET', CONCAT('https://api.polygonscan.com/api?module=contract&action=getabi&address=', rn.contract_address, '&apikey={key}'),{},{}, 'Vault/prod/block_explorers/polyscan') AS abi_data, SYSDATE() AS _inserted_timestamp
 FROM
     row_nos rn
 WHERE

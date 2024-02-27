@@ -27,16 +27,10 @@ sources:
       - name: confirm_blocks
       - name: matic_balances
       - name: token_balances
-  - name: streamline_crosschain
-    database: streamline
-    schema: crosschain
-    tables:
-      - name: node_mapping
   - name: crosschain_silver
     database: "{{ 'crosschain' if target.database == 'POLYGON' else 'crosschain_dev' }}"
     schema: silver
     tables:
-      - name: apis_keys
       - name: token_prices_priority_hourly
       - name: token_prices_all_providers_hourly
       - name: asset_metadata_priority
