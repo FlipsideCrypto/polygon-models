@@ -50,45 +50,39 @@ ready_reads AS (
         contract_address,
         latest_block,
         function_sig,
-        RPAD(
+        CONCAT(
+            '[\'',
+            contract_address,
+            '\',',
+            latest_block,
+            ',\'',
             function_sig,
-            64,
-            '0'
-        ) AS input,
-        utils.udf_json_rpc_call(
-            'eth_call',
-            [{'to': contract_address, 'from': null, 'data': input}, utils.udf_int_to_hex(latest_block)],
-            concat_ws(
-                '-',
-                contract_address,
-                input,
-                latest_block
-            )
-        ) AS rpc_request
+            '\',\'\']'
+        ) AS read_input
     FROM
         all_reads
 ),
 batch_reads AS (
     SELECT
-        ARRAY_AGG(rpc_request) AS batch_rpc_request
+        CONCAT('[', LISTAGG(read_input, ','), ']') AS batch_read
     FROM
         ready_reads
 ),
-node_call AS (
+results AS (
     SELECT
-        *,
-        live.udf_api(
-            'POST',
-            CONCAT(
-                '{service}',
-                '/',
-                '{Authentication}'
-            ),{},
-            batch_rpc_request,
-            'Vault/prod/polygon/quicknode/mainnet'
-        ) AS response
+        ethereum.streamline.udf_json_rpc_read_calls(
+            node_url,
+            headers,
+            PARSE_JSON(batch_read)
+        ) AS read_output
     FROM
         batch_reads
+        JOIN {{ source(
+            'streamline_crosschain',
+            'node_mapping'
+        ) }}
+        ON 1 = 1
+        AND chain = 'polygon'
     WHERE
         EXISTS (
             SELECT
@@ -98,30 +92,30 @@ node_call AS (
             LIMIT
                 1
         )
-), flat_responses AS (
+), FINAL AS (
     SELECT
-        VALUE :id :: STRING AS call_id,
-        VALUE :result :: STRING AS read_result
+        VALUE :id :: STRING AS read_id,
+        VALUE :result :: STRING AS read_result,
+        SPLIT(
+            read_id,
+            '-'
+        ) AS read_id_object,
+        read_id_object [0] :: STRING AS contract_address,
+        read_id_object [1] :: STRING AS block_number,
+        read_id_object [2] :: STRING AS function_sig,
+        read_id_object [3] :: STRING AS function_input
     FROM
-        node_call,
-        LATERAL FLATTEN (
-            input => response :data
+        results,
+        LATERAL FLATTEN(
+            input => read_output [0] :data
         )
 )
 SELECT
-    SPLIT_PART(
-        call_id,
-        '-',
-        1
-    ) AS contract_address,
-    SPLIT_PART(
-        call_id,
-        '-',
-        3
-    ) AS block_number,
-    LEFT(SPLIT_PART(call_id, '-', 2), 10) AS function_sig,
-    NULL AS function_input,
+    contract_address,
+    block_number,
+    function_sig,
+    function_input,
     read_result,
     SYSDATE() :: TIMESTAMP AS _inserted_timestamp
 FROM
-    flat_responses
+    FINAL

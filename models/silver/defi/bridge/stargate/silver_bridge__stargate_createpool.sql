@@ -75,18 +75,18 @@ contract_reads AS (
             [{ 'to': contract_address, 'from': null, 'data': data }, utils.udf_int_to_hex(block_number) ]
         ) AS rpc_request,
         live.udf_api(
-            'POST',
-            CONCAT(
-                '{service}',
-                '/',
-                '{Authentication}'
-            ),{},
-            rpc_request,
-            'Vault/prod/polygon/quicknode/mainnet'
+            node_url,
+            rpc_request
         ) AS read_output,
         SYSDATE() AS _inserted_timestamp
     FROM
         inputs
+        JOIN {{ source(
+            'streamline_crosschain',
+            'node_mapping'
+        ) }}
+        ON 1 = 1
+        AND chain = 'polygon'
 ),
 reads_flat AS (
     SELECT

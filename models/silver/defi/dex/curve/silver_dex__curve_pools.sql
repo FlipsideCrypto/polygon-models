@@ -188,80 +188,32 @@ all_inputs AS (
     FROM
         inputs_pool_details
 ),
-build_rpc_requests AS (
-    SELECT
-        deployer_address,
-        contract_address,
-        block_number,
-        function_sig,
-        function_input,
-        CONCAT(
-            function_sig,
-            LPAD(IFNULL(function_input, 0), 64, '0')
-        ) AS input,
-        utils.udf_json_rpc_call(
-            'eth_call',
-            [{'to': contract_address, 'from': null, 'data':input }, utils.udf_int_to_hex(block_number)],
-            concat_ws(
-                '-',
-                contract_address,
-                input,
-                block_number
-            )
-        ) AS rpc_request,
-        row_num,
-        CEIL(
-            row_num / 50
-        ) AS batch_no
-    FROM
-        all_inputs
-        LEFT JOIN contract_deployments USING(contract_address)
-),
-pool_token_reads AS (
-
-{% if is_incremental() %}
-{% for item in range(6) %}
+pool_token_reads AS ({% for item in range(8) %}
     (
-    SELECT
-        live.udf_api('POST', CONCAT('{service}', '/', '{Authentication}'),{}, batch_rpc_request, 'Vault/prod/polygon/quicknode/mainnet') AS read_output, SYSDATE() AS _inserted_timestamp
-    FROM
-        (
-    SELECT
-        ARRAY_AGG(rpc_request) batch_rpc_request
-    FROM
-        build_rpc_requests
-    WHERE
-        batch_no = {{ item }} + 1
-        AND batch_no IN (
-    SELECT
-        DISTINCT batch_no
-    FROM
-        build_rpc_requests))) {% if not loop.last %}
-        UNION ALL
-        {% endif %}
-    {% endfor %}
-{% else %}
-    {% for item in range(60) %}
-        (
-    SELECT
-        live.udf_api('POST', CONCAT('{service}', '/', '{Authentication}'),{}, batch_rpc_request, 'Vault/prod/polygon/quicknode/mainnet') AS read_output, SYSDATE() AS _inserted_timestamp
-    FROM
-        (
-    SELECT
-        ARRAY_AGG(rpc_request) batch_rpc_request
-    FROM
-        build_rpc_requests
-    WHERE
-        batch_no = {{ item }} + 1
-        AND batch_no IN (
-    SELECT
-        DISTINCT batch_no
-    FROM
-        build_rpc_requests))) {% if not loop.last %}
-        UNION ALL
-        {% endif %}
-    {% endfor %}
-{% endif %}),
+SELECT
+    ethereum.streamline.udf_json_rpc_read_calls(node_url, headers, PARSE_JSON(batch_read)) AS read_output, SYSDATE() AS _inserted_timestamp
+FROM
+    (
+SELECT
+    CONCAT('[', LISTAGG(read_input, ','), ']') AS batch_read
+FROM
+    (
+SELECT
+    deployer_address, contract_address, block_number, function_sig, function_input, CONCAT('[\'', contract_address, '\',', block_number, ',\'', function_sig, '\',\'', (CASE
+    WHEN function_input IS NULL THEN ''
+    ELSE function_input :: STRINGEND), '\']') AS read_input, row_num
+FROM
+    all_inputs
+    LEFT JOIN contract_deployments USING(contract_address)) ready_reads_pools
+WHERE
+    row_num BETWEEN {{ item * 500 + 1 }}
+    AND {{(item + 1) * 500 }}) batch_reads_pools
+    JOIN {{ source('streamline_crosschain', 'node_mapping') }}
+    ON 1 = 1
+    AND chain = 'polygon') {% if not loop.last %}
+    UNION ALL
+    {% endif %}
+{% endfor %}),
 reads_adjusted AS (
     SELECT
         VALUE :id :: STRING AS read_id,
@@ -271,22 +223,14 @@ reads_adjusted AS (
             '-'
         ) AS read_id_object,
         read_id_object [0] :: STRING AS contract_address,
-        read_id_object [2] :: STRING AS block_number,
-        LEFT(
-            read_id_object [1] :: STRING,
-            10
-        ) AS function_sig,
-        RIGHT(
-            read_id_object [1],
-            LENGTH(
-                read_id_object [1] - 10
-            )
-        ) :: INT AS function_input,
+        read_id_object [1] :: STRING AS block_number,
+        read_id_object [2] :: STRING AS function_sig,
+        read_id_object [3] :: STRING AS function_input,
         _inserted_timestamp
     FROM
         pool_token_reads,
         LATERAL FLATTEN(
-            input => read_output :data
+            input => read_output [0] :data
         )
 ),
 tokens AS (
