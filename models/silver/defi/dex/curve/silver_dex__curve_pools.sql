@@ -201,7 +201,7 @@ FROM
 SELECT
     deployer_address, contract_address, block_number, function_sig, function_input, CONCAT('[\'', contract_address, '\',', block_number, ',\'', function_sig, '\',\'', (CASE
     WHEN function_input IS NULL THEN ''
-    ELSE function_input :: STRINGEND), '\']') AS read_input, row_num
+    ELSE function_input :: STRING END), '\']') AS read_input, row_num
 FROM
     all_inputs
     LEFT JOIN contract_deployments USING(contract_address)) ready_reads_pools
