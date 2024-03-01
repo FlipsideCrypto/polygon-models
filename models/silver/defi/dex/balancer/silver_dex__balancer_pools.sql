@@ -90,57 +90,36 @@ inputs_pools AS (
     SELECT
         pool_address,
         block_number,
-        function_sig
+        function_sig,
+        (ROW_NUMBER() over (PARTITION BY pool_address
+    ORDER BY
+        block_number)) - 1 AS function_input
     FROM
         pools_registered
         JOIN function_sigs
         ON 1 = 1
 ),
-build_rpc_requests AS (
-    SELECT
-        pool_address,
-        block_number,
-        function_sig,
-        RPAD(
-            function_sig,
-            64,
-            '0'
-        ) AS input,
-        utils.udf_json_rpc_call(
-            'eth_call',
-            [{'to': pool_address, 'from': null, 'data': input}, utils.udf_int_to_hex(block_number)],
-            concat_ws(
-                '-',
-                pool_address,
-                input,
-                block_number
-            )
-        ) AS rpc_request,
-        row_num,
-        CEIL(
-            row_num / 250
-        ) AS batch_no
-    FROM
-        inputs_pools
-        LEFT JOIN pools_registered USING(pool_address)
-),
-pool_token_reads AS ({% for item in range(10) %}
+pool_token_reads AS ({% for item in range(50) %}
     (
 SELECT
-    live.udf_api('POST', CONCAT('{service}', '/', '{Authentication}'),{}, batch_rpc_request, 'Vault/prod/polygon/quicknode/mainnet') AS read_output, SYSDATE() AS _inserted_timestamp
+    ethereum.streamline.udf_json_rpc_read_calls(node_url, headers, PARSE_JSON(batch_read)) AS read_output, SYSDATE() AS _inserted_timestamp
 FROM
     (
 SELECT
-    ARRAY_AGG(rpc_request) batch_rpc_request
+    CONCAT('[', LISTAGG(read_input, ','), ']') AS batch_read
 FROM
-    build_rpc_requests
+    (
+SELECT
+    pool_address, block_number, function_sig, function_input, CONCAT('[\'', pool_address, '\',', block_number, ',\'', function_sig, '\',\'', function_input, '\']') AS read_input, row_num
+FROM
+    inputs_pools
+    LEFT JOIN pools_registered USING(pool_address)) ready_reads_pools
 WHERE
-    batch_no = {{ item }} + 1
-    AND batch_no IN (
-SELECT
-    DISTINCT batch_no
-FROM
-    build_rpc_requests))) {% if not loop.last %}
+    row_num BETWEEN {{ item * 50 + 1 }}
+    AND {{(item + 1) * 50 }}) batch_reads_pools
+    JOIN {{ source('streamline_crosschain', 'node_mapping') }}
+    ON 1 = 1
+    AND chain = 'polygon') {% if not loop.last %}
     UNION ALL
     {% endif %}
 {% endfor %}),
@@ -153,16 +132,14 @@ reads_adjusted AS (
             '-'
         ) AS read_id_object,
         read_id_object [0] :: STRING AS pool_address,
-        LEFT(
-            read_id_object [1] :: STRING,
-            10
-        ) AS function_sig,
-        read_id_object [2] :: STRING AS block_number,
+        read_id_object [1] :: STRING AS block_number,
+        read_id_object [2] :: STRING AS function_sig,
+        read_id_object [3] :: STRING AS function_input,
         _inserted_timestamp
     FROM
         pool_token_reads,
         LATERAL FLATTEN(
-            input => read_output :data
+            input => read_output [0] :data
         )
 ),
 pool_details AS (
