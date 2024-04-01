@@ -34,7 +34,7 @@ models:
         description: '{{ doc("complete_lending_collateral_asset") }}'
       - name: COLLATERAL_TOKEN_SYMBOL
         description: '{{ doc("poly_symbol") }}'
-      - name: UNADJ
+      - name: AMOUNT_UNADJ
         description: '{{ doc("complete_lending_amount_unadj") }}'
       - name: AMOUNT
         description: '{{ doc("complete_lending_amount") }}'
