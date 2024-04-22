@@ -32,7 +32,7 @@ SELECT
 FROM
     {{ ref('silver_stats__core_metrics_hourly') }}
     s
-    LEFT JOIN {{ ref('price__ez_hourly_token_prices') }}
+    LEFT JOIN {{ ref('price__ez_prices_hourly') }}
     p
     ON s.block_timestamp_hour = p.hour
     AND p.token_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' --WMATIC
