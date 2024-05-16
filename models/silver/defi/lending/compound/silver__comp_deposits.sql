@@ -54,6 +54,7 @@ supply AS (
         ON asset = C.contract_address
     WHERE
         topics [0] = '0xfa56f7b24f17183d81894d3ac2ee654e3c26388d17a28dbd9549b8114304e1f4' --SupplyCollateral
+        AND tx_status = 'SUCCESS'
         AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
 {% if is_incremental() %}
 AND l._inserted_timestamp >= (

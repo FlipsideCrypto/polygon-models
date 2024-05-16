@@ -55,6 +55,7 @@ borrow AS (
         ON asset = C.compound_market_address
     WHERE
         topics [0] = '0x9b1bfa7fa9ee420a16e124f794c35ac9f90472acc99140eb2f6447c714cad8eb' --withdrawl
+        AND tx_status = 'SUCCESS'
         AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
 
 {% if is_incremental() %}

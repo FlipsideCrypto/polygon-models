@@ -49,6 +49,7 @@ WITH base_evt AS (
             '0x7103a324f423b8a4d4cc1c4f2d5b374af4f0bab5'
         )
         AND origin_to_address IS NOT NULL
+        AND tx_status = 'SUCCESS'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (

@@ -64,6 +64,7 @@ sell_base_token AS (
             FROM
                 proxies
         )
+        AND tx_status = 'SUCCESS'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
@@ -117,6 +118,7 @@ buy_base_token AS (
             FROM
                 proxies
         )
+        AND tx_status = 'SUCCESS'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
