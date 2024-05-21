@@ -37,7 +37,7 @@ WHERE
         SELECT
             MAX(
                 _inserted_timestamp
-            ) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -71,7 +71,7 @@ comp as (
             SELECT
                 MAX(
                     _inserted_timestamp
-                ) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+                ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
             FROM
                 {{ this }}
         )

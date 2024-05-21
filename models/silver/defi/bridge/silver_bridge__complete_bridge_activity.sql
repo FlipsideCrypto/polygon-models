@@ -38,7 +38,7 @@ WITH across AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -74,7 +74,7 @@ across_v3 AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -110,7 +110,7 @@ allbridge AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -146,7 +146,7 @@ axelar AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -182,7 +182,7 @@ celer_cbridge AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -218,7 +218,7 @@ dln_debridge AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -254,7 +254,7 @@ eywa AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -290,7 +290,7 @@ hop AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -326,7 +326,7 @@ meson AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -362,7 +362,7 @@ multichain AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -398,7 +398,7 @@ stargate AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -434,7 +434,7 @@ symbiosis AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -470,7 +470,7 @@ synapse_tb AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -506,7 +506,7 @@ synapse_tbs AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -542,7 +542,7 @@ wormhole AS (
 WHERE
     _inserted_timestamp >= (
         SELECT
-            MAX(_inserted_timestamp) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
         FROM
             {{ this }}
     )
@@ -817,7 +817,7 @@ heal_model AS (
                     SELECT
                         MAX(
                             _inserted_timestamp
-                        ) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+                        ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
                     FROM
                         {{ this }}
                 )
@@ -857,7 +857,7 @@ heal_model AS (
                             SELECT
                                 MAX(
                                     _inserted_timestamp
-                                ) - INTERVAL '{{ var(' lookback ', ' 4 hours ') }}'
+                                ) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
                             FROM
                                 {{ this }}
                         )
