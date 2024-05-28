@@ -6,77 +6,6 @@
 WITH impacted_blocks AS (
 
     SELECT
-        51073769 AS block_number
-    UNION
-    SELECT
-        50888353
-    UNION
-    SELECT
-        51103282
-    UNION
-    SELECT
-        50888044
-    UNION
-    SELECT
-        51105228
-    UNION
-    SELECT
-        51073794
-    UNION
-    SELECT
-        51102645
-    UNION
-    SELECT
-        50020883
-    UNION
-    SELECT
-        51073411
-    UNION
-    SELECT
-        51073884
-    UNION
-    SELECT
-        51104249
-    UNION
-    SELECT
-        51073379
-    UNION
-    SELECT
-        51105014
-    UNION
-    SELECT
-        51073239
-    UNION
-    SELECT
-        51096591
-    UNION
-    SELECT
-        50890486
-    UNION
-    SELECT
-        51055050
-    UNION
-    SELECT
-        50020889
-    UNION
-    SELECT
-        51103946
-    UNION
-    SELECT
-        51068789
-    UNION
-    SELECT
-        50891139
-    UNION
-    SELECT
-        51073292
-    UNION
-    SELECT
-        51073493
-    UNION
-    SELECT
-        50891095 {#  remove after filling
-    SELECT
         VALUE :: INT AS block_number
     FROM
         (
@@ -90,7 +19,7 @@ WITH impacted_blocks AS (
                 1
         ), LATERAL FLATTEN (
             input => blocks_impacted_array
-        ) #}
+        )
 ),
 all_txs AS (
     SELECT
