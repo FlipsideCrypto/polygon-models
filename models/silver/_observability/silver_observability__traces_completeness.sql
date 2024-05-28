@@ -94,11 +94,6 @@ broken_blocks AS (
             tx.to_address,
             '0x0000000000000000000000000000000000000000'
         ) <> '0x0000000000000000000000000000000000000000'
-        AND IFNULL(
-            tr.to_address,
-            '0x0000000000000000000000000000000000000000'
-        ) <> '0x0000000000000000000000000000000000000000'
-        AND tr.identifier = 'CALL_ORIGIN'
 ),
 impacted_blocks AS (
     SELECT
