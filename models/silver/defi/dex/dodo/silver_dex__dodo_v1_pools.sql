@@ -24,6 +24,7 @@ WITH pool_events AS (
     WHERE
         contract_address = '0x357c5e9cfa8b834edcef7c7aabd8f9db09119d11' --DODOZoo
         AND topics [0] :: STRING = '0x5c428a2e12ecaa744a080b25b4cda8b86359c82d726575d7d747e07708071f93' --DODOBirth
+        AND tx_status = 'SUCCESS'
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
