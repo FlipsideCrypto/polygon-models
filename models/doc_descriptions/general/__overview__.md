@@ -61,6 +61,11 @@ There is more information on how to use dbt docs in the last section of this doc
 ### Stats Tables (polygon.stats)
 - [ez_core_metrics_hourly](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.stats__ez_core_metrics_hourly)
 
+### Olas Tables (polygon.olas)
+- [dim_registry_metadata](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.olas__dim_registry_metadata)
+- [fact_service_event_logs](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.olas__fact_service_event_logs)
+- [ez_service_registrations](https://flipsidecrypto.github.io/polygon-models/#!/model/model.polygon_models.olas__ez_service_registrations)
+
 ## **Helpful User-Defined Functions (UDFs)**
 
 UDFs are custom functions built by the Flipside team that can be used in your queries to make your life easier. 
