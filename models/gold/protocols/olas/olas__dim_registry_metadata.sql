@@ -7,19 +7,27 @@
 ) }}
 
 SELECT
-    NAME,
-    description,
-    registry_id,
-    contract_address,
+    m.name,
+    m.description,
+    m.registry_id,
+    m.contract_address,
     CASE
-        WHEN contract_address = '0xe3607b00e75f6405248323a9417ff6b39b244b50' THEN 'Service'
+        WHEN m.contract_address = '0xe3607b00e75f6405248323a9417ff6b39b244b50' THEN 'Service'
     END AS registry_type,
-    trait_type,
-    trait_value,
-    code_uri_link,
-    image_link,
-    registry_metadata_id AS dim_registry_metadata_id,
-    inserted_timestamp,
-    modified_timestamp
+    m.trait_type,
+    m.trait_value,
+    m.code_uri_link,
+    m.image_link,
+    s.agent_ids,
+    m.registry_metadata_id AS dim_registry_metadata_id,
+    m.inserted_timestamp,
+    GREATEST(
+        m.modified_timestamp,
+        s.modified_timestamp
+    ) AS modified_timestamp
 FROM
     {{ ref('silver_olas__registry_metadata') }}
+    m
+    LEFT JOIN {{ ref('silver_olas__getservice_reads') }}
+    s
+    ON m.registry_id = s.function_input
