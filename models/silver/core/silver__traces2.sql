@@ -20,10 +20,6 @@ WITH bronze_traces AS (
         t
         JOIN polygon_dev.silver.broken_polygon_blocks b
         ON t.block_number = b.block_number
-        AND t._partition_by_block_id = ROUND(
-            b.block_number,
-            -3
-        )
     WHERE
         t.data :result IS NOT NULL {#
 
