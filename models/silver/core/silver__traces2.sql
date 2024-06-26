@@ -23,7 +23,9 @@ WITH bronze_traces AS (
         AND t._partition_by_block_id = ROUND(
             b.block_number,
             -3
-        ) {#
+        )
+    WHERE
+        t.data :result IS NOT NULL {#
 
 {% if is_incremental() %}
 {{ ref('bronze__streamline_traces') }}
