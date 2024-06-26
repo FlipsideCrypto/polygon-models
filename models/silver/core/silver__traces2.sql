@@ -6,7 +6,7 @@
     cluster_by = ['modified_timestamp::DATE','partition_key'],
     post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION",
     full_refresh = false,
-    tags = ['non_realtime']
+    tags = ['non_realtime'] 
 ) }}
 
 WITH bronze_traces AS (
