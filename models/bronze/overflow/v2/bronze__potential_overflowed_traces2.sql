@@ -6,6 +6,12 @@
 WITH impacted_blocks AS (
 
     SELECT
+        DISTINCT block_number
+    FROM
+        polygon_dev.silver.broken_blocks
+    WHERE
+        block_number > 43508845 {#
+    SELECT
         blocks_impacted_array
     FROM
         {{ ref("silver_observability__traces_completeness") }}
@@ -15,12 +21,16 @@ WITH impacted_blocks AS (
         1
 ), all_missing AS (
     SELECT
+        block_number
+    FROM
+        impacted_blocks {#
+    SELECT
         DISTINCT VALUE :: INT AS block_number
     FROM
         impacted_blocks,
         LATERAL FLATTEN (
             input => blocks_impacted_array
-        )
+        ) #}
 ),
 all_txs AS (
     SELECT
@@ -43,7 +53,7 @@ missing_txs AS (
             block_number,
             tx_position
         )
-        JOIN {{ ref("streamline__complete_traces") }} USING (block_number)
+        JOIN {{ ref("streamline__complete_debug_traceBlockByNumber") }} USING (block_number)
         LEFT JOIN {{ source(
             'polygon_silver',
             'overflowed_traces2'
