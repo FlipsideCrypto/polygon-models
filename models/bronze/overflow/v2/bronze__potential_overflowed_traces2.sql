@@ -6,24 +6,31 @@
 WITH impacted_blocks AS (
 
     SELECT
+        DISTINCT block_number
+    FROM
+        polygon_dev.silver.broken_blocks
+    WHERE
+        block_number > 43508845 {#
+    SELECT
         blocks_impacted_array
     FROM
         {{ ref("silver_observability__traces_completeness") }}
-    WHERE
-        blocks_impacted_count > 0 -- remove after backfill
-        {# add after backfill
     ORDER BY
         test_timestamp DESC
     LIMIT
         1 #}
 ), all_missing AS (
     SELECT
+        block_number
+    FROM
+        impacted_blocks {#
+    SELECT
         DISTINCT VALUE :: INT AS block_number
     FROM
         impacted_blocks,
         LATERAL FLATTEN (
             input => blocks_impacted_array
-        )
+        ) #}
 ),
 all_txs AS (
     SELECT
