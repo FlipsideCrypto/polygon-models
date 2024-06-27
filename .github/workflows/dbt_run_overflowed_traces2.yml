@@ -3,9 +3,8 @@ run-name: dbt_run_overflowed_traces2
 
 on:
   workflow_dispatch:
-  schedule:
-    # Runs at minute2 9 per hour (see https://crontab.guru)
-    - cron: '29 * * * *'
+    branches:
+      - "main"
     
 env:
   DBT_PROFILES_DIR: ./
