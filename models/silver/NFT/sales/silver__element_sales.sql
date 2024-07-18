@@ -93,7 +93,7 @@ raw AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '24 hours'
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -166,6 +166,15 @@ old_token_transfers AS (
             WHERE
                 currency_address_raw != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
         )
+
+{% if is_incremental() %}
+AND _inserted_timestamp >= (
+    SELECT
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+    FROM
+        {{ this }}
+)
+{% endif %}
 ),
 old_token_transfers_agg AS (
     SELECT
@@ -178,14 +187,14 @@ old_token_transfers_agg AS (
     GROUP BY
         ALL
 ),
-old_eth_transfers AS (
+old_native_transfers AS (
     SELECT
         tx_hash,
         trace_index,
         from_address,
         to_address,
-        eth_value,
-        eth_value * pow(
+        matic_value,
+        matic_value * pow(
             10,
             18
         ) AS amount_raw,
@@ -245,11 +254,20 @@ old_eth_transfers AS (
                 currency_address_raw = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
         )
         AND TYPE = 'CALL'
-        AND eth_value > 0
+        AND matic_value > 0
         AND tx_status = 'SUCCESS'
         AND trace_status = 'SUCCESS'
+
+{% if is_incremental() %}
+AND _inserted_timestamp >= (
+    SELECT
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+    FROM
+        {{ this }}
+)
+{% endif %}
 ),
-old_eth_labels AS (
+old_native_labels AS (
     SELECT
         *,
         SUM(intra_grouping) over (
@@ -258,9 +276,9 @@ old_eth_labels AS (
                 trace_index ASC
         ) AS intra_grouping_seller
     FROM
-        old_eth_transfers
+        old_native_transfers
 ),
-old_eth_amounts AS (
+old_native_amounts AS (
     SELECT
         *,
         CASE
@@ -287,7 +305,7 @@ old_eth_amounts AS (
             ELSE 0
         END AS creator_fee
     FROM
-        old_eth_labels
+        old_native_labels
     WHERE
         to_address != (
             SELECT
@@ -296,7 +314,7 @@ old_eth_amounts AS (
                 settings
         )
 ),
-old_eth_agg AS (
+old_native_agg AS (
     SELECT
         tx_hash,
         intra_grouping_seller,
@@ -304,11 +322,11 @@ old_eth_agg AS (
         SUM(platform_fee) AS platform_fee_raw,
         SUM(creator_fee) AS creator_fee_raw
     FROM
-        old_eth_amounts
+        old_native_amounts
     GROUP BY
         ALL
 ),
-old_eth_agg_rn AS (
+old_native_agg_rn AS (
     SELECT
         tx_hash,
         ROW_NUMBER() over (
@@ -320,9 +338,9 @@ old_eth_agg_rn AS (
         platform_fee_raw,
         creator_fee_raw
     FROM
-        old_eth_agg
+        old_native_agg
 ),
-old_eth_base AS (
+old_native_base AS (
     SELECT
         tx_hash,
         intra_grouping_seller_fill,
@@ -352,7 +370,7 @@ old_eth_base AS (
         _inserted_timestamp
     FROM
         raw
-        INNER JOIN old_eth_agg_rn USING (
+        INNER JOIN old_native_agg_rn USING (
             tx_hash,
             intra_grouping_seller_fill
         )
@@ -512,7 +530,7 @@ all_combined AS (
     SELECT
         *
     FROM
-        old_eth_base
+        old_native_base
     UNION ALL
     SELECT
         *
@@ -551,7 +569,7 @@ tx_data AS (
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '24 hours'
+        MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
