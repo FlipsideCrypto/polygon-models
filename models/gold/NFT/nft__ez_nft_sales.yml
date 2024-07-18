@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: nft__ez_nft_sales
-    description: This table contains NFT sales from Opensea Seaport 1.1, 1.4, 1.5, and 1.6, TofuNFT and Mooar on Polygon.
+    description: This table contains NFT sales from Opensea Seaport 1.1, 1.4, 1.5, and 1.6, TofuNFT, Mooar and Element on Polygon.
 
     columns:
       - name: BLOCK_NUMBER
