@@ -33,7 +33,7 @@ AND _inserted_timestamp >= (
     SELECT
         MAX(
             _inserted_timestamp
-        ) - INTERVAL '24 hours'
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -93,7 +93,7 @@ AND _inserted_timestamp >= (
     SELECT
         MAX(
             _inserted_timestamp
-        ) - INTERVAL '24 hours'
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -1659,7 +1659,7 @@ AND _inserted_timestamp >= (
     SELECT
         MAX(
             _inserted_timestamp
-        ) - INTERVAL '24 hours'
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
@@ -1702,7 +1702,7 @@ AND _inserted_timestamp >= (
     SELECT
         MAX(
             _inserted_timestamp
-        ) - INTERVAL '24 hours'
+        ) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
