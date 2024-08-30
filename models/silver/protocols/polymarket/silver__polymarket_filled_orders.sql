@@ -1,5 +1,9 @@
 {{ config(
-    materialized = 'table'
+    materialized = 'incremental',
+    incremental_strategy = 'delete+insert',
+    unique_key = "block_number",
+    cluster_by = ['block_timestamp::DATE'],
+    tags = ['curated','reorg']
 ) }}
 
 WITH polymarket_orders AS(
@@ -32,9 +36,15 @@ WITH polymarket_orders AS(
         _inserted_timestamp,
         _log_id
     FROM
-        {{ ref('silver__logs') }}
+        polygon.silver.logs
     WHERE
         topics [0] :: STRING = '0xd0a08e8c493f9c94f29311604c9de1b4e8c8d4c06bd0c789af57f2d65bfec0f6'
+    AND contract_address in (
+        LOWER('0x4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e'),
+        LOWER('0xC5d563A36AE78145C45a50134d48A1215220f80a')
+    )
+    AND 
+        origin_function_signature IN ('0xe60f0c05', '0xd2539b37')
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
