@@ -861,8 +861,6 @@ SELECT
     CASE
         WHEN block_timestamp :: DATE >= '2024-09-04'
         AND currency_address = 'MATIC' THEN 'POL'
-        WHEN block_timestamp :: DATE >= '2024-09-04'
-        AND currency_address = '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' THEN 'wPOL'
         ELSE currency_symbol
     END AS currency_symbol,
     CASE
