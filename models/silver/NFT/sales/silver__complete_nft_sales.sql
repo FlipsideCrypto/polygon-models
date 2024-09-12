@@ -858,8 +858,16 @@ SELECT
     project_name,
     erc1155_value,
     tokenId,
-    currency_symbol,
-    currency_address,
+    CASE
+        WHEN block_timestamp :: DATE >= '2024-09-04'
+        AND currency_address = 'MATIC' THEN 'POL'
+        ELSE currency_symbol
+    END AS currency_symbol,
+    CASE
+        WHEN block_timestamp :: DATE >= '2024-09-04'
+        AND currency_address = 'MATIC' THEN 'POL'
+        ELSE currency_address
+    END AS currency_address,
     total_price_raw,
     total_fees_raw,
     platform_fee_raw,
