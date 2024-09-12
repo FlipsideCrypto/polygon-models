@@ -19,7 +19,7 @@ WITH polymarket_orders AS(
         contract_address,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
         segmented_data [1] :: STRING AS order_hash,
-        LOWER(CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))) AS marker,
+        LOWER(CONCAT('0x', SUBSTR(topics [2] :: STRING, 27, 40))) AS maker,
         LOWER(CONCAT('0x', SUBSTR(topics [3] :: STRING, 27, 40))) AS taker,
         utils.udf_hex_to_int(
             segmented_data [1] :: STRING
@@ -36,7 +36,7 @@ WITH polymarket_orders AS(
         _inserted_timestamp,
         _log_id
     FROM
-        polygon.silver.logs
+        {{ ref('silver__logs') }}
     WHERE
         topics [0] :: STRING = '0xd0a08e8c493f9c94f29311604c9de1b4e8c8d4c06bd0c789af57f2d65bfec0f6'
     AND contract_address in (
@@ -68,7 +68,7 @@ polymarket_shape AS(
         origin_function_signature,
         contract_address,
         order_hash,
-        marker,
+        maker,
         taker,
         COALESCE(NULLIF(maker_asset_id, '0'), taker_asset_id) AS asset_id, 
         maker_asset_id,
@@ -93,12 +93,13 @@ yes_tokens AS(
         block_number,
         block_timestamp,
         event_index,
+        'OrderFilled' AS event_name,
         origin_from_address,
         origin_to_address,
         origin_function_signature,
         contract_address,
         order_hash,
-        marker,
+        maker,
         taker,
         condition_id,
         question_id,
@@ -116,29 +117,30 @@ yes_tokens AS(
         _log_id
     FROM
         polymarket_shape p
-        INNER JOIN EXTERNAL.polymarket.dim_markets m
+        INNER JOIN {{ source('external_polymarket','dim_markets') }} m
         ON asset_id = token_1_token_id
 ),
 no_tokens AS(
 
     SELECT
-        tx_hash,
         block_number,
         block_timestamp,
-        event_index,
         origin_from_address,
         origin_to_address,
         origin_function_signature,
+        tx_hash,
+        event_index,
+        'OrderFilled' AS event_name,
         contract_address,
         order_hash,
-        marker,
+        maker,
         taker,
         condition_id,
-        question_id,
         question,
         market_slug,
         end_date_iso,
         token_2_outcome as outcome,
+        question_id,
         asset_id, 
         maker_asset_id, 
         taker_asset_id,
@@ -149,15 +151,64 @@ no_tokens AS(
         _log_id
     FROM
         polymarket_shape p
-        INNER JOIN EXTERNAL.polymarket.dim_markets m
+        INNER JOIN {{ source('external_polymarket','dim_markets') }} m
         ON asset_id = token_2_token_id
 )
 SELECT
-    *
-FROM
-    no_tokens
+    block_number,
+    block_timestamp,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    tx_hash,
+    event_index,
+    event_name,
+    contract_address,
+    question,
+    market_slug,
+    end_date_iso,
+    outcome,
+    order_hash,
+    maker,
+    taker,
+    condition_id,
+    question_id,
+    asset_id, 
+    maker_asset_id, 
+    taker_asset_id,
+    amount_usd,
+    shares,
+    price_per_share,
+    _inserted_timestamp,
+    _log_id
+FROM    no_tokens
 UNION ALL
 SELECT
-    *
+    block_number,
+    block_timestamp,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    tx_hash,
+    event_index,
+    event_name,
+    contract_address,
+    question,
+    market_slug,
+    end_date_iso,
+    outcome,
+    order_hash,
+    maker,
+    taker,
+    condition_id,
+    question_id,
+    asset_id, 
+    maker_asset_id, 
+    taker_asset_id,
+    amount_usd,
+    shares,
+    price_per_share,
+    _inserted_timestamp,
+    _log_id
 FROM
     yes_tokens
