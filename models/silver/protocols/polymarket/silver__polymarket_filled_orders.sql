@@ -180,7 +180,13 @@ SELECT
     shares,
     price_per_share,
     _inserted_timestamp,
-    _log_id
+    _log_id,
+    {{dbt_utils.generate_surrogate_key(
+        ['tx_hash','event_index']
+    )}} AS polymarket_filled_orders_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM    no_tokens
 UNION ALL
 SELECT
@@ -209,6 +215,12 @@ SELECT
     shares,
     price_per_share,
     _inserted_timestamp,
-    _log_id
+    _log_id,
+    {{ dbt_utils.generate_surrogate_key(
+        ['tx_hash','event_index']
+    ) }} AS polymarket_filled_orders_id,
+    SYSDATE() AS inserted_timestamp,
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     yes_tokens
