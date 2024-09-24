@@ -67,4 +67,4 @@ models:
               column_type_list:
                 - DECIMAL
                 - FLOAT
-                - NUMBER
+                - NUMBER    
