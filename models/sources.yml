@@ -70,3 +70,8 @@ sources:
     schema: defillama
     tables:
       - name: dim_chains
+  - name: external_polymarket
+    database: external
+    schema: polymarket
+    tables:
+      - name: dim_markets
