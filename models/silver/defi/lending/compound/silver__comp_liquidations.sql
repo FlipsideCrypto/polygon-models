@@ -52,7 +52,7 @@ liquidations AS (
         _log_id,
         l._inserted_timestamp
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('silver__logs') }} l
         l
         LEFT JOIN {{ ref('silver__contracts') }} C
         ON asset = C.contract_address
@@ -61,13 +61,13 @@ liquidations AS (
         AND tx_status = 'SUCCESS'
         AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND l._inserted_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND l._inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT
