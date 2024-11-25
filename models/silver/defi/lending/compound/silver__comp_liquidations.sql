@@ -6,8 +6,8 @@
     tags = ['curated','reorg']
 ) }}
 
-WITH 
-comp_assets as (
+WITH comp_assets AS (
+
     SELECT
         compound_market_address,
         compound_market_name,
@@ -20,9 +20,7 @@ comp_assets as (
     FROM
         {{ ref('silver__comp_asset_details') }}
 ),
-
 liquidations AS (
-
     SELECT
         tx_hash,
         block_number,
@@ -52,14 +50,20 @@ liquidations AS (
         _log_id,
         l._inserted_timestamp
     FROM
-        {{ ref('silver__logs') }} l
+        {{ ref('silver__logs') }}
         l
         LEFT JOIN {{ ref('silver__contracts') }} C
         ON asset = C.contract_address
     WHERE
         topics [0] = '0x9850ab1af75177e4a9201c65a2cf7976d5d28e40ef63494b44366f86b2f9412e' --AbsorbCollateral
         AND tx_status = 'SUCCESS'
-        AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
+        AND l.contract_address IN (
+            SELECT
+                DISTINCT(compound_market_address)
+            FROM
+                comp_assets
+        )
+
 {% if is_incremental() %}
 AND l._inserted_timestamp >= (
     SELECT
