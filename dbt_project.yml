@@ -77,21 +77,55 @@ vars:
   START_GHA_TASKS: False
   STUDIO_TEST_USER_ID: '{{ env_var("STUDIO_TEST_USER_ID", "98d15c30-9fa5-43cd-9c69-3d4c0bb269f5") }}'
 
-  API_INTEGRATION: '{{ var("config")[target.name]["API_INTEGRATION"] if var("config")[target.name] else var("config")["dev"]["API_INTEGRATION"] }}' 
+#### STREAMLINE 2.0 BEGIN ####
+
+  API_INTEGRATION: '{{ var("config")[target.name]["API_INTEGRATION"] if var("config")[target.name] else var("config")["dev"]["API_INTEGRATION"] }}'
   EXTERNAL_FUNCTION_URI: '{{ var("config")[target.name]["EXTERNAL_FUNCTION_URI"] if var("config")[target.name] else var("config")["dev"]["EXTERNAL_FUNCTION_URI"] }}'
   ROLES: |
-      ["INTERNAL_DEV"]
-      
+    ["INTERNAL_DEV"]
   config:
   # The keys correspond to dbt profiles and are case sensitive
     dev:
-      API_INTEGRATION: AWS_POLYGON_API_DEV
-      EXTERNAL_FUNCTION_URI: rzyjrd54s6.execute-api.us-east-1.amazonaws.com/dev/
+      API_INTEGRATION: aws_polygon_api_stg_v2
+      EXTERNAL_FUNCTION_URI: 
+      API_AWS_ROLE_ARN: 
       ROLES:
+        - AWS_LAMBDA_POLYGON_API
         - INTERNAL_DEV
-    prod:
-      API_INTEGRATION: AWS_POLYGON_API
-      EXTERNAL_FUNCTION_URI: p6dhi5vxn4.execute-api.us-east-1.amazonaws.com/prod/
-      ROLES:
-        - INTERNAL_DEV
-        - BI_ANALYTICS_READER
+
+    # prod:
+    #   API_INTEGRATION: aws_polygon_api_prod_v2
+    #   EXTERNAL_FUNCTION_URI:
+    #   API_AWS_ROLE_ARN: 
+    #   ROLES:
+    #     - AWS_LAMBDA_POLYGON_API
+    #     - INTERNAL_DEV
+    #     - DBT_CLOUD_POLYGON
+
+#### STREAMLINE 2.0 END ####
+
+#### FSC_EVM BEGIN ####
+# Visit https://github.com/FlipsideCrypto/fsc-evm/wiki for more information on required and optional variables
+
+  ### GLOBAL VARIABLES BEGIN ###
+  ## REQUIRED
+  GLOBAL_PROD_DB_NAME: 'polygon' 
+  GLOBAL_NODE_SECRET_PATH: 'Vault/prod/polygon/quicknode/mainnet'
+  GLOBAL_BLOCKS_PER_HOUR: 1700 
+  GLOBAL_USES_STREAMLINE_V1: True
+  GLOBAL_USES_SINGLE_FLIGHT_METHOD: True
+
+  ### GLOBAL VARIABLES END ###
+
+  ### MAIN_PACKAGE VARIABLES BEGIN ###
+
+  ### CORE ###
+  ## REQUIRED
+
+  ## OPTIONAL
+  # GOLD_FULL_REFRESH: True
+  # SILVER_FULL_REFRESH: True
+
+  ### MAIN_PACKAGE VARIABLES END ###
+
+#### FSC_EVM END ####
