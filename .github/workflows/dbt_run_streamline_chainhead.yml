@@ -43,4 +43,8 @@ jobs:
           dbt deps
       - name: Run DBT Jobs
         run: |
-          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m "polygon_models,tag:streamline_core_complete" "polygon_models,tag:streamline_core_realtime"
+          dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m "polygon_models,tag:streamline_core_complete" "polygon_models,tag:streamline_core_realtime" "polygon_models,tag:streamline_core_complete_receipts" "polygon_models,tag:streamline_core_realtime_receipts" "polygon_models,tag:streamline_core_complete_confirm_blocks" "polygon_models,tag:streamline_core_realtime_confirm_blocks"
+      
+      - name: Run Chainhead Tests
+        run: |
+          dbt test -m "polygon_models,tag:chainhead"
