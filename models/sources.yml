@@ -20,7 +20,7 @@ sources:
       - name: receipts
       - name: blocks
       - name: transactions
-      - name: debug_traceBlockByNumber
+      - name: debug_traceblockbynumber
       - name: decoded_logs
       - name: confirm_blocks
       - name: matic_balances
