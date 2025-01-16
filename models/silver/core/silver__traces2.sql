@@ -11,5 +11,5 @@
 {{ silver_traces_v1(
     full_reload_start_block = 5000000,
     full_reload_blocks = 1000000,
-    partition_key = true
+    use_partition_key = true
 ) }}

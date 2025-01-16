@@ -43,7 +43,7 @@ missing_txs AS (
             block_number,
             tx_position
         )
-        JOIN {{ ref("streamline__complete_debug_traceBlockByNumber") }} USING (block_number)
+        JOIN {{ ref("streamline__traces_complete") }} USING (block_number)
         LEFT JOIN {{ source(
             'polygon_silver',
             'overflowed_traces2'
