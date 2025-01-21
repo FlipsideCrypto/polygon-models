@@ -1,4 +1,4 @@
--- depends_on: {{ ref('bronze__streamline_traces') }}
+-- depends_on: {{ ref('bronze__traces') }}
 {% set warehouse = 'DBT_SNOWPARK' if var('OVERFLOWED_TRACES') else target.warehouse %}
 {{ config (
     materialized = "incremental",
@@ -21,7 +21,7 @@ WITH bronze_traces AS (
     FROM
 
 {% if is_incremental() %}
-{{ ref('bronze__streamline_traces') }}
+{{ ref('bronze__traces') }}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -31,7 +31,7 @@ WHERE
     )
     AND DATA :result IS NOT NULL
 {% else %}
-    {{ ref('bronze__streamline_fr_traces') }}
+    {{ ref('bronze__traces_fr') }}
 WHERE
     _partition_by_block_id <= 2300000
     AND DATA :result IS NOT NULL
