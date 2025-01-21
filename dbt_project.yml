@@ -92,13 +92,13 @@ vars:
         - AWS_LAMBDA_POLYGON_API
         - INTERNAL_DEV
 
-    # prod:
-    #   API_INTEGRATION: AWS_POLYGON_API_PROD_V2
-    #   EXTERNAL_FUNCTION_URI:
-    #   ROLES:
-    #     - AWS_LAMBDA_POLYGON_API
-    #     - INTERNAL_DEV
-    #     - DBT_CLOUD_POLYGON
+    prod:
+      API_INTEGRATION: AWS_POLYGON_API_PROD_V2
+      EXTERNAL_FUNCTION_URI: sjfxmdtv9j.execute-api.us-east-1.amazonaws.com/prod/
+      ROLES:
+        - AWS_LAMBDA_POLYGON_API
+        - INTERNAL_DEV
+        - DBT_CLOUD_POLYGON
 
 #### STREAMLINE 2.0 END ####
 
