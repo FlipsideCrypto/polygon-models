@@ -30,7 +30,9 @@ WITH contract_deployments AS (
                 contract_address
         ) AS row_num
     FROM
-        {{ ref('core__fact_traces') }}
+        {{ ref(
+            'core__fact_traces'
+        ) }}
     WHERE
         -- curve contract deployers
         from_address IN (
@@ -210,7 +212,7 @@ FROM
 SELECT
     deployer_address, contract_address, block_number, function_sig, function_input, CONCAT('[\'', contract_address, '\',', block_number, ',\'', function_sig, '\',\'', (CASE
     WHEN function_input IS NULL THEN ''
-    ELSE function_input :: stringend), '\']') AS read_input, row_num
+    ELSE function_input :: STRING END), '\']') AS read_input, row_num
 FROM
     all_inputs
     LEFT JOIN contract_deployments USING(contract_address)) ready_reads_pools
@@ -222,62 +224,161 @@ WHERE
     AND chain = 'polygon') {% if not loop.last %}
     UNION ALL
     {% endif %}
-{% endfor %}), reads_adjusted AS (
+{% endfor %}),
+reads_adjusted AS (
+    SELECT
+        VALUE :id :: STRING AS read_id,
+        VALUE :result :: STRING AS read_result,
+        SPLIT(
+            read_id,
+            '-'
+        ) AS read_id_object,
+        read_id_object [0] :: STRING AS contract_address,
+        read_id_object [1] :: STRING AS block_number,
+        read_id_object [2] :: STRING AS function_sig,
+        read_id_object [3] :: STRING AS function_input,
+        _inserted_timestamp
+    FROM
+        pool_token_reads,
+        LATERAL FLATTEN(
+            input => read_output [0] :data
+        )
+),
+tokens AS (
+    SELECT
+        contract_address,
+        function_sig,
+        function_name,
+        function_input,
+        read_result,
+        regexp_substr_all(SUBSTR(read_result, 3, len(read_result)), '.{64}') [0] AS segmented_token_address,
+        _inserted_timestamp
+    FROM
+        reads_adjusted
+        LEFT JOIN function_sigs USING(function_sig)
+    WHERE
+        function_name IN (
+            'coins',
+            'base_coins',
+            'underlying_coins'
+        )
+        AND read_result IS NOT NULL
+),
+pool_details AS (
+    SELECT
+        contract_address,
+        function_sig,
+        function_name,
+        function_input,
+        read_result,
+        regexp_substr_all(SUBSTR(read_result, 3, len(read_result)), '.{64}') AS segmented_output,
+        _inserted_timestamp
+    FROM
+        reads_adjusted
+        LEFT JOIN function_sigs USING(function_sig)
+    WHERE
+        function_name IN (
+            'name',
+            'symbol',
+            'decimals'
+        )
+        AND read_result IS NOT NULL
+),
+all_pools AS (
+    SELECT
+        t.contract_address AS pool_address,
+        CONCAT('0x', SUBSTRING(t.segmented_token_address, 25, 40)) AS token_address,
+        function_input AS token_id,
+        function_name AS token_type,
+        MIN(
+            CASE
+                WHEN p.function_name = 'symbol' THEN utils.udf_hex_to_string(RTRIM(p.segmented_output [2] :: STRING, 0))
+            END
+        ) AS pool_symbol,
+        MIN(
+            CASE
+                WHEN p.function_name = 'name' THEN CONCAT(
+                    utils.udf_hex_to_string(
+                        p.segmented_output [2] :: STRING
+                    ),
+                    utils.udf_hex_to_string(
+                        segmented_output [3] :: STRING
+                    )
+                )
+            END
+        ) AS pool_name,
+        MIN(
+            CASE
+                WHEN p.read_result :: STRING = '0x' THEN NULL
+                ELSE utils.udf_hex_to_int(LEFT(p.read_result :: STRING, 66))
+            END
+        ) :: INTEGER AS pool_decimals,
+        CONCAT(
+            t.contract_address,
+            '-',
+            CONCAT('0x', SUBSTRING(t.segmented_token_address, 25, 40)),
+            '-',
+            function_input,
+            '-',
+            function_name
+        ) AS pool_id,
+        MAX(
+            t._inserted_timestamp
+        ) AS _inserted_timestamp
+    FROM
+        tokens t
+        LEFT JOIN pool_details p USING(contract_address)
+    WHERE
+        token_address IS NOT NULL
+        AND token_address <> '0x0000000000000000000000000000000000000000'
+    GROUP BY
+        1,
+        2,
+        3,
+        4
+),
+FINAL AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        tx_hash,
+        deployer_address,
+        pool_address,
+        CASE
+            WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+            ELSE token_address
+        END AS token_address,
+        token_id,
+        token_type,
+        CASE
+            WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'WMATIC'
+            WHEN pool_symbol IS NULL THEN C.token_symbol
+            ELSE pool_symbol
+        END AS pool_symbol,
+        pool_name,
+        CASE
+            WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '18'
+            WHEN pool_decimals IS NULL THEN C.token_decimals
+            ELSE pool_decimals
+        END AS pool_decimals,
+        pool_id,
+        _call_id,
+        A._inserted_timestamp
+    FROM
+        all_pools A
+        LEFT JOIN {{ ref('silver__contracts') }} C
+        ON A.token_address = C.contract_address
+        LEFT JOIN contract_deployments d
+        ON A.pool_address = d.contract_address qualify(ROW_NUMBER() over(PARTITION BY pool_address, token_address
+    ORDER BY
+        A._inserted_timestamp DESC)) = 1
+)
 SELECT
-    VALUE :id :: STRING AS read_id, VALUE :result :: STRING AS read_result, SPLIT(read_id, '-') AS read_id_object, read_id_object [0] :: STRING AS contract_address, read_id_object [1] :: STRING AS block_number, read_id_object [2] :: STRING AS function_sig, read_id_object [3] :: STRING AS function_input, _inserted_timestamp
-FROM
-    pool_token_reads, LATERAL FLATTEN(input => read_output [0] :data)), tokens AS (
-SELECT
-    contract_address, function_sig, function_name, function_input, read_result, regexp_substr_all(SUBSTR(read_result, 3, len(read_result)), '.{64}') [0] AS segmented_token_address, _inserted_timestamp
-FROM
-    reads_adjusted
-    LEFT JOIN function_sigs USING(function_sig)
-WHERE
-    function_name IN ('coins', 'base_coins', 'underlying_coins')
-    AND read_result IS NOT NULL), pool_details AS (
-SELECT
-    contract_address, function_sig, function_name, function_input, read_result, regexp_substr_all(SUBSTR(read_result, 3, len(read_result)), '.{64}') AS segmented_output, _inserted_timestamp
-FROM
-    reads_adjusted
-    LEFT JOIN function_sigs USING(function_sig)
-WHERE
-    function_name IN ('name', 'symbol', 'decimals')
-    AND read_result IS NOT NULL), all_pools AS (
-SELECT
-    t.contract_address AS pool_address, CONCAT('0x', SUBSTRING(t.segmented_token_address, 25, 40)) AS token_address, function_input AS token_id, function_name AS token_type, MIN(CASE
-    WHEN p.function_name = 'symbol' THEN utils.udf_hex_to_string(RTRIM(p.segmented_output [2] :: STRING, 0))END) AS pool_symbol, MIN(CASE
-    WHEN p.function_name = 'name' THEN CONCAT(utils.udf_hex_to_string(p.segmented_output [2] :: STRING), utils.udf_hex_to_string(segmented_output [3] :: STRING))END) AS pool_name, MIN(CASE
-    WHEN p.read_result :: STRING = '0x' THEN NULL
-    ELSE utils.udf_hex_to_int(LEFT(p.read_result :: STRING, 66))END) :: INTEGER AS pool_decimals, CONCAT(t.contract_address, '-', CONCAT('0x', SUBSTRING(t.segmented_token_address, 25, 40)), '-', function_input, '-', function_name) AS pool_id, MAX(t._inserted_timestamp) AS _inserted_timestamp
-FROM
-    tokens t
-    LEFT JOIN pool_details p USING(contract_address)
-WHERE
-    token_address IS NOT NULL
-    AND token_address <> '0x0000000000000000000000000000000000000000'
-GROUP BY
-    1, 2, 3, 4), FINAL AS (
-SELECT
-    block_number, block_timestamp, tx_hash, deployer_address, pool_address, CASE
-    WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
-    ELSE token_addressEND AS token_address, token_id, token_type, CASE
-    WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN 'WMATIC'
-    WHEN pool_symbol IS NULL THEN C.token_symbol
-    ELSE pool_symbolEND AS pool_symbol, pool_name, CASE
-    WHEN token_address = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '18'
-    WHEN pool_decimals IS NULL THEN C.token_decimals
-    ELSE pool_decimalsEND AS pool_decimals, pool_id, _call_id, A._inserted_timestamp
-FROM
-    all_pools A
-    LEFT JOIN {{ ref('silver__contracts') }} C
-    ON A.token_address = C.contract_address
-    LEFT JOIN contract_deployments d
-    ON A.pool_address = d.contract_address qualify(ROW_NUMBER() over(PARTITION BY pool_address, token_address
-ORDER BY
-    A._inserted_timestamp DESC)) = 1)
-SELECT
-    *, ROW_NUMBER() over (PARTITION BY pool_address
-ORDER BY
-    token_address ASC) AS token_num
+    *,
+    ROW_NUMBER() over (
+        PARTITION BY pool_address
+        ORDER BY
+            token_address ASC
+    ) AS token_num
 FROM
     FINAL
