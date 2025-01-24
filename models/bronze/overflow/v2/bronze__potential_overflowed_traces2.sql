@@ -40,7 +40,7 @@ missing_txs AS (
         all_txs txs
         LEFT JOIN {{ source(
             "polygon_gold",
-            "fact_traces2"
+            "fact_traces"
         ) }}
         tr2 USING (
             block_number,

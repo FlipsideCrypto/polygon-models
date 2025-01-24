@@ -13,7 +13,7 @@ SELECT
     to_address AS created_contract_address,
     from_address AS creator_address,
     input AS created_contract_input,
-    modified_timestamp AS inserted_timestamp,
+    modified_timestamp AS _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['to_address']
     ) }} AS created_contracts_id,
