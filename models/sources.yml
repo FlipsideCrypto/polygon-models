@@ -59,7 +59,6 @@ sources:
     tables:
       - name: verified_abis
       - name: overflowed_traces
-      - name: overflowed_traces2
   - name: polygon_bronze_api
     database: polygon
     schema: bronze_api
