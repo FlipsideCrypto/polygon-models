@@ -80,3 +80,8 @@ sources:
     schema: polymarket
     tables:
       - name: dim_markets
+  - name: polygon_gold
+    database: "{{ 'polygon' if target.database == 'POLYGON' else 'polygon_dev' }}"
+    schema: core
+    tables:
+      - name: fact_traces

@@ -14,16 +14,23 @@ WITH contract_deployments AS (
         block_timestamp,
         from_address AS deployer_address,
         to_address AS contract_address,
-        _call_id,
-        _inserted_timestamp,
+        concat_ws(
+            '-',
+            block_number,
+            tx_position,
+            CONCAT(
+                TYPE,
+                '_',
+                trace_address
+            )
+        ) AS _call_id,
+        modified_timestamp AS _inserted_timestamp,
         ROW_NUMBER() over (
             ORDER BY
                 contract_address
         ) AS row_num
     FROM
-        {{ ref(
-            'silver__traces'
-        ) }}
+        {{ ref('core__fact_traces') }}
     WHERE
         -- curve contract deployers
         from_address IN (
@@ -203,7 +210,7 @@ FROM
 SELECT
     deployer_address, contract_address, block_number, function_sig, function_input, CONCAT('[\'', contract_address, '\',', block_number, ',\'', function_sig, '\',\'', (CASE
     WHEN function_input IS NULL THEN ''
-    ELSE function_input :: STRING END), '\']') AS read_input, row_num
+    ELSE function_input :: STRINGEND), '\']') AS read_input, row_num
 FROM
     all_inputs
     LEFT JOIN contract_deployments USING(contract_address)) ready_reads_pools
