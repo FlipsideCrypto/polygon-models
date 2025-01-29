@@ -7,7 +7,7 @@ SELECT
 FROM
     {{ ref("test_silver__transactions_recent") }}
     tx
-    LEFT JOIN {{ ref("test_silver__traces_recent") }}
+    LEFT JOIN {{ ref("test_gold__fact_traces_recent") }}
     tr USING (
         block_number,
         tx_hash
