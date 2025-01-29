@@ -148,7 +148,7 @@ traces_raw AS (
             )
         ) :: INT AS bundle_array_size
     FROM
-        {{ ref('silver__traces') }}
+        {{ ref('core__fact_traces') }}
     WHERE
         block_timestamp :: DATE >= '2021-10-01'
         AND to_address = '0x7bc8b1b5aba4df3be9f9a32dae501214dc0e4f3f'
@@ -159,13 +159,13 @@ traces_raw AS (
         AND trace_status = 'SUCCESS'
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
 traces_raw_rn AS (
