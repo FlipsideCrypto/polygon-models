@@ -17,7 +17,7 @@
             SELECT
                 github_actions.workflow_dispatches(
                     'FlipsideCrypto',
-                    '{{ blockchain }}' ~ '-models',
+                    '{{ blockchain }}' || '-models',
                     'dbt_run_streamline_decoded_logs_history.yml',
                     NULL
                 )
