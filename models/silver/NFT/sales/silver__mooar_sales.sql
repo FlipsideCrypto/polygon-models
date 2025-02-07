@@ -20,7 +20,25 @@ WITH seaport_fees_wallet AS (
 ),
 raw_decoded_logs AS (
     SELECT
-        *,
+        block_number,
+        block_timestamp,
+        tx_hash,
+        event_index,
+        contract_address,
+        topics,
+        DATA,
+        event_removed,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        event_name,
+        full_decoded_log,
+        decoded_log,
+        contract_name,
+        ez_decoded_event_logs_id,
+        inserted_timestamp,
+        modified_timestamp AS _inserted_timestamp,
+        CONCAT(tx_hash, '-', event_index) AS _log_id,
         decoded_log :orderHash :: STRING AS orderhash,
         tx_hash || '-' || decoded_log :orderHash AS tx_hash_orderhash
     FROM
@@ -45,7 +63,21 @@ AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
 ),
 raw_logs AS (
     SELECT
-        *,
+        block_number,
+        block_timestamp,
+        tx_hash,
+        event_index,
+        contract_address,
+        topics,
+        DATA,
+        event_removed,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        fact_event_logs_id,
+        inserted_timestamp,
+        CONCAT(tx_hash, '-', event_index) AS _log_id,
+        modified_timestamp AS _inserted_timestamp,
         IFF(
             topics [0] :: STRING IN (
                 '0x4b9f2d36e1b4c93de62cc077b00b1a91d84b6c31b4a14e012718dcca230689e7'
@@ -1852,7 +1884,7 @@ tx_data AS (
         tx_fee,
         input_data
     FROM
-        {{ ref('silver__transactions') }}
+        {{ ref('core__fact_transactions') }}
     WHERE
         block_timestamp :: DATE >= '2023-08-17'
         AND tx_hash IN (
@@ -1863,13 +1895,13 @@ tx_data AS (
         )
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
 nft_transfer_operator AS (
@@ -1903,13 +1935,13 @@ nft_transfer_operator AS (
         )
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 ),
 final_seaport AS (

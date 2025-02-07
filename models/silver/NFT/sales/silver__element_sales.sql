@@ -66,8 +66,8 @@ raw AS (
         ) AS intra_grouping_seller_fill,
         block_timestamp,
         block_number,
-        _log_id,
-        _inserted_timestamp
+        CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('core__ez_decoded_event_logs') }}
     WHERE
@@ -131,9 +131,10 @@ old_token_transfers AS (
             WHEN net_sale_amount_raw = 0
             AND platform_amount_raw = 0 THEN raw_amount
             ELSE 0
-        END AS creator_amount_raw
+        END AS creator_amount_raw,
+        modified_timestamp AS _inserted_timestamp
     FROM
-        {{ ref('silver__transfers') }}
+        {{ ref('core__ez_token_transfers') }}
     WHERE
         block_timestamp :: DATE >= (
             SELECT
@@ -546,7 +547,7 @@ tx_data AS (
         tx_fee,
         input_data
     FROM
-        {{ ref('silver__transactions') }}
+        {{ ref('core__fact_transactions') }}
     WHERE
         block_timestamp :: DATE >= (
             SELECT
@@ -562,13 +563,13 @@ tx_data AS (
         )
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT

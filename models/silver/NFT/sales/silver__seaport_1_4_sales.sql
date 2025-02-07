@@ -1642,7 +1642,7 @@ mao_orderhash AS (
                 tx_fee,
                 input_data
             FROM
-                {{ ref('silver__transactions') }}
+                {{ ref('core__fact_transactions') }}
             WHERE
                 block_timestamp :: DATE >= '2023-02-01'
                 AND tx_hash IN (
