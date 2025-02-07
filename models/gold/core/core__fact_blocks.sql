@@ -52,8 +52,6 @@ SELECT
         sha3_uncles,
         'size',
         SIZE,
-        'stateRoot',
-        state_root,
         'timestamp',
         block_timestamp,
         'totalDifficulty',

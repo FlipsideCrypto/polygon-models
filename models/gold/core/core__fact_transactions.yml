@@ -1,49 +1,49 @@
 version: 2
 models:
   - name: core__fact_transactions
-    description: '{{ doc("poly_tx_table_doc") }}'   
+    description: '{{ doc("evm_tx_table_doc") }}'   
 
     columns:
       - name: BLOCK_NUMBER
-        description: '{{ doc("poly_block_number") }}'   
+        description: '{{ doc("evm_block_number") }}'   
       - name: BLOCK_TIMESTAMP
-        description: '{{ doc("poly_block_timestamp") }}'
+        description: '{{ doc("evm_block_timestamp") }}'
       - name: BLOCK_HASH
-        description: '{{ doc("poly_tx_block_hash") }}' 
+        description: '{{ doc("evm_column_deprecation_notice_block_hash") }}'
       - name: TX_HASH
-        description: '{{ doc("poly_tx_hash") }}' 
+        description: '{{ doc("evm_tx_hash") }}' 
       - name: NONCE
-        description: '{{ doc("poly_tx_nonce") }}' 
+        description: '{{ doc("evm_tx_nonce") }}' 
       - name: POSITION
-        description: '{{ doc("poly_tx_position") }}' 
+        description: '{{ doc("evm_tx_position") }}' 
       - name: FROM_ADDRESS
-        description: '{{ doc("poly_from_address") }}' 
+        description: '{{ doc("evm_from_address") }}' 
       - name: TO_ADDRESS
-        description: '{{ doc("poly_to_address") }}' 
+        description: '{{ doc("evm_to_address") }}' 
       - name: VALUE
-        description: '{{ doc("poly_value") }}' 
+        description: '{{ doc("evm_value") }}' 
       - name: VALUE_PRECISE_RAW
         description: '{{ doc("precise_amount_unadjusted") }}'
       - name: VALUE_PRECISE
         description: '{{ doc("precise_amount_adjusted") }}'
       - name: TX_FEE
-        description: '{{ doc("poly_tx_fee") }}'
+        description: '{{ doc("evm_tx_fee") }}'
       - name: TX_FEE_PRECISE
         description: '{{ doc("tx_fee_precise") }}' 
       - name: GAS_PRICE
-        description: '{{ doc("poly_tx_gas_price") }}' 
+        description: '{{ doc("evm_tx_gas_price") }}' 
       - name: GAS_LIMIT
-        description: '{{ doc("poly_tx_gas_limit") }}' 
+        description: '{{ doc("evm_tx_gas_limit") }}' 
       - name: GAS_USED
-        description: '{{ doc("poly_tx_gas_used") }}'
+        description: '{{ doc("evm_tx_gas_used") }}'
       - name: CUMULATIVE_GAS_USED
-        description: '{{ doc("poly_cumulative_gas_used") }}' 
+        description: '{{ doc("evm_cumulative_gas_used") }}' 
       - name: STATUS
-        description: '{{ doc("poly_tx_status") }}' 
+        description: '{{ doc("evm_tx_status") }}' 
       - name: INPUT_DATA
-        description: '{{ doc("poly_tx_input_data") }}'
+        description: '{{ doc("evm_tx_input_data") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE 
-        description: '{{ doc("poly_tx_origin_sig") }}'
+        description: '{{ doc("evm_tx_origin_sig") }}'
       - name: EFFECTIVE_GAS_PRICE
         description: The effective gas price of the transaction, in wei.
       - name: MAX_FEE_PER_GAS
@@ -51,7 +51,7 @@ models:
       - name: MAX_PRIORITY_FEE_PER_GAS
         description: The maximum priority fee per gas of the transaction, in wei.
       - name: CHAIN_ID
-        description: The chain ID of the transaction.
+        description: '{{ doc("evm_column_deprecation_notice_chain_id") }}'
       - name: TX_TYPE
         description: The type of the transaction, 2 for EIP-1559 transactions and 0 for legacy transactions.
       - name: r

@@ -51,12 +51,22 @@ models:
         description: '{{ doc("poly_origin_to") }}'
       - name: TOPICS
         description: '{{ doc("poly_topics") }}'
+      - name: TOPIC_0
+        description: '{{ doc("evm_topic_0") }}'
+      - name: TOPIC_1
+        description: '{{ doc("evm_topic_1") }}'
+      - name: TOPIC_2
+        description: '{{ doc("evm_topic_2") }}'
+      - name: TOPIC_3
+        description: '{{ doc("evm_topic_3") }}'
       - name: DATA
         description: '{{ doc("poly_logs_data") }}'
       - name: EVENT_REMOVED
         description: '{{ doc("poly_event_removed") }}' 
-      - name: TX_STATUS
+      - name: TX_SUCCEEDED
         description: '{{ doc("poly_tx_status") }}' 
+      - name: TX_STATUS
+        description: '{{ doc("evm_column_deprecation_notice_tx_status") }}' 
       - name: EZ_DECODED_EVENT_LOGS_ID
         description: '{{ doc("pk") }}'   
       - name: INSERTED_TIMESTAMP
