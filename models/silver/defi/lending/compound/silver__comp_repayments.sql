@@ -56,13 +56,13 @@ repayments AS (
         ) AS _log_id,
         modified_timestamp AS _inserted_timestamp
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('core__fact_event_logs') }}
         l
         LEFT JOIN comp_assets C
         ON contract_address = C.compound_market_address
     WHERE
         topics [0] = '0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e' --Supply
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded
         AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
 
 {% if is_incremental() %}

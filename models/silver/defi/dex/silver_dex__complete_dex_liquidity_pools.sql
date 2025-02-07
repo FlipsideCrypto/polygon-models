@@ -104,7 +104,7 @@ curve AS (
     ) AS token7,
     'curve' AS platform,
     'v1' AS version,
-    _call_id AS _id,
+    _call_id,
     _inserted_timestamp
   FROM
     {{ ref('silver_dex__curve_pools') }}

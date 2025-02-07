@@ -32,13 +32,14 @@ WITH base_swaps AS (
         utils.udf_hex_to_int(
             's2c',
             segmented_data [4] :: STRING
-        ) :: FLOAT AS tick
+        ) :: FLOAT AS tick,
+        modified_timestamp AS _inserted_timestamp
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('core__fact_event_logs') }}
     WHERE
         block_timestamp :: DATE > '2022-08-01'
         AND topics [0] :: STRING = '0xc42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67'
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded
         AND event_removed = 'false'
 
 {% if is_incremental() %}

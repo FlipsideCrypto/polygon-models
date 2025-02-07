@@ -11,7 +11,7 @@
 WITH logs AS (
 
     SELECT
-        _log_id,
+        CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id,
         block_number,
         tx_hash,
         block_timestamp,
@@ -26,7 +26,7 @@ WITH logs AS (
         event_index,
         _inserted_timestamp
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('core__fact_event_logs') }}
     WHERE
         topics [0] :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
         AND tx_status = 'SUCCESS'

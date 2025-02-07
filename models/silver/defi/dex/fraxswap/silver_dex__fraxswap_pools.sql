@@ -27,7 +27,7 @@ WITH pool_creation AS (
         ) AS _log_id,
         modified_timestamp AS _inserted_timestamp
     FROM
-        {{ ref ('silver__logs') }}
+        {{ ref('core__fact_event_logs') }}
     WHERE
         contract_address IN (
             '0xc2544a32872a91f4a553b404c6950e89de901fdb',
@@ -35,7 +35,7 @@ WITH pool_creation AS (
             '0x54f454d747e037da288db568d4121117eab34e79' --v2 factory
         )
         AND topics [0] :: STRING = '0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9' --pairCreated
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (

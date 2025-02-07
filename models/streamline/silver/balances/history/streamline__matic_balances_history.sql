@@ -24,7 +24,7 @@ traces AS (
     WHERE
         VALUE > 0
         AND trace_status = 'SUCCESS'
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded
         AND block_number < (
             SELECT
                 block_number

@@ -29,7 +29,7 @@ WITH base_contracts AS (
     WHERE
         from_address = LOWER('0x808d7c71ad2ba3FA531b068a2417C63106BC0949')
         AND TYPE ILIKE 'create%'
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded
         AND trace_status = 'SUCCESS'
 
 {% if is_incremental() %}

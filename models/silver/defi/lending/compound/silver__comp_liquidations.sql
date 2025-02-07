@@ -54,13 +54,13 @@ liquidations AS (
         ) AS _log_id,
         l.modified_timestamp AS _inserted_timestamp
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('core__fact_event_logs') }}
         l
         LEFT JOIN {{ ref('silver__contracts') }} C
         ON asset = C.contract_address
     WHERE
         topics [0] = '0x9850ab1af75177e4a9201c65a2cf7976d5d28e40ef63494b44366f86b2f9412e' --AbsorbCollateral
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded
         AND l.contract_address IN (
             SELECT
                 DISTINCT(compound_market_address)
@@ -69,13 +69,13 @@ liquidations AS (
         )
 
 {% if is_incremental() %}
-AND l._inserted_timestamp >= (
+AND l.modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND l._inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT

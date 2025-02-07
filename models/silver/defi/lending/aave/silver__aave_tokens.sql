@@ -12,9 +12,26 @@ WITH contracts AS (
 ),
 logs AS (
     SELECT
-        *
+        block_number,
+        block_timestamp,
+        tx_hash,
+        event_index,
+        contract_address,
+        topics,
+        topic_0, --new column
+        topic_1, --new column
+        topic_2, --new column
+        topic_3, --new column
+        DATA,
+        event_removed,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        fact_event_logs_id,
+        CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id,
+        modified_timestamp as _inserted_timestamp,
     FROM
-        {{ ref('silver__logs') }}
+        {{ ref('core__fact_event_logs') }}
     WHERE
         block_number > 11182261
         AND origin_function_signature IN (
@@ -24,7 +41,7 @@ logs AS (
             '0x02fb45e6',
             '0x7bbaf1ea'
         )
-        AND tx_status = 'SUCCESS'
+        AND tx_succeeded
         AND topics [0] IN (
             '0xb19e051f8af41150ccccb3fc2c2d8d15f4a4cf434f32a559ba75fe73d6eea20b',
             '0x3a0ca721fc364424566385a1aa271ed508cc2c0949c2272575fb3013a163a45f'
