@@ -47,8 +47,12 @@ swaps_base AS (
             1,
             42
         ) AS pool_address,
-        _log_id,
-        _inserted_timestamp,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        modified_timestamp AS _inserted_timestamp,
         'balancer' AS platform,
         origin_from_address AS sender,
         origin_from_address AS tx_to

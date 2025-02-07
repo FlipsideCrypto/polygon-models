@@ -120,8 +120,12 @@ dst_info AS (
         tx_hash,
         topics [1] :: STRING AS encoded_data,
         SUBSTR(RIGHT(encoded_data, 12), 1, 4) AS destination_chain_id,
-        _log_id,
-        _inserted_timestamp
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver__logs') }}
     WHERE

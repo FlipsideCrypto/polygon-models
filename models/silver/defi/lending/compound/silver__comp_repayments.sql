@@ -49,8 +49,12 @@ repayments AS (
         C.underlying_asset_address AS underlying_asset,
         C.underlying_asset_symbol,
         'polygon' AS blockchain,
-        _log_id,
-        l._inserted_timestamp
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver__logs') }}
         l

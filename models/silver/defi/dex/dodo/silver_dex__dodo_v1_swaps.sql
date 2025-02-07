@@ -49,8 +49,12 @@ sell_base_token AS (
         base_token AS tokenOut,
         receiveQuote AS amountIn,
         payBase AS amountOut,
-        l._log_id,
-        l._inserted_timestamp
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver__logs') }}
         l
@@ -104,8 +108,12 @@ buy_base_token AS (
         base_token AS tokenOut,
         payQuote AS amountIn,
         receiveBase AS amountOut,
-        l._log_id,
-        l._inserted_timestamp
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver__logs') }}
         l

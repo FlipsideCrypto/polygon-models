@@ -20,8 +20,12 @@ WITH pools_registered AS (
             1,
             42
         ) AS pool_address,
-        _log_id,
-        _inserted_timestamp,
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        modified_timestamp AS _inserted_timestamp,
         ROW_NUMBER() over (
             ORDER BY
                 pool_address
@@ -61,8 +65,12 @@ tokens_registered AS (
         tokens [6] :: STRING AS token6,
         tokens [7] :: STRING AS token7,
         decoded_flat :assetManagers AS asset_managers,
-        _log_id,
-        _inserted_timestamp
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver__decoded_logs') }}
     WHERE

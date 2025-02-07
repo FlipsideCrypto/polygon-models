@@ -45,8 +45,12 @@ supply AS (
         C.token_symbol,
         C.token_decimals,
         'polygon' AS blockchain,
-        _log_id,
-        l._inserted_timestamp
+        CONCAT(
+            tx_hash :: STRING,
+            '-',
+            event_index :: STRING
+        ) AS _log_id,
+        l.modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('silver__logs') }}
         l
