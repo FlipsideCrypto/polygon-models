@@ -10,7 +10,7 @@
 WITH base AS (
 
     SELECT
-        _log_id,
+        CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id,
         block_number,
         tx_hash,
         block_timestamp,
@@ -19,7 +19,7 @@ WITH base AS (
         topics,
         DATA,
         regexp_substr_all(SUBSTR(DATA, 3, len(DATA)), '.{64}') AS segmented_data,
-        TO_TIMESTAMP_NTZ(_inserted_timestamp) AS _inserted_timestamp
+        TO_TIMESTAMP_NTZ(modified_timestamp) AS _inserted_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
     WHERE

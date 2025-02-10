@@ -28,8 +28,8 @@ SELECT
         )
     ) AS id,
     CONCAT('0x', SUBSTR(topic_2, 27, 40)) AS multisig_address,
-    _log_id,
-    _inserted_timestamp,
+    CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id,
+    modified_timestamp AS _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['tx_hash','event_index']
     ) }} AS create_service_multisigs_id,

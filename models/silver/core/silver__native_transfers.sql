@@ -27,11 +27,11 @@ WITH matic_base AS (
                 trace_address
             )
         ) AS _call_id,
-        modified_timestamp AS _inserted_timestamp,
         value_precise_raw AS matic_value_precise_raw,
         value_precise AS matic_value_precise,
         tx_position,
-        trace_index
+        trace_index,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('core__fact_traces') }}
     WHERE
@@ -70,7 +70,7 @@ tx_table AS (
         )
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '72 hours'
     FROM
@@ -95,8 +95,8 @@ SELECT
         matic_value * price,
         2
     ) AS amount_usd,
-    _call_id,
-    _inserted_timestamp,
+    a._call_id,
+    a._inserted_timestamp,
     tx_position,
     trace_index,
     {{ dbt_utils.generate_surrogate_key(

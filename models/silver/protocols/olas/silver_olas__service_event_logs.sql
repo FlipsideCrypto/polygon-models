@@ -31,8 +31,8 @@ SELECT
     d.topics [3] :: STRING AS topic_3,
     d.data,
     regexp_substr_all(SUBSTR(d.data, 3, len(d.data)), '.{64}') AS segmented_data,
-    d._log_id,
-    d._inserted_timestamp,
+    CONCAT(d.tx_hash :: STRING, '-', d.event_index :: STRING) AS _log_id,
+    d.modified_timestamp AS _inserted_timestamp,
     {{ dbt_utils.generate_surrogate_key(
         ['d.tx_hash','d.event_index']
     ) }} AS service_event_logs_id,
@@ -48,7 +48,7 @@ WHERE
     d.tx_succeeded
 
 {% if is_incremental() %}
-AND d._inserted_timestamp >= (
+AND _inserted_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
