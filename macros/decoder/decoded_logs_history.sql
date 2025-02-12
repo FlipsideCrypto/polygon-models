@@ -42,7 +42,7 @@
               {% endif %}
           ),
           existing_logs_to_exclude AS (
-              SELECT _log_id
+              SELECT CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id
               FROM {{ ref('streamline__decoded_logs_complete') }} l
               INNER JOIN target_blocks b using (block_number)
           ),

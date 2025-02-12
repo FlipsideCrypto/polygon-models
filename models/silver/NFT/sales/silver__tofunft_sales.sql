@@ -15,18 +15,18 @@ WITH logs_raw AS (
         event_index,
         event_name,
         contract_address,
-        decoded_flat,
-        decoded_flat :inventory :kind :: INT AS kind,
-        decoded_flat :inventory :status :: INT AS status,
-        decoded_flat :inventory :buyer :: STRING AS buyer_address,
-        decoded_flat :inventory :seller :: STRING AS seller_address,
-        decoded_flat :inventory :currency :: STRING AS currency_address,
-        decoded_flat :inventory :netPrice :: INT AS net_price_raw,
-        decoded_flat :inventory :price :: INT AS price_raw,
-        _log_id,
-        _inserted_timestamp
+        decoded_log,
+        decoded_log :inventory :kind :: INT AS kind,
+        decoded_log :inventory :status :: INT AS status,
+        decoded_log :inventory :buyer :: STRING AS buyer_address,
+        decoded_log :inventory :seller :: STRING AS seller_address,
+        decoded_log :inventory :currency :: STRING AS currency_address,
+        decoded_log :inventory :netPrice :: INT AS net_price_raw,
+        decoded_log :inventory :price :: INT AS price_raw,
+        CONCAT(tx_hash :: STRING, '-', event_index :: STRING) AS _log_id,
+        modified_timestamp AS _inserted_timestamp
     FROM
-        {{ ref('silver__decoded_logs') }}
+        {{ ref('core__ez_decoded_event_logs') }}
     WHERE
         contract_address = '0x7bc8b1b5aba4df3be9f9a32dae501214dc0e4f3f'
         AND block_timestamp :: DATE >= '2021-10-01'
@@ -40,6 +40,7 @@ AND _inserted_timestamp >= (
         {{ this }}
 )
 AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+
 {% endif %}
 ),
 logs_raw_rn AS (
@@ -156,7 +157,7 @@ traces_raw AS (
             input,
             10
         ) = '0xba847759'
-        AND trace_status = 'SUCCESS'
+        AND trace_succeeded
 
 {% if is_incremental() %}
 AND modified_timestamp >= (
@@ -301,13 +302,13 @@ nft_details AS (
         )
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 
 qualify ROW_NUMBER() over (
@@ -325,7 +326,7 @@ tx_data AS (
         tx_fee,
         input_data
     FROM
-        {{ ref('silver__transactions') }}
+        {{ ref('core__fact_transactions') }}
     WHERE
         block_timestamp :: DATE >= '2021-10-01'
         AND tx_hash IN (
@@ -336,13 +337,13 @@ tx_data AS (
         )
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT

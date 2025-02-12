@@ -13,10 +13,10 @@ WITH matic_base AS (
         tx_hash,
         block_number,
         block_timestamp,
-        identifier,
+        CONCAT(TYPE, '_', trace_address) AS identifier,
         from_address,
         to_address,
-        VALUE AS matic_value,
+        VALUE,
         concat_ws(
             '-',
             block_number,
@@ -27,17 +27,17 @@ WITH matic_base AS (
                 trace_address
             )
         ) AS _call_id,
-        modified_timestamp AS _inserted_timestamp,
-        value_precise_raw AS matic_value_precise_raw,
-        value_precise AS matic_value_precise,
+        value_precise_raw,
+        value_precise,
         tx_position,
-        trace_index
+        trace_index,
+        modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('core__fact_traces') }}
     WHERE
-        matic_value > 0
-        AND tx_status = 'SUCCESS'
-        AND trace_status = 'SUCCESS'
+        value > 0
+        AND trace_succeeded
+        AND tx_succeeded
         AND TYPE NOT IN (
             'DELEGATECALL',
             'STATICCALL'
@@ -60,7 +60,7 @@ tx_table AS (
         to_address AS origin_to_address,
         origin_function_signature
     FROM
-        {{ ref('silver__transactions') }}
+        {{ ref('core__fact_transactions') }}
     WHERE
         tx_hash IN (
             SELECT
@@ -70,7 +70,7 @@ tx_table AS (
         )
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '72 hours'
     FROM
@@ -88,15 +88,15 @@ SELECT
     origin_function_signature,
     from_address,
     to_address,
-    matic_value AS amount,
-    matic_value_precise_raw AS amount_precise_raw,
-    matic_value_precise AS amount_precise,
+    value AS amount,
+    value_precise_raw AS amount_precise_raw,
+    value_precise AS amount_precise,
     ROUND(
-        matic_value * price,
+        value * price,
         2
     ) AS amount_usd,
-    _call_id,
-    _inserted_timestamp,
+    a._call_id,
+    a._inserted_timestamp,
     tx_position,
     trace_index,
     {{ dbt_utils.generate_surrogate_key(
