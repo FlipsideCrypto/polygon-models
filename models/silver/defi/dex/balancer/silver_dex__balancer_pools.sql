@@ -85,7 +85,7 @@ tokens_registered AS (
         AND tx_succeeded
 
 {% if is_incremental() %}
-AND block_timestamp >= SYSDATE() - INTERVAL '7 day'
+
 {% endif %}
 ),
 function_sigs AS (
