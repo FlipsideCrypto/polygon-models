@@ -34,7 +34,7 @@ WITH contract_deployments AS (
         )
         AND TYPE ILIKE 'create%'
         AND tx_succeeded
-        AND trace_status = 'SUCCESS'
+        AND trace_succeeded
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (

@@ -186,8 +186,8 @@ old_native_transfers AS (
         trace_index,
         from_address,
         to_address,
-        VALUE AS matic_value,
-        matic_value * pow(
+        VALUE,
+        value * pow(
             10,
             18
         ) AS amount_raw,
@@ -247,9 +247,9 @@ old_native_transfers AS (
                 currency_address_raw = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
         )
         AND TYPE = 'CALL'
-        AND matic_value > 0
+        AND value > 0
+        AND trace_succeeded
         AND tx_succeeded
-        AND trace_status = 'SUCCESS'
 
 {% if is_incremental() %}
 AND modified_timestamp >= (

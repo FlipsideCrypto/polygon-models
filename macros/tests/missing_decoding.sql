@@ -8,7 +8,11 @@ FROM
     LEFT JOIN {{ model }}
     d
     ON l.block_number = d.block_number
-    AND l._log_id = d._log_id
+    AND CONCAT(
+        l.tx_hash,
+        '-',
+        l.event_index
+    ) = d._log_id
 WHERE
     l.contract_address = LOWER('0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270') -- WMATIC
     AND l.topics [0] :: STRING = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' -- Transfer
