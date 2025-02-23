@@ -4,13 +4,11 @@ This table contains NFT sales on this EVM blockchain. More NFT marketplaces will
 
 {% enddocs %}
 
-
 {% docs evm_ez_nft_sales_table_doc %}
 
 This table contains NFT sale events from various marketplaces.
 
 {% enddocs %}
-
 
 {% docs evm_ez_nft_mint_table_doc %}
 
@@ -573,5 +571,35 @@ The url of the image for this tokenId.
 {% docs evm_nft_address_tokenid %}
 
 The concatenation of NFT address and tokenId.
+
+{% enddocs %}
+
+{% docs evm_nft_token_standard %}
+
+The standard of the token, either erc721 or erc1155.
+
+{% enddocs %}
+
+{% docs evm_nft_is_mint %}
+
+Whether the transaction is a mint.
+
+{% enddocs %}
+
+{% docs evm_nft_quantity %}
+
+The quantity of the NFTs minted in the transaction.
+
+{% enddocs %}
+
+{% docs nft_nft_from_address %}
+
+The address of the nft sender for this event.
+
+{% enddocs %}
+
+{% docs nft_nft_to_address %}
+
+The address of the nft receiver for this event.
 
 {% enddocs %}
