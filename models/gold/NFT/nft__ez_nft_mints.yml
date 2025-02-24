@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: nft__ez_nft_mints
-    description: This table contains NFT mint events on the Polygon blockchain.
+    description: We will be deprecating this table by March 10. Please use the ez_nft_transfers table together with the is_mint column to filter for nft mints.
     columns:
       - name: BLOCK_NUMBER
         description: '{{ doc("nft_block_no") }}'
