@@ -26,7 +26,7 @@ FROM
 {% endif %}
 order by total_interaction_count desc
 LIMIT
-    400
+    100
 ), all_contracts AS (
     SELECT
         contract_address
@@ -48,7 +48,7 @@ row_nos AS (
     FROM
         all_contracts
 ),
-batched AS ({% for item in range(501) %}
+batched AS ({% for item in range(151) %}
 SELECT
     rn.contract_address,
     live.udf_api(
