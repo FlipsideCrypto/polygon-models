@@ -79,18 +79,18 @@ inputs AS (
                     [{ 'to': contract_address, 'from': null, 'data': data }, utils.udf_int_to_hex(block_number) ]
                 ) AS rpc_request,
                 live.udf_api(
-                    node_url,
-                    rpc_request
+                    'POST',
+                    CONCAT(
+                        '{Service}',
+                        '/',
+                        '{Authentication}'
+                    ),{},
+                    rpc_request,
+                    'Vault/prod/polygon/quicknode/mainnet'
                 ) AS read_output,
                 SYSDATE() AS _inserted_timestamp
             FROM
                 inputs
-                JOIN {{ source(
-                    'streamline_crosschain',
-                    'node_mapping'
-                ) }}
-                ON 1 = 1
-                AND chain = 'polygon'
         ),
         reads_flat AS (
             SELECT
