@@ -17,6 +17,8 @@ test-paths: ["tests"]
 seed-paths: ["data"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
+docs-paths:
+  ["dbt_packages/fsc_evm/doc_descriptions", "models/doc_descriptions", "models"]
 
 target-path: "target" # directory which will store compiled SQL files
 clean-targets: # directories to be removed by `dbt clean`
@@ -24,20 +26,12 @@ clean-targets: # directories to be removed by `dbt clean`
   - "dbt_modules"
   - "dbt_packages"
 
-models:
-  +copy_grants: true
-  +persist_docs:
-    relation: true
-    columns: true
-  +on_schema_change: "append_new_columns"
-
 tests:
   +store_failures: true # all tests
 
 on-run-start:
   - "{{ create_sps() }}"
   - "{{ create_udfs() }}"
-  - "{{ create_tasks() }}"
 
 on-run-end:
   - '{{ apply_meta_as_tags(results) }}'
@@ -56,25 +50,74 @@ query-comment:
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
+models:
+  polygon_models: # replace with the name of the chain
+    +copy_grants: true
+    +persist_docs:
+      relation: true
+      columns: true
+    +on_schema_change: "append_new_columns"
+  livequery_models:
+    +materialized: ephemeral
+  fsc_evm:
+    +enabled: false # disable fsc_evm package by default
+    +copy_grants: true
+    +persist_docs:
+      relation: true
+      columns: true
+    +on_schema_change: "append_new_columns"
+    main_package:
+      +enabled: false # disable top level package by default, enabled subpackages as needed
+      admin:
+        +enabled: true
+      core:
+        +enabled: true # enable subpackages, as needed
+        bronze:
+          +enabled: false
+          token_reads:
+            +enabled: true
+      github_actions:
+        +enabled: true
+      labels:
+        +enabled: true
+      observability:
+        +enabled: true
+      prices:
+        +enabled: true
+      utils:
+        +enabled: true
+    decoder_package:
+      +enabled: false
+      abis:
+        +enabled: true
+      decoded_logs:
+        +enabled: false
+        gold:
+          +enabled: true
+        silver:
+          +enabled: true
+        streamline:
+          +enabled: true
+    curated_package:
+      +enabled: false
+      stats:
+        +enabled: true
+    scores_package:
+      +enabled: false
+
 # In this example config, we tell dbt to build all models in the example/ directory
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 
 vars:
-  STREAMLINE_INVOKE_STREAMS: False
   "dbt_date:time_zone": GMT
+  STREAMLINE_INVOKE_STREAMS: False
   UPDATE_UDFS_AND_SPS: False
+  STREAMLINE_USE_DEV_FOR_EXTERNAL_TABLES: False
   UPDATE_SNOWFLAKE_TAGS: True
-  WAIT: 0
-  OBSERV_FULL_TEST: False
-  OVERFLOWED_RECEIPTS: False
-  OVERFLOWED_TRACES: False
-  BALANCES_START: 0
-  BALANCES_END: 15000000
   HEAL_MODEL: False
   HEAL_MODELS: []
   DROP_UDFS_AND_SPS: False
-  START_GHA_TASKS: False
   STUDIO_TEST_USER_ID: '{{ env_var("STUDIO_TEST_USER_ID", "98d15c30-9fa5-43cd-9c69-3d4c0bb269f5") }}'
 
 #### STREAMLINE 2.0 BEGIN ####
@@ -101,44 +144,3 @@ vars:
         - DBT_CLOUD_POLYGON
 
 #### STREAMLINE 2.0 END ####
-
-#### FSC_EVM BEGIN ####
-# Visit https://github.com/FlipsideCrypto/fsc-evm/wiki for more information on required and optional variables
-
-  ### GLOBAL VARIABLES BEGIN ###
-  ## REQUIRED
-  GLOBAL_PROD_DB_NAME: 'polygon' 
-  GLOBAL_NODE_SECRET_PATH: 'Vault/prod/polygon/quicknode/mainnet'
-  GLOBAL_BLOCKS_PER_HOUR: 1700 
-  GLOBAL_USES_STREAMLINE_V1: True
-  GLOBAL_USES_SINGLE_FLIGHT_METHOD: True
-  GLOBAL_CHAINHEAD_DELAY: 10
-
-  ### GLOBAL VARIABLES END ###
-
-  ### MAIN_PACKAGE VARIABLES BEGIN ###
-
-  ### CORE ###
-  ## REQUIRED
-
-  ## OPTIONAL
-  # GOLD_FULL_REFRESH: True
-  # SILVER_FULL_REFRESH: True
-
-  # BLOCKS_COMPLETE_FULL_REFRESH: True
-  # CONFIRM_BLOCKS_COMPLETE_FULL_REFRESH: True
-  # TRACES_COMPLETE_FULL_REFRESH: True
-  # RECEIPTS_COMPLETE_FULL_REFRESH: True
-  # TRANSACTIONS_COMPLETE_FULL_REFRESH: True
-
-  ### MAIN_PACKAGE VARIABLES END ###
-
-  ### DECODER_PACKAGE VARIABLES BEGIN ###
-
-  ## REQUIRED
-
-  ## OPTIONAL
-
-  ### DECODER_PACKAGE VARIABLES END ###
-
-#### FSC_EVM END ####
