@@ -4,11 +4,11 @@
 {# Set up dbt configuration #}
 {{ config (
     materialized = 'view',
-    tags = ['bronze','decoded_logs','phase_2']
+    tags = ['bronze','core','confirm_blocks','phase_1']
 ) }}
 
 {# Main query starts here #}
-{{ fsc_evm.streamline_external_table_query_decoder(
-    source_name = 'decoded_logs',
+{{ fsc_evm.streamline_external_table_query_fr(
+    source_name = 'confirm_blocks',
     source_version = 'v2'
 ) }}
