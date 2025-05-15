@@ -10,7 +10,7 @@ polygon:
       region: "{{ env_var('REGION') }}"
       database: "{{ env_var('DATABASE') }}"
       warehouse: "{{ env_var('WAREHOUSE') }}"
-      schema: "{{ env_var('SCHEMA') }}"
+      schema: SILVER
       threads: 4
       client_session_keep_alive: False
       query_tag: polygon_curator
@@ -23,7 +23,7 @@ polygon:
       region: "{{ env_var('REGION') }}"
       database: "{{ env_var('DATABASE') }}"
       warehouse: "{{ env_var('WAREHOUSE') }}"
-      schema: "{{ env_var('SCHEMA') }}"
+      schema: SILVER
       threads: 4
       client_session_keep_alive: False
       query_tag: polygon_curator
