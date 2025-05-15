@@ -82,7 +82,7 @@
     {% else %}
         {{ log('Setting tag value for '+tag_name+' to value '+desired_tag_value, info=False) }}
         {%- call statement('main', fetch_result=True) -%}
-            alter table {{model_schema}}.{{table_name}} set tag {{tag_name}} = '{{desired_tag_value}}'
+            alter table {{model_schema}}.{{table_name}} set tag {{target.database}}.silver.{{tag_name}} = '{{desired_tag_value}}'
         {%- endcall -%}
         {{ log(load_result('main').data, info=False) }}
     {% endif %}
@@ -98,7 +98,7 @@
     {% else %}
         {{ log('Setting tag value for '+tag_name+' to value '+desired_tag_value, info=False) }}
         {%- call statement('main', fetch_result=True) -%}
-            alter table {{table_name}} modify column {{column_name}} set tag {{tag_name}} = '{{desired_tag_value}}'
+            alter table {{table_name}} modify column {{column_name}} set tag {{target.database}}.silver.{{tag_name}} = '{{desired_tag_value}}'
         {%- endcall -%}
         {{ log(load_result('main').data, info=False) }}
     {% endif %}
