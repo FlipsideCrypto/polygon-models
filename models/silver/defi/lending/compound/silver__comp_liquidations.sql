@@ -46,7 +46,7 @@ liquidations AS (
         C.token_name,
         C.token_symbol,
         C.token_decimals,
-        'polygon' AS blockchain,
+        'base' AS blockchain,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -60,13 +60,13 @@ liquidations AS (
         ON asset = C.contract_address
     WHERE
         topics [0] = '0x9850ab1af75177e4a9201c65a2cf7976d5d28e40ef63494b44366f86b2f9412e' --AbsorbCollateral
-        AND tx_succeeded
         AND l.contract_address IN (
             SELECT
                 DISTINCT(compound_market_address)
             FROM
                 comp_assets
         )
+        AND tx_succeeded
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
