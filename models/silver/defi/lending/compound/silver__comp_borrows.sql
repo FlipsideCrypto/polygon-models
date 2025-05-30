@@ -6,8 +6,8 @@
     tags = ['silver','defi','lending','curated']
 ) }}
 
-WITH 
-comp_assets as (
+WITH comp_assets AS (
+
     SELECT
         compound_market_address,
         compound_market_name,
@@ -21,7 +21,6 @@ comp_assets as (
         {{ ref('silver__comp_asset_details') }}
 ),
 borrow AS (
-
     SELECT
         tx_hash,
         block_number,
@@ -45,7 +44,7 @@ borrow AS (
         C.compound_market_decimals AS decimals,
         C.underlying_asset_address,
         C.underlying_asset_symbol,
-        'polygon' AS blockchain,
+        'base' AS blockchain,
         CONCAT(
             tx_hash :: STRING,
             '-',
@@ -59,17 +58,22 @@ borrow AS (
         ON asset = C.compound_market_address
     WHERE
         topics [0] = '0x9b1bfa7fa9ee420a16e124f794c35ac9f90472acc99140eb2f6447c714cad8eb' --withdrawl
+        AND l.contract_address IN (
+            SELECT
+                DISTINCT(compound_market_address)
+            FROM
+                comp_assets
+        )
         AND tx_succeeded
-        AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND l.modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT
