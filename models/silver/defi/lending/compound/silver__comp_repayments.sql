@@ -6,8 +6,8 @@
     tags = ['silver','defi','lending','curated']
 ) }}
 
-WITH 
-comp_assets as (
+WITH comp_assets AS (
+
     SELECT
         compound_market_address,
         compound_market_name,
@@ -21,7 +21,6 @@ comp_assets as (
         {{ ref('silver__comp_asset_details') }}
 ),
 repayments AS (
-
     SELECT
         tx_hash,
         block_number,
@@ -54,7 +53,7 @@ repayments AS (
             '-',
             event_index :: STRING
         ) AS _log_id,
-        modified_timestamp AS _inserted_timestamp
+        l.modified_timestamp AS _inserted_timestamp
     FROM
         {{ ref('core__fact_event_logs') }}
         l
@@ -62,17 +61,22 @@ repayments AS (
         ON contract_address = C.compound_market_address
     WHERE
         topics [0] = '0xd1cf3d156d5f8f0d50f6c122ed609cec09d35c9b9fb3fff6ea0959134dae424e' --Supply
+        AND l.contract_address IN (
+            SELECT
+                DISTINCT(compound_market_address)
+            FROM
+                comp_assets
+        )
         AND tx_succeeded
-        AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
 
 {% if is_incremental() %}
-AND _inserted_timestamp >= (
+AND l.modified_timestamp >= (
     SELECT
         MAX(_inserted_timestamp) - INTERVAL '12 hours'
     FROM
         {{ this }}
 )
-AND _inserted_timestamp >= SYSDATE() - INTERVAL '7 day'
+AND l.modified_timestamp >= SYSDATE() - INTERVAL '7 day'
 {% endif %}
 )
 SELECT

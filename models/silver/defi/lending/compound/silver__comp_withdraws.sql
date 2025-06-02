@@ -6,9 +6,8 @@
     tags = ['silver','defi','lending','curated']
 ) }}
 
+WITH comp_assets AS (
 
-WITH 
-comp_assets as (
     SELECT
         compound_market_address,
         compound_market_name,
@@ -22,7 +21,6 @@ comp_assets as (
         {{ ref('silver__comp_asset_details') }}
 ),
 withdraw AS (
-
     SELECT
         tx_hash,
         block_number,
@@ -57,8 +55,13 @@ withdraw AS (
         ON token_address = C.contract_address
     WHERE
         topics [0] = '0xd6d480d5b3068db003533b170d67561494d72e3bf9fa40a266471351ebba9e16' --WithdrawCollateral
+        AND l.contract_address IN (
+            SELECT
+                DISTINCT(compound_market_address)
+            FROM
+                comp_assets
+        )
         AND tx_succeeded
-        AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
 
 {% if is_incremental() %}
 AND l.modified_timestamp >= (

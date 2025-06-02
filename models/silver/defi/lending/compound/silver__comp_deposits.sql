@@ -6,8 +6,8 @@
     tags = ['silver','defi','lending','curated']
 ) }}
 
-WITH 
-comp_assets as (
+WITH comp_assets AS (
+
     SELECT
         compound_market_address,
         compound_market_name,
@@ -20,9 +20,7 @@ comp_assets as (
     FROM
         {{ ref('silver__comp_asset_details') }}
 ),
-
 supply AS (
-
     SELECT
         tx_hash,
         block_number,
@@ -58,8 +56,14 @@ supply AS (
         ON asset = C.contract_address
     WHERE
         topics [0] = '0xfa56f7b24f17183d81894d3ac2ee654e3c26388d17a28dbd9549b8114304e1f4' --SupplyCollateral
+        AND l.contract_address IN (
+            SELECT
+                DISTINCT(compound_market_address)
+            FROM
+                comp_assets
+        )
         AND tx_succeeded
-        AND l.contract_address IN (SELECT DISTINCT(compound_market_address) FROM comp_assets)
+
 {% if is_incremental() %}
 AND l.modified_timestamp >= (
     SELECT
