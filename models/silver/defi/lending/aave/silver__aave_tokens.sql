@@ -72,6 +72,8 @@ a_token_step_1 AS (
         DECODE
     WHERE
         treasury_address IN ('0xe8599f3cc5d38a9ad6f3684cd5cea72f10dbc383','0x7734280a4337f37fbf4651073db7c28c80b339e9')
+        AND 
+        aave_version_pool IN ('0x794a61358d6845594f94dc1db02a252b5b4814ad','0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf')
 ),
 debt_tokens AS (
     SELECT
@@ -113,11 +115,14 @@ a_token_step_2 AS (
         _inserted_timestamp,
         _log_id,
         CASE
-            WHEN treasury_address = '0x7734280a4337f37fbf4651073db7c28c80b339e9' THEN 'Aave V2'
-            WHEN treasury_address = '0xe8599f3cc5d38a9ad6f3684cd5cea72f10dbc383' THEN 'Aave V3'
+            WHEN aave_version_pool = '0x794a61358d6845594f94dc1db02a252b5b4814ad' THEN 'Aave V3'
+            WHEN aave_version_pool = '0x8dff5e27ea6b7ac08ebfdf9eb090f32ee9a30fcf' THEN 'Aave V2'
+            ELSE NULL
         END AS protocol
     FROM
         a_token_step_1
+    WHERE
+        protocol IS NOT NULL
 )
 SELECT
     A.atoken_created_block,
