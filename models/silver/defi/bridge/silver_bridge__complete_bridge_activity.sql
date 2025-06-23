@@ -118,7 +118,6 @@ WHERE
 {% endif %}
 ),
 allbridge_v2 AS (
-
     SELECT
         block_number,
         block_timestamp,
@@ -227,41 +226,41 @@ WHERE
 {% endif %}
 ),
 ccip AS (
-     SELECT
-         block_number,
-         block_timestamp,
-         origin_from_address,
-         origin_to_address,
-         origin_function_signature,
-         tx_hash,
-         event_index,
-         bridge_address,
-         event_name,
-         platform,
-         'v1' AS version,
-         sender,
-         receiver,
-         destination_chain_receiver,
-         destination_chain_id :: STRING AS destination_chain_id,
-         destination_chain,
-         token_address,
-         NULL AS token_symbol,
-         amount_unadj,
-         _log_id AS _id,
-         modified_timestamp AS _inserted_timestamp
-     FROM
-         {{ ref('silver_bridge__ccip_send_requested') }}
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        platform,
+        'v1' AS version,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        _log_id AS _id,
+        modified_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__ccip_send_requested') }}
 
- {% if is_incremental() and 'ccip' not in var('HEAL_MODELS') %}
- WHERE
-     _inserted_timestamp >= (
-         SELECT
-             MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
-         FROM
-             {{ this }}
-     )
- {% endif %}
- ),
+{% if is_incremental() and 'ccip' not in var('HEAL_MODELS') %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
 dln_debridge AS (
     SELECT
         block_number,
@@ -370,6 +369,42 @@ WHERE
     )
 {% endif %}
 ),
+layerzero_v2 AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        platform,
+        version,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        _log_id AS _id,
+        inserted_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__layerzero_v2') }}
+
+{% if is_incremental() and 'layerzero_v2' not in var('HEAL_MODELS') %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
 meson AS (
     SELECT
         block_number,
@@ -469,6 +504,42 @@ stargate AS (
         {{ ref('silver_bridge__stargate_swap') }}
 
 {% if is_incremental() and 'stargate' not in var('HEAL_MODELS') %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(_inserted_timestamp) - INTERVAL '{{ var("LOOKBACK", "4 hours") }}'
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+stargate_v2 AS (
+    SELECT
+        block_number,
+        block_timestamp,
+        origin_from_address,
+        origin_to_address,
+        origin_function_signature,
+        tx_hash,
+        event_index,
+        bridge_address,
+        event_name,
+        platform,
+        version,
+        sender,
+        receiver,
+        destination_chain_receiver,
+        destination_chain_id :: STRING AS destination_chain_id,
+        destination_chain,
+        token_address,
+        NULL AS token_symbol,
+        amount_unadj,
+        _log_id AS _id,
+        inserted_timestamp AS _inserted_timestamp
+    FROM
+        {{ ref('silver_bridge__stargate_v2') }}
+
+{% if is_incremental() and 'stargate_v2' not in var('HEAL_MODELS') %}
 WHERE
     _inserted_timestamp >= (
         SELECT
@@ -638,7 +709,7 @@ all_protocols AS (
     FROM
         allbridge
     UNION ALL
-    SELECT 
+    SELECT
         *
     FROM
         allbridge_v2
@@ -652,10 +723,10 @@ all_protocols AS (
         *
     FROM
         celer_cbridge
-    UNION ALL 
-    SELECT 
+    UNION ALL
+    SELECT
         *
-    FROM 
+    FROM
         ccip
     UNION ALL
     SELECT
@@ -676,6 +747,11 @@ all_protocols AS (
     SELECT
         *
     FROM
+        layerzero_v2
+    UNION ALL
+    SELECT
+        *
+    FROM
         meson
     UNION ALL
     SELECT
@@ -687,6 +763,11 @@ all_protocols AS (
         *
     FROM
         stargate
+    UNION ALL
+    SELECT
+        *
+    FROM
+        stargate_v2
     UNION ALL
     SELECT
         *
@@ -707,6 +788,11 @@ all_protocols AS (
         *
     FROM
         wormhole
+    UNION ALL
+    SELECT
+        *
+    FROM
+        layerzero_v2
 ),
 complete_bridge_activity AS (
     SELECT
@@ -725,23 +811,35 @@ complete_bridge_activity AS (
         receiver,
         destination_chain_receiver,
         CASE
-            WHEN CONCAT(platform, '-', version) IN (
+            WHEN CONCAT(
+                platform,
+                '-',
+                version
+            ) IN (
                 'stargate-v1',
                 'wormhole-v1',
                 'meson-v1',
                 'allbridge-v2',
-                'chainlink-ccip-v1'
+                'chainlink-ccip-v1',
+                'stargate-v2',
+                'layerzero-v2'
             ) THEN destination_chain_id :: STRING
             WHEN d.chain_id IS NULL THEN destination_chain_id :: STRING
             ELSE d.chain_id :: STRING
         END AS destination_chain_id,
         CASE
-            WHEN CONCAT(platform, '-', version) IN (
+            WHEN CONCAT(
+                platform,
+                '-',
+                version
+            ) IN (
                 'stargate-v1',
                 'wormhole-v1',
                 'meson-v1',
                 'allbridge-v2',
-                'chainlink-ccip-v1'
+                'chainlink-ccip-v1',
+                'stargate-v2',
+                'layerzero-v2'
             ) THEN LOWER(destination_chain)
             WHEN d.chain IS NULL THEN LOWER(destination_chain)
             ELSE LOWER(

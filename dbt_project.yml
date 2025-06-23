@@ -100,6 +100,12 @@ models:
           +enabled: true
     curated_package:
       +enabled: false
+      protocols:
+        +enabled: false
+        layerzero:
+          +enabled: true
+        stargate:
+          +enabled: true
       stats:
         +enabled: true
     scores_package:
