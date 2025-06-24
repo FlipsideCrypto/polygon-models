@@ -27,7 +27,7 @@ SELECT
   amount_in,
   ROUND(
         CASE
-            WHEN token_in <> '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+            WHEN token_in <> '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' or not token_in_is_verified
             AND (
                 amount_out_usd IS NULL
                 OR ABS((amount_in_usd - amount_out_usd) / NULLIF(amount_out_usd, 0)) > 0.75
@@ -41,7 +41,7 @@ SELECT
     amount_out,
     ROUND(
         CASE
-            WHEN token_out <> '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270'
+            WHEN token_out <> '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270' or not token_out_is_verified
             AND (
                 amount_in_usd IS NULL
                 OR ABS((amount_out_usd - amount_in_usd) / NULLIF(amount_in_usd, 0)) > 0.75
@@ -55,8 +55,12 @@ SELECT
   tx_to,
   event_index,
   platform,
+  protocol,
+  version as protocol_version,
   token_in,
+  token_in_is_verified,
   token_out,
+  token_out_is_verified,
   symbol_in,
   symbol_out,
   _log_id,
