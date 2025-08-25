@@ -43,8 +43,6 @@ WITH polymarket_orders AS(
         LOWER('0x4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e'),
         LOWER('0xC5d563A36AE78145C45a50134d48A1215220f80a')
     )
-    AND 
-        origin_function_signature IN ('0xe60f0c05', '0xd2539b37')
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
