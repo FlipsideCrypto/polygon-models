@@ -17,5 +17,5 @@ jobs:
     with:
       command_name: Run Balances History Temp Models
       command: |
-        dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True, "BALANCES_SL_STATE_TRACER_HISTORY_SQL_LIMIT":500000, "BALANCES_SL_STATE_TRACER_HISTORY_PRODUCER_BATCH_SIZE":15000, "BALANCES_SL_STATE_TRACER_HISTORY_WORKER_BATCH_SIZE":1500, "BALANCES_SL_STATE_TRACER_HISTORY_ASYNC_CONCURRENT_REQUESTS":10}' -m "fsc_evm,tag:streamline,tag:balances,tag:complete" "fsc_evm,tag:streamline,tag:balances,tag:history"
+        dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True, "BALANCES_SL_STATE_TRACER_HISTORY_SQL_LIMIT":500000, "BALANCES_SL_STATE_TRACER_HISTORY_PRODUCER_BATCH_SIZE":20000, "BALANCES_SL_STATE_TRACER_HISTORY_WORKER_BATCH_SIZE":1000, "BALANCES_SL_STATE_TRACER_HISTORY_ASYNC_CONCURRENT_REQUESTS":10}' -m "fsc_evm,tag:streamline,tag:balances,tag:complete" "fsc_evm,tag:streamline,tag:balances,tag:history"
     secrets: inherit
