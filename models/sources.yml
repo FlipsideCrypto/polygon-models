@@ -20,6 +20,8 @@ sources:
       - name: decoded_logs_v2
       - name: contract_abis
       - name: token_reads
+      - name: balances_erc20
+      - name: balances_native
       - name: state_tracer
   - name: crosschain_silver
     database: >-
