@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
     branches:
       - "main"
-  schedule:
-    - cron: '26 */4 * * *'
+  # schedule:
+  #   - cron: '26 */4 * * *'
 
 concurrency:
   group: ${{ github.workflow }}
@@ -17,5 +17,5 @@ jobs:
     with:
       command_name: Run Balances History Temp Models
       command: |
-        dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True, "BALANCES_SL_STATE_TRACER_HISTORY_SQL_LIMIT":400000, "BALANCES_SL_STATE_TRACER_HISTORY_PRODUCER_BATCH_SIZE":20000, "BALANCES_SL_STATE_TRACER_HISTORY_WORKER_BATCH_SIZE":500, "BALANCES_SL_STATE_TRACER_HISTORY_ASYNC_CONCURRENT_REQUESTS":50}' -m "fsc_evm,tag:streamline,tag:balances,tag:complete" "fsc_evm,tag:streamline,tag:balances,tag:history"
+        dbt run --vars '{"STREAMLINE_INVOKE_STREAMS":True}' -m "fsc_evm,tag:streamline,tag:balances,tag:complete" "fsc_evm,tag:streamline,tag:balances,tag:records" "fsc_evm,tag:streamline,tag:balances,tag:history"
     secrets: inherit

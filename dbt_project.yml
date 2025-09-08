@@ -110,7 +110,11 @@ models:
         dex:
           +enabled: true
     balances_package:
-      +enabled: true
+      +enabled: false
+      erc20:
+        +enabled: true
+      native:
+        +enabled: true
     scores_package:
       +enabled: true
 
