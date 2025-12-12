@@ -164,6 +164,10 @@ no_tokens AS(
         ON p.asset_id = d.token_2_token_id
 )
 SELECT
+    'polygon' AS blockchain,
+    'polymarket-v1' AS platform,
+    'polymarket' AS protocol,
+    'v1' AS protocol_version,
     block_number,
     block_timestamp,
     origin_from_address,
@@ -205,6 +209,10 @@ SELECT
 FROM    no_tokens
 UNION ALL
 SELECT
+    'polygon' AS blockchain,
+    'polymarket-v1' AS platform,
+    'polymarket' AS protocol,
+    'v1' AS protocol_version,
     block_number,
     block_timestamp,
     origin_from_address,

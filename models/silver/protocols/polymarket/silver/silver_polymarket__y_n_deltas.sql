@@ -195,6 +195,10 @@ final_2 AS (
         ALL
 )
 SELECT
+    'polygon' AS blockchain,
+    'polymarket-v1' AS platform,
+    'polymarket' AS protocol,
+    'v1' AS protocol_version,
     f.six_hour_period,
     f.half_day,
     f.day,
