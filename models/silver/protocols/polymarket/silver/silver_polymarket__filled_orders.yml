@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver__polymarket_filled_orders
+  - name: silver_polymarket__filled_orders
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

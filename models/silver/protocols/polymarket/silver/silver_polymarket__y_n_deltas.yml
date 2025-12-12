@@ -1,0 +1,81 @@
+version: 2
+models:
+  - name: silver_polymarket__y_n_deltas
+    description: This table contains aggregated yes/no token deltas for prediction markets, showing the difference between Yes and No outcomes across multiple time periods (6-hour, half-day, daily, weekly, monthly). It includes event metadata from the dim_markets table.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - SIX_HOUR_PERIOD
+            - QUESTION
+
+    columns:
+      - name: SIX_HOUR_PERIOD
+        description: "The 6-hour time bucket for the aggregation, calculated by rounding down block_timestamp to the nearest 6-hour interval."
+        tests:
+          - not_null
+      - name: HALF_DAY
+        description: "The 12-hour (half-day) time bucket for the aggregation, calculated by rounding down block_timestamp to the nearest 12-hour interval."
+      - name: DAY
+        description: "The daily time bucket for the aggregation, truncated to the start of the day."
+      - name: WEEK
+        description: "The weekly time bucket for the aggregation, truncated to the start of the week."
+      - name: MONTH
+        description: "The monthly time bucket for the aggregation, truncated to the start of the month."
+      - name: QUESTION
+        description: "The human-readable question that defines the market. This question outlines the specific event or scenario that the market is based on."
+        tests:
+          - not_null
+      - name: TOTAL_AMOUNT_USD
+        description: "The total USD value of all orders in the time period."
+      - name: AVG_AMOUNT_USD
+        description: "The average USD value per order in the time period."
+      - name: TOTAL_SHARE_AMOUNT
+        description: "The total number of shares traded in the time period."
+      - name: AVG_SHARE_AMOUNT
+        description: "The average number of shares per order in the time period."
+      - name: TOTAL_PRICE_PER_SHARE
+        description: "The sum of all price_per_share values in the time period."
+      - name: AVG_PRICE_PER_SHARE
+        description: "The average price per share across all orders in the time period."
+      - name: MIN_PRICE_PER_SHARE
+        description: "The minimum price per share in the time period."
+      - name: MAX_PRICE_PER_SHARE
+        description: "The maximum price per share in the time period."
+      - name: YES_AVG_PRICE_PER_SHARE
+        description: "The average price per share for Yes outcome tokens in the time period."
+      - name: YES_AVG_SHARE_AMOUNT
+        description: "The average number of shares for Yes outcome tokens in the time period."
+      - name: YES_SHARE_AMOUNT
+        description: "The total number of shares for Yes outcome tokens in the time period."
+      - name: YES_AMOUNT_USD
+        description: "The total USD value of Yes outcome token orders in the time period."
+      - name: NO_AVG_PRICE_PER_SHARE
+        description: "The average price per share for No outcome tokens in the time period."
+      - name: NO_AVG_SHARE_AMOUNT
+        description: "The average number of shares for No outcome tokens in the time period."
+      - name: NO_SHARE_AMOUNT
+        description: "The total number of shares for No outcome tokens in the time period."
+      - name: NO_AMOUNT_USD
+        description: "The total USD value of No outcome token orders in the time period."
+      - name: SPREAD
+        description: "The difference between Yes and No average price per share, calculated as yes_avg_price_per_share - no_avg_price_per_share."
+      - name: YES_NO_USD_DELTA
+        description: "The difference in USD value between Yes and No outcomes, calculated as yes_amount_usd - no_amount_usd."
+      - name: YES_NO_SHARE_AMOUNT_DELTA
+        description: "The difference in share amounts between Yes and No outcomes, calculated as yes_share_amount - no_share_amount."
+      - name: POLYMARKET_Y_N_UNIQUE_KEY
+        description: "A unique identifier for each row, calculated as SHA2_HEX of the concatenation of six_hour_period and question."
+      - name: EVENT_TITLE
+        description: "The title of the event associated with the market, from the dim_markets table."
+      - name: DESCRIPTION
+        description: "A detailed description of the market, providing context and additional information about the question, from the dim_markets table."
+      - name: CONDITION_ID
+        description: "ID of the specific market, linking it to the event or question it is based on, from the dim_markets table."
+      - name: EVENT_ID
+        description: "The unique identifier for the event, from the dim_markets table."
+      - name: EVENT_SLUG
+        description: "The URL-friendly identifier for the event, from the dim_markets table."
+      - name: INSERTED_TIMESTAMP
+        description: "The timestamp when the record was inserted."
+      - name: MODIFIED_TIMESTAMP
+        description: "The timestamp when the record was last modified."
