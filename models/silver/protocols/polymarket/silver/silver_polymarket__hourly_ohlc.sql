@@ -66,7 +66,7 @@ ohlc_aggregated AS (
         MAX(op.dim_condition_id) AS dim_condition_id,
         MAX(op.event_id) AS event_id,
         MAX(op.event_slug) AS event_slug,
-        {{ dbt_utils.generate_surrogate_key(['op.hour', 'op.question', 'op.outcome', 'op.question_id']) }} AS ez_market_ohlc_id
+        {{ dbt_utils.generate_surrogate_key(['op.hour', 'op.question', 'op.outcome', 'op.question_id']) }} AS polymarket_ohlc_id
     FROM
         ordered_prices op
     GROUP BY
@@ -94,7 +94,7 @@ SELECT
     oa.amount_usd,
     oa.avg_order_size,
     oa.dim_condition_id,
-    oa.ez_market_ohlc_id,
+    oa.polymarket_ohlc_id,
     SYSDATE() AS inserted_timestamp,
     SYSDATE() AS modified_timestamp,
     '{{ invocation_id }}' AS _invocation_id

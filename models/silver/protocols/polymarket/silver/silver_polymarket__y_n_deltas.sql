@@ -230,7 +230,9 @@ SELECT
     f.dim_condition_id,
     f.event_id,
     f.event_slug,
+    {{ dbt_utils.generate_surrogate_key(['f.six_hour_period', 'f.question']) }} AS polymarket_y_n_deltas_id,
     SYSDATE() AS inserted_timestamp,
-    SYSDATE() AS modified_timestamp
+    SYSDATE() AS modified_timestamp,
+    '{{ invocation_id }}' AS _invocation_id
 FROM
     final_2 f
