@@ -36,6 +36,9 @@ models:
       - name: CONTRACT_ADDRESS
         tests:
           - not_null
+      - name: QUESTION_ID
+        tests:
+          - not_null
       - name: AMOUNT_USD
         tests:
           - not_null

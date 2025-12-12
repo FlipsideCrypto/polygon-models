@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
+    unique_key = "polymarket_filled_orders_id",
     cluster_by = ['block_timestamp::DATE'],
     tags = ['silver','curated','polymarket']
 ) }}
@@ -47,7 +47,7 @@ WITH polymarket_orders AS(
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
         {{ this }}
 )
@@ -120,8 +120,9 @@ yes_tokens AS(
         d.event_slug
     FROM
         polymarket_shape p
-        INNER JOIN {{ ref('silver_polymarket__dim_markets') }} d
+        LEFT JOIN {{ ref('silver_polymarket__dim_markets') }} d
         ON p.asset_id = d.token_1_token_id
+    WHERE d.token_1_outcome ='Yes'
 ),
 no_tokens AS(
 
@@ -160,8 +161,9 @@ no_tokens AS(
         d.event_slug
     FROM
         polymarket_shape p
-        INNER JOIN {{ ref('silver_polymarket__dim_markets') }} d
+        LEFT JOIN {{ ref('silver_polymarket__dim_markets') }} d
         ON p.asset_id = d.token_2_token_id
+    WHERE d.token_2_outcome ='No'
 )
 SELECT
     'polygon' AS blockchain,
