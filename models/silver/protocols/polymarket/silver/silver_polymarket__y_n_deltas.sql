@@ -8,15 +8,23 @@
 ) }}
 
 WITH yes_tokens AS (
+
     SELECT
         *
     FROM
         {{ ref('silver_polymarket__filled_orders') }}
     WHERE
         outcome = 'Yes'
-        {% if is_incremental() %}
-            AND modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }})
-        {% endif %}
+
+{% if is_incremental() %}
+AND modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+    WHERE outcome = 'Yes'
+)
+{% endif %}
 ),
 no_tokens AS (
     SELECT
@@ -25,14 +33,21 @@ no_tokens AS (
         {{ ref('silver_polymarket__filled_orders') }}
     WHERE
         outcome = 'No'
-        {% if is_incremental() %}
-            AND modified_timestamp > (SELECT MAX(modified_timestamp) FROM {{ this }})
-        {% endif %}
+
+{% if is_incremental() %}
+AND modified_timestamp > (
+    SELECT
+        MAX(modified_timestamp)
+    FROM
+        {{ this }}
+    WHERE outcome = 'No'
+)
+{% endif %}
 ),
-final AS (
+FINAL AS (
     SELECT
         DATEADD(
-            hour,
+            HOUR,
             6 * FLOOR(
                 EXTRACT(
                     epoch
@@ -40,10 +55,10 @@ final AS (
                         block_timestamp
                 ) / 21600
             ),
-            '1970-01-01' :: timestamp
+            '1970-01-01' :: TIMESTAMP
         ) AS six_hour_period,
         DATEADD(
-            hour,
+            HOUR,
             12 * FLOOR(
                 EXTRACT(
                     epoch
@@ -51,11 +66,20 @@ final AS (
                         block_timestamp
                 ) / 43200
             ),
-            '1970-01-01' :: timestamp
+            '1970-01-01' :: TIMESTAMP
         ) AS half_day,
-        DATE_TRUNC('day', block_timestamp) AS day,
-        DATE_TRUNC('week', block_timestamp) AS week,
-        DATE_TRUNC('month', block_timestamp) AS month,
+        DATE_TRUNC(
+            'day',
+            block_timestamp
+        ) AS DAY,
+        DATE_TRUNC(
+            'week',
+            block_timestamp
+        ) AS week,
+        DATE_TRUNC(
+            'month',
+            block_timestamp
+        ) AS MONTH,
         question,
         end_date_iso AS end_date,
         outcome,
@@ -77,11 +101,10 @@ final AS (
         no_tokens
     GROUP BY
         ALL
-    UNION
-    ALL
+    UNION ALL
     SELECT
         DATEADD(
-            hour,
+            HOUR,
             6 * FLOOR(
                 EXTRACT(
                     epoch
@@ -89,10 +112,10 @@ final AS (
                         block_timestamp
                 ) / 21600
             ),
-            '1970-01-01' :: timestamp
+            '1970-01-01' :: TIMESTAMP
         ) AS six_hour_period,
         DATEADD(
-            hour,
+            HOUR,
             12 * FLOOR(
                 EXTRACT(
                     epoch
@@ -100,11 +123,20 @@ final AS (
                         block_timestamp
                 ) / 43200
             ),
-            '1970-01-01' :: timestamp
+            '1970-01-01' :: TIMESTAMP
         ) AS half_day,
-        DATE_TRUNC('day', block_timestamp) AS day,
-        DATE_TRUNC('week', block_timestamp) AS week,
-        DATE_TRUNC('month', block_timestamp) AS month,
+        DATE_TRUNC(
+            'day',
+            block_timestamp
+        ) AS DAY,
+        DATE_TRUNC(
+            'week',
+            block_timestamp
+        ) AS week,
+        DATE_TRUNC(
+            'month',
+            block_timestamp
+        ) AS MONTH,
         question,
         end_date_iso AS end_date,
         outcome,
@@ -131,9 +163,9 @@ final_2 AS (
     SELECT
         six_hour_period,
         half_day,
-        day,
+        DAY,
         week,
-        month,
+        MONTH,
         question,
         SUM(total_amount_usd) AS total_amount_usd,
         AVG(total_amount_usd) AS avg_amount_usd,
@@ -143,14 +175,14 @@ final_2 AS (
         AVG(avg_price_per_share) AS avg_price_per_share,
         MIN(min_price_per_share) AS min_price_per_share,
         MAX(max_price_per_share) AS max_price_per_share,
-        IFF(MAX(OUTCOME) = 'Yes', AVG(avg_price_per_share), 0) AS yes_avg_price_per_share,
-        IFF(MAX(OUTCOME) = 'Yes', AVG(avg_share_amount), 0) AS yes_avg_share_amount,
-        IFF(MAX(OUTCOME) = 'Yes', SUM(total_share_amount), 0) AS yes_share_amount,
-        IFF(MAX(OUTCOME) = 'Yes', SUM(total_amount_usd), 0) AS yes_amount_usd,
-        IFF(MAX(OUTCOME) = 'No', AVG(avg_price_per_share), 0) AS no_avg_price_per_share,
-        IFF(MAX(OUTCOME) = 'No', AVG(avg_share_amount), 0) AS no_avg_share_amount,
-        IFF(MAX(OUTCOME) = 'No', SUM(total_share_amount), 0) AS no_share_amount,
-        IFF(MAX(OUTCOME) = 'No', SUM(total_amount_usd), 0) AS no_amount_usd,
+        IFF(MAX(outcome) = 'Yes', AVG(avg_price_per_share), 0) AS yes_avg_price_per_share,
+        IFF(MAX(outcome) = 'Yes', AVG(avg_share_amount), 0) AS yes_avg_share_amount,
+        IFF(MAX(outcome) = 'Yes', SUM(total_share_amount), 0) AS yes_share_amount,
+        IFF(MAX(outcome) = 'Yes', SUM(total_amount_usd), 0) AS yes_amount_usd,
+        IFF(MAX(outcome) = 'No', AVG(avg_price_per_share), 0) AS no_avg_price_per_share,
+        IFF(MAX(outcome) = 'No', AVG(avg_share_amount), 0) AS no_avg_share_amount,
+        IFF(MAX(outcome) = 'No', SUM(total_share_amount), 0) AS no_share_amount,
+        IFF(MAX(outcome) = 'No', SUM(total_amount_usd), 0) AS no_amount_usd,
         -- Event metadata (using MAX to get one value per group)
         MAX(event_title) AS event_title,
         MAX(market_description) AS market_description,
@@ -158,7 +190,7 @@ final_2 AS (
         MAX(event_id) AS event_id,
         MAX(event_slug) AS event_slug
     FROM
-        final
+        FINAL
     GROUP BY
         ALL
 )

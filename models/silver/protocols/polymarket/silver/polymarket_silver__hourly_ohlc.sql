@@ -8,14 +8,19 @@
 ) }}
 
 WITH ordered_prices AS (
+
     SELECT
         DATEADD(
-            hour,
+            HOUR,
             FLOOR(
-                EXTRACT(epoch FROM block_timestamp) / 3600
+                EXTRACT(
+                    epoch
+                    FROM
+                        block_timestamp
+                ) / 3600
             ),
-            '1970-01-01'::timestamp
-        ) AS hour,
+            '1970-01-01' :: TIMESTAMP
+        ) AS HOUR,
         outcome,
         question,
         question_id,
@@ -27,16 +32,45 @@ WITH ordered_prices AS (
         dim_condition_id,
         event_id,
         event_slug,
-        ROW_NUMBER() OVER (
-            PARTITION BY DATEADD(hour, FLOOR(EXTRACT(epoch FROM block_timestamp) / 3600), '1970-01-01'::timestamp), question, outcome, question_id
-            ORDER BY block_timestamp ASC
+        ROW_NUMBER() over (
+            PARTITION BY DATEADD(
+                HOUR,
+                FLOOR(
+                    EXTRACT(
+                        epoch
+                        FROM
+                            block_timestamp
+                    ) / 3600
+                ),
+                '1970-01-01' :: TIMESTAMP
+            ),
+            question,
+            outcome,
+            question_id
+            ORDER BY
+                block_timestamp ASC
         ) AS row_num_asc,
-        ROW_NUMBER() OVER (
-            PARTITION BY DATEADD(hour, FLOOR(EXTRACT(epoch FROM block_timestamp) / 3600), '1970-01-01'::timestamp), question, outcome, question_id
-            ORDER BY block_timestamp DESC
+        ROW_NUMBER() over (
+            PARTITION BY DATEADD(
+                HOUR,
+                FLOOR(
+                    EXTRACT(
+                        epoch
+                        FROM
+                            block_timestamp
+                    ) / 3600
+                ),
+                '1970-01-01' :: TIMESTAMP
+            ),
+            question,
+            outcome,
+            question_id
+            ORDER BY
+                block_timestamp DESC
         ) AS row_num_desc
     FROM
         {{ ref('silver_polymarket__filled_orders') }}
+
 {% if is_incremental() %}
 WHERE
     modified_timestamp > (
@@ -53,19 +87,37 @@ ohlc_aggregated AS (
         op.outcome,
         op.question,
         op.question_id,
-        MIN(CASE WHEN row_num_asc = 1 THEN price_per_share END) * 100 AS open_price,
+        MIN(
+            CASE
+                WHEN row_num_asc = 1 THEN price_per_share
+            END
+        ) * 100 AS open_price,
         MAX(price_per_share) * 100 AS high_price,
         MIN(price_per_share) * 100 AS low_price,
-        MIN(CASE WHEN row_num_desc = 1 THEN price_per_share END) * 100 AS close_price,
+        MIN(
+            CASE
+                WHEN row_num_desc = 1 THEN price_per_share
+            END
+        ) * 100 AS close_price,
         COUNT(*) AS total_orders,
         SUM(amount_usd) AS amount_usd,
         SUM(amount_usd) / COUNT(*) AS avg_order_size,
         -- Event metadata (using MAX to get one value per group)
-        MAX(op.event_title) AS event_title,
-        MAX(op.market_description) AS market_description,
-        MAX(op.dim_condition_id) AS dim_condition_id,
-        MAX(op.event_id) AS event_id,
-        MAX(op.event_slug) AS event_slug,
+        MAX(
+            op.event_title
+        ) AS event_title,
+        MAX(
+            op.market_description
+        ) AS market_description,
+        MAX(
+            op.dim_condition_id
+        ) AS dim_condition_id,
+        MAX(
+            op.event_id
+        ) AS event_id,
+        MAX(
+            op.event_slug
+        ) AS event_slug,
         {{ dbt_utils.generate_surrogate_key(['op.hour', 'op.question', 'op.outcome', 'op.question_id']) }} AS ez_market_ohlc_id
     FROM
         ordered_prices op
