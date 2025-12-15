@@ -2,7 +2,7 @@
     materialized = 'incremental',
     incremental_strategy = 'merge',
     merge_exclude_columns = ["inserted_timestamp"],
-    unique_key = ['ez_market_ohlc_id'],
+    unique_key = ['polymarket_ohlc_id'],
     cluster_by = ['hour', 'question'],
     tags = ['silver','curated','polymarket']
 ) }}

@@ -28,7 +28,7 @@ models:
       - name: CONDITION_ID
       - name: EVENT_ID
       - name: EVENT_SLUG
-      - name: EZ_MARKET_OHLC_ID
+      - name: POLYMARKET_OHLC_ID
         tests:
           - not_null
           - unique
