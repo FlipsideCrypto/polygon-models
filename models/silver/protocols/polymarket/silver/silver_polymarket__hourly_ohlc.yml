@@ -1,0 +1,36 @@
+version: 2
+models:
+  - name: silver_polymarket__hourly_ohlc
+    description: This table contains hourly OHLC (Open, High, Low, Close) price data for prediction market orders, aggregated by hour, question, outcome, and question_id. It includes event metadata from the dim_markets table.
+
+    columns:
+      - name: HOUR
+        tests:
+          - not_null
+      - name: OUTCOME
+        tests:
+          - not_null
+      - name: QUESTION
+        tests:
+          - not_null
+      - name: QUESTION_ID
+        tests:
+          - not_null
+      - name: OPEN_PRICE
+      - name: HIGH_PRICE
+      - name: LOW_PRICE
+      - name: CLOSE_PRICE
+      - name: TOTAL_ORDERS
+      - name: AMOUNT_USD
+      - name: AVG_ORDER_SIZE
+      - name: EVENT_TITLE
+      - name: DESCRIPTION
+      - name: CONDITION_ID
+      - name: EVENT_ID
+      - name: EVENT_SLUG
+      - name: POLYMARKET_OHLC_ID
+        tests:
+          - not_null
+          - unique
+      - name: INSERTED_TIMESTAMP
+      - name: MODIFIED_TIMESTAMP

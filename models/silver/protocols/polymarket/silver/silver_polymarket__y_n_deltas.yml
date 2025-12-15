@@ -1,0 +1,48 @@
+version: 2
+models:
+  - name: silver_polymarket__y_n_deltas
+    description: This table contains aggregated yes/no token deltas for prediction markets, showing the difference between Yes and No outcomes across multiple time periods (6-hour, half-day, daily, weekly, monthly). It includes event metadata from the dim_markets table.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - SIX_HOUR_PERIOD
+            - QUESTION
+
+    columns:
+      - name: SIX_HOUR_PERIOD
+        tests:
+          - not_null
+      - name: HALF_DAY
+      - name: DAY
+      - name: WEEK
+      - name: MONTH
+      - name: QUESTION
+        tests:
+          - not_null
+      - name: TOTAL_AMOUNT_USD
+      - name: AVG_AMOUNT_USD
+      - name: TOTAL_SHARE_AMOUNT
+      - name: AVG_SHARE_AMOUNT
+      - name: TOTAL_PRICE_PER_SHARE
+      - name: AVG_PRICE_PER_SHARE
+      - name: MIN_PRICE_PER_SHARE
+      - name: MAX_PRICE_PER_SHARE
+      - name: YES_AVG_PRICE_PER_SHARE
+      - name: YES_AVG_SHARE_AMOUNT
+      - name: YES_SHARE_AMOUNT
+      - name: YES_AMOUNT_USD
+      - name: NO_AVG_PRICE_PER_SHARE
+      - name: NO_AVG_SHARE_AMOUNT
+      - name: NO_SHARE_AMOUNT
+      - name: NO_AMOUNT_USD
+      - name: SPREAD
+      - name: YES_NO_USD_DELTA
+      - name: YES_NO_SHARE_AMOUNT_DELTA
+      - name: POLYMARKET_Y_N_UNIQUE_KEY
+      - name: EVENT_TITLE
+      - name: DESCRIPTION
+      - name: CONDITION_ID
+      - name: EVENT_ID
+      - name: EVENT_SLUG
+      - name: INSERTED_TIMESTAMP
+      - name: MODIFIED_TIMESTAMP

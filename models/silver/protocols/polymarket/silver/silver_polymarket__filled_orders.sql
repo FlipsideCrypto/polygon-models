@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'delete+insert',
-    unique_key = "block_number",
+    unique_key = "polymarket_filled_orders_id",
     cluster_by = ['block_timestamp::DATE'],
     tags = ['silver','curated','polymarket']
 ) }}
@@ -47,7 +47,7 @@ WITH polymarket_orders AS(
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
     SELECT
-        MAX(_inserted_timestamp) - INTERVAL '12 hours'
+        MAX(_inserted_timestamp) - INTERVAL '36 hours'
     FROM
         {{ this }}
 )
@@ -98,24 +98,31 @@ yes_tokens AS(
         order_hash,
         maker,
         taker,
-        condition_id,
-        question_id,
-        question,
-        market_slug,
-        end_date_iso,
-        token_1_outcome as outcome,
+        d.condition_id,
+        d.question_id,
+        d.question,
+        d.market_slug,
+        d.end_date_iso,
+        d.token_1_outcome as outcome,
         asset_id, 
         maker_asset_id, 
         taker_asset_id,
         amount_usd,
         shares,
         price_per_share,
-        _inserted_timestamp,
-        _log_id
+        p._inserted_timestamp,
+        _log_id,
+        -- Event metadata from dim table
+        d.event_title,
+        d.description AS market_description,
+        d.condition_id AS dim_condition_id,
+        d.event_id,
+        d.event_slug
     FROM
         polymarket_shape p
-        INNER JOIN {{ source('external_polymarket','dim_markets') }} m
-        ON asset_id = token_1_token_id
+        LEFT JOIN {{ ref('silver_polymarket__dim_markets') }} d
+        ON p.asset_id = d.token_1_token_id
+    WHERE d.token_1_outcome ='Yes'
 ),
 no_tokens AS(
 
@@ -132,26 +139,37 @@ no_tokens AS(
         order_hash,
         maker,
         taker,
-        condition_id,
-        question,
-        market_slug,
-        end_date_iso,
-        token_2_outcome as outcome,
-        question_id,
+        d.condition_id,
+        d.question,
+        d.market_slug,
+        d.end_date_iso,
+        d.token_2_outcome as outcome,
+        d.question_id,
         asset_id, 
         maker_asset_id, 
         taker_asset_id,
         amount_usd,
         shares,
         price_per_share,
-        _inserted_timestamp,
-        _log_id
+        p._inserted_timestamp,
+        _log_id,
+        -- Event metadata from dim table
+        d.event_title,
+        d.description AS market_description,
+        d.condition_id AS dim_condition_id,
+        d.event_id,
+        d.event_slug
     FROM
         polymarket_shape p
-        INNER JOIN {{ source('external_polymarket','dim_markets') }} m
-        ON asset_id = token_2_token_id
+        LEFT JOIN {{ ref('silver_polymarket__dim_markets') }} d
+        ON p.asset_id = d.token_2_token_id
+    WHERE d.token_2_outcome ='No'
 )
 SELECT
+    'polygon' AS blockchain,
+    'polymarket-v1' AS platform,
+    'polymarket' AS protocol,
+    'v1' AS protocol_version,
     block_number,
     block_timestamp,
     origin_from_address,
@@ -178,6 +196,12 @@ SELECT
     price_per_share,
     _inserted_timestamp,
     _log_id,
+    -- Event metadata from dim table
+    event_title,
+    market_description,
+    dim_condition_id,
+    event_id,
+    event_slug,
     {{dbt_utils.generate_surrogate_key(
         ['tx_hash','event_index']
     )}} AS polymarket_filled_orders_id,
@@ -187,6 +211,10 @@ SELECT
 FROM    no_tokens
 UNION ALL
 SELECT
+    'polygon' AS blockchain,
+    'polymarket-v1' AS platform,
+    'polymarket' AS protocol,
+    'v1' AS protocol_version,
     block_number,
     block_timestamp,
     origin_from_address,
@@ -213,6 +241,12 @@ SELECT
     price_per_share,
     _inserted_timestamp,
     _log_id,
+    -- Event metadata from dim table
+    event_title,
+    market_description,
+    dim_condition_id,
+    event_id,
+    event_slug,
     {{ dbt_utils.generate_surrogate_key(
         ['tx_hash','event_index']
     ) }} AS polymarket_filled_orders_id,

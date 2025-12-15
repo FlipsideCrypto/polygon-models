@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: silver_polymarket__dim_markets
+    description: This table contains all markets and tokens available via various prediction market APIs, providing a comprehensive view of market and token data.
+
+    columns:
+      - name: QUESTION
+      - name: DESCRIPTION
+      - name: CONDITION_ID
+      - name: QUESTION_ID
+      - name: TOKEN_0_TOKEN_ID
+      - name: TOKEN_0_OUTCOME
+      - name: TOKEN_0_WINNER
+      - name: TOKEN_1_TOKEN_ID
+      - name: TOKEN_1_OUTCOME
+      - name: TOKEN_1_WINNER
+      - name: ACTIVE
+      - name: CLOSED
+      - name: MINIMUM_ORDER_SIZE
+      - name: MINIMUM_TICK_SIZE
+      - name: END_DATE
+      - name: START_TIME
+      - name: MAKER_BASE_FEE
+      - name: TAKER_BASE_FEE
+      - name: NEG_RISK
+      - name: INSERTED_TIMESTAMP
+      - name: MODIFIED_TIMESTAMP
+      - name: DIM_MARKETS_ID
